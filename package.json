@@ -1,20 +1,33 @@
 {
   "name": "setlinn-backend",
   "version": "1.0.0",
-  "description": "",
-  "author": "Setlinn Developers",
-  "keywords": [],
-  "license": "ISC",
-  "main": "index.js",
+  "description": "setlinn apu",
+  "main": "/dist/index.js",
+  "author": "<ohenesetwumasi@gmail.com>",
   "scripts": {
-    "start": "./bin/app",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc & node ./dist/index.js",
+    "build": "tsc",
+    "dev": "nodemon src/index.ts",
+    "seeder": "ts-node src/seeder.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
+  "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.1",
     "express": "^4.18.1",
-    "http-errors": "^2.0.0",
-    "pino": "^8.0.0",
-    "pino-http": "^7.1.0",
-    "pino-pretty": "^8.0.0"
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.3.6",
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.13"
   }
 }
