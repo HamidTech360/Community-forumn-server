@@ -38,6 +38,6 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
   { timestamps: true }
 );
 
-const Gist = mongoose.models.Gist || mongoose.model("Gist", gistSchema);
+const Gist = mongoose.model("Gist", gistSchema);
 
 export default Gist;
