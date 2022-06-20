@@ -1,16 +1,17 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 export interface IPost extends mongoose.Document {
-  userId: string;
+  author: Types.ObjectId;
   postTitle: string;
   postBody: string;
 }
 
 const postSchema = new mongoose.Schema(
   {
-    userId: {
-      type: String,
+    author: {
+      type: mongoose.SchemaTypes.ObjectId,
       required: true,
+      ref: "User",
     },
     postTitle: {
       type: String,
