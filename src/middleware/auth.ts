@@ -23,11 +23,14 @@ export const loggedIn = async (
         res.status(401).json("Unauthorized");
       }
       req.user = user;
-
+      console.log(req.user);
+      
       next();
     } catch (error) {
-      res.status(401);
+      res.status(401).send('unauthorized');
       throw new Error("Unauthorized");
     }
+  }else{
+    res.status(401).send('Invalid token format');
   }
 };

@@ -7,6 +7,7 @@ import usersRoute from "./routes/user";
 import authRoute from "./routes/auth";
 import groupsRoute from "./routes/group";
 import postsRoute from "./routes/post";
+import gistRoutes from './routes/gist'
 //dotenv config
 config();
 const app: Application = express();
@@ -20,6 +21,7 @@ app.use("/api/users", usersRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/groups", groupsRoute);
 app.use("/api/posts", postsRoute);
+app.use("/api/gists", gistRoutes)
 
 app.listen(process.env.PORT, () =>
   console.log(`Express app running on ${process.env.PORT}`)
