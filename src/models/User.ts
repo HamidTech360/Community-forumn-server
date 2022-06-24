@@ -21,6 +21,7 @@ export interface IUserSchema extends Document {
   status: string;
   confirmationCode: string;
   deleted: Boolean;
+  profilePics:string;
 }
 
 const userSchema = new Schema<IUserSchema>({
@@ -35,7 +36,9 @@ const userSchema = new Schema<IUserSchema>({
   otherNames: {
     type: String,
   },
-
+  profilePics:{
+    type:String
+  },
   password: {
     type: String,
     min: 8,

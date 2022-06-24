@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import { config } from "dotenv";
 import connectDB from "./lib/db";
+import fileUpload from 'express-fileupload'
 
 //route imports
 import usersRoute from "./routes/user";
@@ -16,6 +17,9 @@ const app: Application = express();
 connectDB().then((conn) => console.log(conn));
 
 app.use(express.json());
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+}));
 
 app.use("/api/users", usersRoute);
 app.use("/api/auth", authRoute);
