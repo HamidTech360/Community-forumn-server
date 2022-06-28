@@ -9,7 +9,7 @@
   "author": "<ohenesetwumasi@gmail.com>",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc & node /dist/index.js",
+    "start": "tsc && node ./dist/index.js",
     "build": "tsc",
     "dev": "nodemon src/index.ts",
     "data:import": "ts-node src/seeder",
