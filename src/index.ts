@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Response } from "express";
 import { config } from "dotenv";
 import connectDB from "./lib/db";
 
@@ -23,6 +23,7 @@ app.use("/api/groups", groupsRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/comments", commentsRoute);
 
+app.get("/", (res: Response) => res.send("Hello"));
 app.listen(process.env.PORT, () =>
   console.log(`Express app running on ${process.env.PORT}`)
 );
