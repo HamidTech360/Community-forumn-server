@@ -21,5 +21,6 @@ export const comment = expressAsyncHandler(
         $addToSet: { comments: [comment._id] },
       });
     }
+    res.status(200).json(comment);
   }
 );
