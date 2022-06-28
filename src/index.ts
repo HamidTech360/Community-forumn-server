@@ -12,7 +12,7 @@ config();
 const app: Application = express();
 
 //connectDB
-connectDB().then((conn) => console.log(conn));
+connectDB();
 
 app.use(express.json());
 

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Post from "../models/Post";
-
+import Comment from "../models/Comment";
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
@@ -25,7 +25,7 @@ export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const posts = await Post.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    }).populate("author");
+    }).populate("author", "-password");
     res.status(200).json({ msg: "Posts retrieved", posts });
   }
 );
@@ -36,9 +36,11 @@ export const getPosts = expressAsyncHandler(
 export const getPost = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const postId = req.params.id;
-    const post = await Post.findById(postId).where({
-      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    });
+    const post = await Post.findById(postId)
+      .populate("author", "firstName lastName")
+      .where({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      });
     if (post) {
       res.status(200).json({ msg: "Posts retrieved", post });
     } else {
@@ -85,5 +87,21 @@ export const updatePost = expressAsyncHandler(
     } else {
       res.status(404).json({ msg: "Post not found" });
     }
+  }
+);
+
+//@Route /api/posts/:id/comment,
+///@Method: Post
+//@Access: LoggedIn
+export const comment = expressAsyncHandler(
+  async (req: Request & { user?: Record<string, any> }, res: Response) => {
+    const comment = await Comment.create({
+      author: req.user?._id,
+      ...req.body,
+    });
+
+    Post.findByIdAndUpdate(req.params.id, {
+      $addToSet: { comments: [comment._id] },
+    });
   }
 );
