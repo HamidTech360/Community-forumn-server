@@ -14,4 +14,9 @@ router
   .delete(loggedIn, controller.deletePost)
   .put(loggedIn, controller.updatePost);
 
+router
+  .route("/:id/like")
+  .get(loggedIn, controller.likePost)
+  .delete(loggedIn, controller.deleteLike);
+
 export default router;

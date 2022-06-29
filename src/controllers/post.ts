@@ -90,18 +90,40 @@ export const updatePost = expressAsyncHandler(
   }
 );
 
-//@Route /api/posts/:id/comment,
-///@Method: Post
+//@Route /api/posts/:id
+//@Method Put
 //@Access: LoggedIn
-export const comment = expressAsyncHandler(
+export const likePost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const comment = await Comment.create({
-      author: req.user?._id,
-      ...req.body,
-    });
+    try {
+      const postId = req.params.id;
+      const post = await Post.findByIdAndUpdate(postId, {
+        $addToSet: { likes: [req.user?._id] },
+      }).where({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      });
+      res.status(200).json("Liked");
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+);
 
-    Post.findByIdAndUpdate(req.params.id, {
-      $addToSet: { comments: [comment._id] },
-    });
+//@Route /api/posts/:id/like
+//@Method Put
+//@Access: LoggedIn
+export const deleteLike = expressAsyncHandler(
+  async (req: Request & { user?: Record<string, any> }, res: Response) => {
+    try {
+      const postId = req.params.id;
+      const post = await Post.findByIdAndUpdate(postId, {
+        $pull: { likes: [req.user?._id] },
+      }).where({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      });
+      res.status(200).json("Unliked");
+    } catch (error) {
+      res.status(500).json(error);
+    }
   }
 );
