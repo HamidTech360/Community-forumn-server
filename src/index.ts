@@ -8,12 +8,14 @@ import authRoute from "./routes/auth";
 import groupsRoute from "./routes/group";
 import postsRoute from "./routes/post";
 import gistRoutes from './routes/gist'
+import commentsRoute from "./routes/comment";
+
 //dotenv config
 config();
 const app: Application = express();
 
 //connectDB
-connectDB().then((conn) => console.log(conn));
+connectDB();
 
 app.use(express.json());
 
@@ -22,6 +24,8 @@ app.use("/api/auth", authRoute);
 app.use("/api/groups", groupsRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/gists", gistRoutes)
+app.use("/api/comments", commentsRoute);
+
 
 app.listen(process.env.PORT, () =>
   console.log(`Express app running on ${process.env.PORT}`)

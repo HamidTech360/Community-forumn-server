@@ -2,14 +2,20 @@
   "name": "setlinn-backend",
   "version": "1.0.0",
   "description": "setlinn apu",
-  "main": "/dist/index.js",
+  "main": "./dist/index.js",
+  "engines": {
+    "node": "16.15.1"
+  },
   "author": "<ohenesetwumasi@gmail.com>",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc & node ./dist/index.js",
+    "start": "node ./dist/index.js",
     "build": "tsc",
     "dev": "nodemon src/index.ts",
+    "data:import": "ts-node src/seeder",
+    "data:destroy": "ts-node src/seeder -d",
     "seeder": "ts-node src/seeder.ts",
+    "postinstall": "npm run build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"

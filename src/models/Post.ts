@@ -1,9 +1,10 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { Schema, SchemaTypes, Types } from "mongoose";
 
 export interface IPost extends mongoose.Document {
   author: Types.ObjectId;
   postTitle: string;
   postBody: string;
+  comment?: [Types.ObjectId];
 }
 
 const postSchema = new mongoose.Schema(
@@ -24,6 +25,11 @@ const postSchema = new mongoose.Schema(
     deleted: {
       type: Boolean,
       default: false,
+    },
+    comments: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+      default: [],
     },
   },
   { timestamps: true }
