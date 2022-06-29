@@ -1,7 +1,7 @@
 import express, { Application, Response } from "express";
 import { config } from "dotenv";
 import connectDB from "./lib/db";
-
+import cors from "cors";
 //route imports
 import usersRoute from "./routes/user";
 import authRoute from "./routes/auth";
@@ -17,6 +17,7 @@ const app: Application = express();
 //connectDB
 connectDB();
 
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", usersRoute);
