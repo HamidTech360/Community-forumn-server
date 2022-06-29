@@ -59,7 +59,7 @@ export const fetchSingleGist = expressAsyncHandler(
 )
 
 export const deleteGist = expressAsyncHandler(
-    async (req:Request & {user: Record<string, any>}, res:Response)=>{
+    async (req:Request & {user?: Record<string, any>}, res:Response)=>{
         const gistID = req.params.id
         try {
             //find gist with gistID and delete
@@ -80,7 +80,7 @@ export const deleteGist = expressAsyncHandler(
 )
 
 export const updateGist = expressAsyncHandler(
-    async (req:Request & {user: Record<string,any>}, res:Response)=>{
+    async (req:Request & {user?: Record<string,any>}, res:Response)=>{
         const gistID = req.params.id
         const gist = await Gist.findById(gistID).where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
