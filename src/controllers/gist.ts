@@ -32,7 +32,7 @@ export const createGist = expressAsyncHandler(
 export const fetchAllGist = expressAsyncHandler(
     async(req:Request, res:Response)=>{
         try{
-            const gists = await Gist.find().sort({createdAt:-1});
+            const gists = await Gist.find().sort({createdAt:-1}).populate("author", "-password");
             res.status(200).json(gists);
         }catch(error){
             console.log(error);
@@ -46,7 +46,7 @@ export const fetchSingleGist = expressAsyncHandler(
         const gistID = req.params.id
 
         try{
-            const gist= await Gist.findById(gistID)
+            const gist= await Gist.findById(gistID).where({$or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }]}).populate("author", "-password")
             res.json({
              status:'success',
              message:'Gist fetched',
@@ -63,9 +63,14 @@ export const deleteGist = expressAsyncHandler(
         const gistID = req.params.id
         try {
             //find gist with gistID and delete
-            await Gist.findByIdAndDelete(gistID).catch((error) => console.log(error));
-      
-            res.status(201).json({ message: "Gist deleted" });
+         const gist =   await Gist.findById(gistID).where({ $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }]}).catch((error) => console.log(error));
+         if (gist && gist.author.toString() === req?.user?._id.toString()) {
+            gist.deleted === true;
+            await gist.save();
+            res.status(200).json({ msg: "Gist deleted" });
+          } else {
+            res.status(404).json({ msg: "Gist not found" });
+          }
           } catch (error) {
             console.log(error);
             res.status(500).json({ error: error, message: "Something went wrong" });
