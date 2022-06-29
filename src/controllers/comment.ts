@@ -4,6 +4,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Comment from "../models/Comment";
+import Gist from "../models/Gist";
 import Post from "../models/Post";
 
 //@Route: /api/comments/:type/:id
@@ -18,6 +19,10 @@ export const comment = expressAsyncHandler(
 
     if (type == "post") {
       await Post.findByIdAndUpdate(req.params.id, {
+        $addToSet: { comments: [comment._id] },
+      });
+    } else if (type == "gist") {
+      await Gist.findByIdAndUpdate(req.params.id, {
         $addToSet: { comments: [comment._id] },
       });
     }

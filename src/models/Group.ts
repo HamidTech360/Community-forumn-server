@@ -1,5 +1,12 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose, { Document, model, Schema, Types } from "mongoose";
 
+interface IGroup extends Document {
+  name: string;
+  description: string;
+  moderators: [Types.ObjectId];
+  admin: Types.ObjectId;
+  deleted: boolean;
+}
 const groupSchema = new Schema(
   {
     name: {
@@ -11,7 +18,7 @@ const groupSchema = new Schema(
       required: true,
     },
     moderators: {
-      type: [],
+      type: [mongoose.SchemaTypes.ObjectId],
     },
     admin: {
       type: mongoose.SchemaTypes.ObjectId,

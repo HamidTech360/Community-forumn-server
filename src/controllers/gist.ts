@@ -18,7 +18,7 @@ export const createGist = expressAsyncHandler(
         post,
         country,
         categories,
-        user: req?.user?._id,
+        author: req?.user?._id,
       });
       res.status(201).json({ message: "Gist created", gist });
     } catch (error) {
