@@ -8,7 +8,7 @@ export interface IGistSchema extends mongoose.Document {
   comments: [];
   categories: string;
   post: string;
-  deleted: booleanm
+  deleted: boolean;
 }
 
 const gistSchema = new mongoose.Schema<IGistSchema>(
@@ -34,10 +34,10 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
       type: String,
       required: true,
     },
-   deleted: {
+    deleted: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
     comments: [],
   },
