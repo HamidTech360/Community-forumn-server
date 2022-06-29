@@ -8,6 +8,7 @@ export interface IGistSchema extends mongoose.Document {
   comments: [];
   categories: string;
   post: string;
+  deleted: booleanm
 }
 
 const gistSchema = new mongoose.Schema<IGistSchema>(
@@ -32,6 +33,11 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
     post: {
       type: String,
       required: true,
+    },
+   deleted: {
+      type: Boolean,
+      required: true,
+      default: false
     },
     comments: [],
   },
