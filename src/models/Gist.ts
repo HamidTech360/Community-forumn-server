@@ -2,18 +2,19 @@ import mongoose, { Types, SchemaTypes } from "mongoose";
 import User from "./User";
 
 export interface IGistSchema extends mongoose.Document {
-  user: Types.ObjectId;
+  author: Types.ObjectId;
   title: string;
   country: string;
   comments: [];
   categories: string;
   post: string;
+  deleted: booleanm
 }
 
 const gistSchema = new mongoose.Schema<IGistSchema>(
   {
-    user: {
-      type: SchemaTypes.ObjectId,
+    author: {
+      type: mongoose.SchemaTypes.ObjectId,
       required: true,
       ref: User,
     },
@@ -32,6 +33,11 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
     post: {
       type: String,
       required: true,
+    },
+   deleted: {
+      type: Boolean,
+      required: true,
+      default: false
     },
     comments: [],
   },
