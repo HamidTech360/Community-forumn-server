@@ -59,7 +59,7 @@ export const fetchSingleGist = expressAsyncHandler(
 )
 
 export const deleteGist = expressAsyncHandler(
-    async (req:Request, res:Response)=>{
+    async (req:Request & {user: Record<string, any>}, res:Response)=>{
         const gistID = req.params.id
         try {
             //find gist with gistID and delete
@@ -80,20 +80,20 @@ export const deleteGist = expressAsyncHandler(
 )
 
 export const updateGist = expressAsyncHandler(
-    async (req:Request, res:Response)=>{
+    async (req:Request & {user: Record<string,any>}, res:Response)=>{
         const gistID = req.params.id
-        try{
-            // const {error} = validateGist(req.body)
-            // if(error){
-            //     res.status(400).send(error.details[0].message)
-            // }
-            const { title, post, country, categories } = req.body;
-            //find gist with GistID and update
-            await Gist.findByIdAndUpdate(gistID,{...req.body});
-            res.status(200).json({ message: "Gist updated" });
-        }catch(error){
-            console.log(error);
-            res.status(500).json({ error: error, message: "Something went wrong" });
-        }
+        const gist = await Gist.findById(gistID).where({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+          });
+          if (gist && gist.author.toString() === req?.user?._id.toString()) {
+            const gistKeys = Object.keys(req.body);
+            for (let i = 0; i < gistKeys.length; i++) {
+              gist[gistKeys[i]] = req.body[gistKeys[i]];
+            }
+            const updatedGist = await gist.save();
+            res.status(200).json(updatedGist);
+          } else {
+            res.status(404).json({ msg: "Gist not found" });
+          }
     }
 )
