@@ -15,7 +15,6 @@
     "data:import": "ts-node src/seeder",
     "data:destroy": "ts-node src/seeder -d",
     "seeder": "ts-node src/seeder.ts",
-    "postinstall": "npm run build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
