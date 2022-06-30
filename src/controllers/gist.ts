@@ -35,7 +35,7 @@ export const fetchAllGist = expressAsyncHandler(
         .where({
           $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-        .populate("author, password")
+        .populate("author", "-password")
         .sort({ createdAt: -1 });
       res.status(200).json(gists);
     } catch (error) {
