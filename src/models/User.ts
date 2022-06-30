@@ -42,16 +42,11 @@ const userSchema = new Schema<IUserSchema>({
   otherNames: {
     type: String,
   },
-<<<<<<< HEAD
-  profilePics:{
-    type:String
-=======
   images: {
     type: new Schema({
       avatar: String,
       cover: String,
     }),
->>>>>>> 4fe8114d57381eae68d8e897c3a8a1e07f67eea3
   },
   password: {
     type: String,

@@ -8,13 +8,19 @@ import Group from "../models/Group";
 
 export const createGroup = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res) => {
-    const { name, description } = req.body;
+    const { name, description, privacy,invite, allowedToPost, groupMembers } = req.body;
 
+     console.log(req.body);
+    
     const group = await Group.create({
       admin: req?.user?._id,
       moderators: [req.user?._id],
       description,
       name,
+      invite,
+      privacy,
+      allowedToPost,
+      groupMembers
     });
 
     res.status(201).json({ group });
