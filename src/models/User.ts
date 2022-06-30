@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
 interface IAddress {
@@ -13,13 +13,19 @@ export interface IUserSchema extends Document {
   firstName: string;
   lastName: string;
   email: string;
+  images: {
+    avatar: string;
+    cover: string;
+  };
   username?: string;
   password: string;
   otherNames: string;
   isAdmin: boolean;
-  address: IAddress;
+  address?: IAddress;
   status: string;
   confirmationCode: string;
+  followers: Types.ObjectId[];
+  following: Types.ObjectId[];
   deleted: Boolean;
   profilePics:string;
 }
@@ -36,8 +42,16 @@ const userSchema = new Schema<IUserSchema>({
   otherNames: {
     type: String,
   },
+<<<<<<< HEAD
   profilePics:{
     type:String
+=======
+  images: {
+    type: new Schema({
+      avatar: String,
+      cover: String,
+    }),
+>>>>>>> 4fe8114d57381eae68d8e897c3a8a1e07f67eea3
   },
   password: {
     type: String,
@@ -78,11 +92,21 @@ const userSchema = new Schema<IUserSchema>({
   },
   confirmationCode: {
     type: String,
-    required: true,
   },
   deleted: {
     type: Boolean,
     default: false,
+  },
+  followers: {
+    type: [Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
+  },
+
+  following: {
+    type: [Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
   },
 });
 

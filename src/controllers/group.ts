@@ -82,7 +82,7 @@ export const getGroups = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const groups = await Group.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    });
+    }).populate("admin", "-password");
     res.status(200).json(groups);
   }
 );

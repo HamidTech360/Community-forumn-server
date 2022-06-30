@@ -1,27 +1,37 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose, { Document, model, Schema, Types } from "mongoose";
 
-const groupSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
+interface IGroup extends Document {
+  name: string;
+  description: string;
+  moderators: [Types.ObjectId];
+  admin: Types.ObjectId;
+  deleted: boolean;
+}
+const groupSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    moderators: {
+      type: [mongoose.SchemaTypes.ObjectId],
+    },
+    admin: {
+      type: mongoose.SchemaTypes.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  moderators: {
-    type: [],
-  },
-  admin: {
-    type: mongoose.SchemaTypes.ObjectId,
-    required: true,
-    ref: "User",
-  },
-  deleted: {
-    type: Boolean,
-    default: false,
-  },
-});
+  { timestamps: true }
+);
 
 const Group = model("group", groupSchema);
 

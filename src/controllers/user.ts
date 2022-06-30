@@ -1,11 +1,11 @@
-import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
+import asyncHandler from "express-async-handler";
 import User from "../models/User";
 import fs from 'fs'
 
 //@route: ./api/users
 //@method: GET
-//@access: admin
+//@access: public
 
 export const getUsers = asyncHandler(async (req, res) => {
   try {
@@ -18,7 +18,7 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 //@route: ./api/users/:id
 //@method: GET
-//@access: admin
+//@access public
 
 export const getUser = asyncHandler(async (req, res) => {
   try {
