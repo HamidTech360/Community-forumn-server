@@ -32,8 +32,11 @@ export const fetchAllGist = expressAsyncHandler(
   async (req: Request, res: Response) => {
     try {
       const gists = await Gist.find()
-        .sort({ createdAt: -1 })
-        .populate("author", "-password");
+        .where({
+          $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        })
+        .populate("author, password")
+        .sort({ createdAt: -1 });
       res.status(200).json(gists);
     } catch (error) {
       console.log(error);

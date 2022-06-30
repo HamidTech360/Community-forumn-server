@@ -1,5 +1,4 @@
 import mongoose, { Types, SchemaTypes } from "mongoose";
-import User from "./User";
 
 export interface IGistSchema extends mongoose.Document {
   author: Types.ObjectId;
@@ -16,7 +15,7 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
     author: {
       type: mongoose.SchemaTypes.ObjectId,
       required: true,
-      ref: User,
+      ref: "User",
     },
     title: {
       type: String,
