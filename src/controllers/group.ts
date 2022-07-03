@@ -20,7 +20,7 @@ export const createGroup = expressAsyncHandler(
       invite,
       privacy,
       allowedToPost,
-      groupMembers
+      groupMembers:[req.user?._id, ...groupMembers]
     });
 
     res.status(201).json({ group });
@@ -90,5 +90,31 @@ export const getGroups = expressAsyncHandler(
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     }).populate("admin", "-password");
     res.status(200).json(groups);
+  }
+);
+
+export const getUserGroups = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    
+    const userId = req.user?._id
+    console.log('User is a member of', req.user?._id);
+    try{
+      const groups = await Group.find({
+        groupMembers:{
+          "$in":userId
+        }
+      }).sort({createdAt:-1})
+
+      console.log(groups);
+      
+
+      res.json({
+        status:'success',
+        message:'User groups retrieved',
+        groups
+      })
+    }catch(error){
+      res.status(500).send(error)
+    }
   }
 );

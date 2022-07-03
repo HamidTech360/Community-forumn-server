@@ -23,7 +23,7 @@ export const loggedIn = async (
         res.status(401).json("Unauthorized");
       }
       req.user = user;
-      console.log(req.user);
+     //console.log(req.user);
       
       next();
     } catch (error) {

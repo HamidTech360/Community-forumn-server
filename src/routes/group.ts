@@ -10,8 +10,12 @@ router
   .get(controller.getGroups);
 
 router
-  .route("/:id")
+  .route("/group/:id")
   .get(controller.getGroup)
   .put(loggedIn, controller.updateGroup)
   .delete(loggedIn, controller.deleteGroup);
+
+  router
+    .route("/user")
+    .get(loggedIn, controller.getUserGroups)
 export default router;
