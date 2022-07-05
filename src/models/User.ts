@@ -27,6 +27,7 @@ export interface IUserSchema extends Document {
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
   deleted: Boolean;
+  profilePics:string;
 }
 
 const userSchema = new Schema<IUserSchema>({

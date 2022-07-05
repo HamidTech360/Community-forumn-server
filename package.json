@@ -33,6 +33,7 @@
     "mongoose": "^6.3.6",
     "nodemailer": "^6.7.5",
     "nodemon": "^2.0.16",
+    "to-regex-range": "^5.0.1",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },

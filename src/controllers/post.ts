@@ -23,9 +23,12 @@ export const createPost = expressAsyncHandler(
 //@Access: Public
 export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    const posts = await Post.find({
+    const posts = await Post
+    .find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    }).populate("author", "-password");
+    })
+    .sort({createdAt:-1})
+    .populate("author", "-password");
     res.status(200).json({ msg: "Posts retrieved", posts });
   }
 );

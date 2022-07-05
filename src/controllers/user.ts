@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import User from "../models/User";
+import fs from 'fs'
 
 //@route: ./api/users
 //@method: GET
@@ -21,34 +22,39 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 export const getUser = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User
+          .findById(req.params.id)
+          .populate('followers')
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-//@route: ./api/users/:id/follow
-//@Method: GET
-//@Access: LoggedIn
-export const follow = asyncHandler(
-  async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    try {
-      const me = await User.findByIdAndUpdate(req.user?._id, {
-        $addToSet: { following: [req.params.id] },
+export const updateUser = asyncHandler(
+  async (req:any, res)=>{
+    console.log(req.file);
+    if(req.file){
+      const fileType = req.file.mimetype.split("/")[1]
+      const rename = `${req.file.filename}.${fileType}`
+      fs.rename(`./uploads/${req.file.filename}`, `./uploads/${rename}`, function(){
+        //res.send('uploaded successfully')
+        //response.imgUploaded = true
       })
-        .then((user) => console.log(user))
-        .catch((err) => console.log(err));
-      console.log(req.params.id);
-      const them = await User.findByIdAndUpdate(req.params.id, {
-        $addToSet: { followers: [req.user!.id] },
-      })
-        .then((user) => console.log(user))
-        .catch((err) => console.log(err));
 
-      res.status(200).json({ msg: "Followed successfully" });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json("Something went wrong");
+    }
+    
+     //return
+    try{
+      const user = await User.findByIdAndUpdate(req.params.id,{
+        ...req.body
+      })
+
+      res.json({
+          status:'success',
+          message:'User updated'
+      })
+    }catch(error){
+      res.status(500).send(error)
     }
   }
-);
+)

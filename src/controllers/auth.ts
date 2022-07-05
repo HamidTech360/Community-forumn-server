@@ -110,3 +110,21 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     res.status(500).json({ error: error, message: "Something went wrong" });
   }
 });
+
+
+export const getCurrentUser = asyncHandler(
+  async(req:any, res:any, next:any)=>{
+    const id = req.user?._id
+    console.log(id);
+    
+    try{
+      const user = await User
+          .findById(id)
+          .populate('followers following')
+
+          res.json(user)
+    }catch(error){
+      res.status(500).send(error)
+    }
+  }
+)
