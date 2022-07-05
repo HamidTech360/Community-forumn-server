@@ -19,4 +19,13 @@ router
   .get(loggedIn, controller.likePost)
   .delete(loggedIn, controller.deleteLike);
 
+
+router
+  .route("/group/random")
+  .get( controller.getRandomGroupPosts)
+
+router
+  .route("/group/one/:id")
+  .get(controller.getGroupPosts)
+
 export default router;
