@@ -25,7 +25,7 @@ app.use(express_1.default.json());
 //app.use(fileUpload({
 //limits: { fileSize: 50 * 1024 * 1024 },
 //}));
-app.use("/api/user", user_1.default);
+app.use("/api/users", user_1.default);
 app.use("/api/auth", auth_1.default);
 app.use("/api/groups", group_1.default);
 app.use("/api/posts", post_1.default);

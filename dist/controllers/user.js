@@ -16,7 +16,7 @@ exports.updateUser = exports.getUser = exports.getUsers = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
 const fs_1 = __importDefault(require("fs"));
-//@route: ./api/users
+//@route: /api/users
 //@method: GET
 //@access: public
 exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,9 +33,7 @@ exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(
 //@access public
 exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.default
-            .findById(req.params.id)
-            .populate('followers');
+        const user = yield User_1.default.findById(req.params.id).populate("followers");
     }
     catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -55,8 +53,8 @@ exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaite
     try {
         const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign({}, req.body));
         res.json({
-            status: 'success',
-            message: 'User updated'
+            status: "success",
+            message: "User updated",
         });
     }
     catch (error) {
