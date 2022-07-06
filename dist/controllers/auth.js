@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.register = exports.login = void 0;
+exports.getCurrentUser = exports.register = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
 const auth_cookie_1 = require("../utils/auth-cookie");
@@ -100,5 +100,19 @@ exports.register = (0, express_async_handler_1.default)((req, res) => __awaiter(
     catch (error) {
         console.log(error);
         res.status(500).json({ error: error, message: "Something went wrong" });
+    }
+}));
+exports.getCurrentUser = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    console.log(id);
+    try {
+        const user = yield User_1.default
+            .findById(id)
+            .populate('followers following');
+        res.json(user);
+    }
+    catch (error) {
+        res.status(500).send(error);
     }
 }));

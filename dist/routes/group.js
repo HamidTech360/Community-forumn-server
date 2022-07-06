@@ -32,8 +32,11 @@ router
     .post(auth_1.loggedIn, controller.createGroup)
     .get(controller.getGroups);
 router
-    .route("/:id")
+    .route("/group/:id")
     .get(controller.getGroup)
     .put(auth_1.loggedIn, controller.updateGroup)
     .delete(auth_1.loggedIn, controller.deleteGroup);
+router
+    .route("/user")
+    .get(auth_1.loggedIn, controller.getUserGroups);
 exports.default = router;

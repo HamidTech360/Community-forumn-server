@@ -40,4 +40,10 @@ router
     .route("/:id/like")
     .get(auth_1.loggedIn, controller.likePost)
     .delete(auth_1.loggedIn, controller.deleteLike);
+router
+    .route("/group/random")
+    .get(controller.getRandomGroupPosts);
+router
+    .route("/group/one/:id")
+    .get(controller.getGroupPosts);
 exports.default = router;

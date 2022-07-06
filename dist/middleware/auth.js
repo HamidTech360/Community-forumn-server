@@ -27,7 +27,7 @@ const loggedIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 res.status(401).json("Unauthorized");
             }
             req.user = user;
-            console.log(req.user);
+            //console.log(req.user);
             next();
         }
         catch (error) {
