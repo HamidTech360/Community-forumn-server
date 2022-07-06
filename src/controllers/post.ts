@@ -7,12 +7,13 @@ import Comment from "../models/Comment";
 //@Access: LoggedIn
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const { postTitle, postBody } = req.body;
+    const { postTitle, postBody, groupId } = req.body;
 
     const post = await Post.create({
       postTitle,
       postBody,
       author: req?.user?._id,
+      groupId
     });
     res.status(201).json({ msg: "Post created", post });
   }
@@ -26,6 +27,7 @@ export const getPosts = expressAsyncHandler(
     const posts = await Post
     .find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      groupId:null
     })
     .sort({createdAt:-1})
     .populate("author", "-password");
@@ -130,3 +132,46 @@ export const deleteLike = expressAsyncHandler(
     }
   }
 );
+
+
+//@Routes /api/posts/group/:id
+//Method get
+//@ccess: loggedIn
+export const getGroupPosts = expressAsyncHandler(
+  async (req:any, res:any)=>{
+    const groupId = req.params.id
+    console.log(groupId);
+    
+    try{
+      const posts = await Post
+      .find({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        groupId:groupId
+      })
+      .sort({createdAt:-1})
+      .populate("author", "-password");
+      res.status(200).json({ msg: " Group Posts retrieved", posts });
+    }catch(error){
+      res.status(500).json(error);
+    }
+  }
+)
+
+//@Routes /api/posts/group/:id
+//Method get
+//@ccess: loggedIn
+export const getRandomGroupPosts = expressAsyncHandler(
+  async(req:any, res:any)=>{
+    try{
+      const posts = await Post.find({
+        groupId:{$ne:null}
+      })
+      .sort({createdAt:-1})
+      .limit(20)
+      .populate("author", "-password");
+      res.status(200).json({ msg: "Random group posts retrieved", posts });
+    }catch(error){
+      res.status(500).json(error);
+    }
+  }
+)
