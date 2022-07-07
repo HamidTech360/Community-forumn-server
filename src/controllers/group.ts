@@ -35,7 +35,7 @@ export const getGroup = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const groupId = req.params.id;
 
-    const group = await Group.findById(groupId).populate("admin", "firstName");
+    const group = await Group.findById(groupId).populate("admin groupMembers", "firstName");
     res.status(200).json(group);
   }
 );
