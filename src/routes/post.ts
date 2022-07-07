@@ -28,4 +28,8 @@ router
   .route("/group/one/:id")
   .get(controller.getGroupPosts)
 
+router
+    .route("/user/all")
+    .get(loggedIn, controller.getUserPosts)
+
 export default router;

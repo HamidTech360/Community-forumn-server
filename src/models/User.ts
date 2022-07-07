@@ -28,6 +28,7 @@ export interface IUserSchema extends Document {
   following: Types.ObjectId[];
   deleted: Boolean;
   profilePics:string;
+  bio:string;
 }
 
 const userSchema = new Schema<IUserSchema>({
@@ -103,6 +104,9 @@ const userSchema = new Schema<IUserSchema>({
     ref: "User",
     default: [],
   },
+  bio:{
+    type:String
+  }
 });
 
 userSchema.pre("save", async function (next) {

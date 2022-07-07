@@ -175,3 +175,42 @@ export const getRandomGroupPosts = expressAsyncHandler(
     }
   }
 )
+
+//@Routes /api/posts/user/:id
+//Method get
+//@ccess: loggedIn
+export const getUserPosts = expressAsyncHandler(
+  async (req:any, res:any)=>{
+    try{
+      const posts = await Post.find({
+        $and:[
+         {
+          $or: [
+            { deleted: { $eq: false } }, 
+            { deleted: { $eq: null } }]
+         },
+         {
+          $or:[
+            { author:req?.user?._id},
+            {likes:{"$in":req?.user?._id}},
+            // {following:{"$in":req?.user?._id}}
+          ]
+         }
+        ]
+       
+        
+      })
+      .sort({createdAt:-1})
+      .limit(20)
+      .populate('author', '-password')
+
+      res.json({
+        status:'success',
+        message:'User posts retrieved',
+        posts
+      })
+    }catch(error){
+      res.status(500).json(error);
+    }
+  }
+)
