@@ -11,8 +11,8 @@ import groupsRoute from "./routes/group";
 import postsRoute from "./routes/post";
 import gistRoutes from "./routes/gist";
 import commentsRoute from "./routes/comment";
-import feedRoutes from './routes/feed'
-
+import feedRoutes from "./routes/feed";
+import searchRoutes from "./routes/search";
 //dotenv config
 config();
 const app: Application = express();
@@ -25,13 +25,14 @@ app.use(express.json());
 //limits: { fileSize: 50 * 1024 * 1024 },
 //}));
 
+app.use("/api/search", searchRoutes);
 app.use("/api/users", usersRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/groups", groupsRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/gists", gistRoutes);
 app.use("/api/comments", commentsRoute);
-app.use('/api/feeds', feedRoutes)
+app.use("/api/feeds", feedRoutes);
 
 app.get("/", (res: Response) => res.send("Hello"));
 
