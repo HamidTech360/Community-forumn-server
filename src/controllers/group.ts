@@ -35,7 +35,7 @@ export const getGroup = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const groupId = req.params.id;
 
-    const group = await Group.findById(groupId).populate("admin", "firstName");
+    const group = await Group.findById(groupId).populate("admin groupMembers", "firstName");
     res.status(200).json(group);
   }
 );
@@ -97,13 +97,14 @@ export const getUserGroups = expressAsyncHandler(
   async (req: any, res: Response) => {
     
     const userId = req.user?._id
-    console.log('User is a member of', req.user?._id);
+    //console.log('User is a member of', req.user?._id);
     try{
       const groups = await Group.find({
         groupMembers:{
           "$in":userId
         }
       }).sort({createdAt:-1})
+      .populate('admin')
 
       console.log(groups);
       

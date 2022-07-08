@@ -40,7 +40,8 @@ const groupSchema = new Schema(
     },
     groupMembers:{
       type: [mongoose.SchemaTypes.ObjectId],
-      default:[]
+      default:[],
+      ref:"User"
     },
     deleted: {
       type: Boolean,
