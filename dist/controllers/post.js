@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomGroupPosts = exports.getGroupPosts = exports.deleteLike = exports.likePost = exports.updatePost = exports.deletePost = exports.getPost = exports.getPosts = exports.createPost = void 0;
+exports.getUserPosts = exports.getRandomGroupPosts = exports.getGroupPosts = exports.deleteLike = exports.likePost = exports.updatePost = exports.deletePost = exports.getPost = exports.getPosts = exports.createPost = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Post_1 = __importDefault(require("../models/Post"));
 //@Route /api/posts
@@ -166,6 +166,42 @@ exports.getRandomGroupPosts = (0, express_async_handler_1.default)((req, res) =>
             .limit(20)
             .populate("author", "-password");
         res.status(200).json({ msg: "Random group posts retrieved", posts });
+    }
+    catch (error) {
+        res.status(500).json(error);
+    }
+}));
+//@Routes /api/posts/user/:id
+//Method get
+//@ccess: loggedIn
+exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f, _g;
+    try {
+        const posts = yield Post_1.default.find({
+            $and: [
+                {
+                    $or: [
+                        { deleted: { $eq: false } },
+                        { deleted: { $eq: null } }
+                    ]
+                },
+                {
+                    $or: [
+                        { author: (_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id },
+                        { likes: { "$in": (_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id } },
+                        // {following:{"$in":req?.user?._id}}
+                    ]
+                }
+            ]
+        })
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .populate('author', '-password');
+        res.json({
+            status: 'success',
+            message: 'User posts retrieved',
+            posts
+        });
     }
     catch (error) {
         res.status(500).json(error);

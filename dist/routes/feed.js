@@ -22,31 +22,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const controller = __importStar(require("../controllers/post"));
+const express_1 = __importDefault(require("express"));
+const controller = __importStar(require("../controllers/feed"));
 const auth_1 = require("../middleware/auth");
-const router = (0, express_1.Router)();
-router
-    .route("/")
-    .get(controller.getPosts)
-    .post(auth_1.loggedIn, controller.createPost);
-router
-    .route("/:id")
-    .get(controller.getPost)
-    .delete(auth_1.loggedIn, controller.deletePost)
-    .put(auth_1.loggedIn, controller.updatePost);
-router
-    .route("/:id/like")
-    .get(auth_1.loggedIn, controller.likePost)
-    .delete(auth_1.loggedIn, controller.deleteLike);
-router
-    .route("/group/random")
-    .get(controller.getRandomGroupPosts);
-router
-    .route("/group/one/:id")
-    .get(controller.getGroupPosts);
-router
-    .route("/user/all")
-    .get(auth_1.loggedIn, controller.getUserPosts);
+const router = express_1.default.Router();
+router.get('/', controller.fetchFeeds);
+router.post('/', auth_1.loggedIn, controller.saveFeed);
 exports.default = router;

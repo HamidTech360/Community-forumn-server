@@ -39,7 +39,7 @@ exports.createGroup = (0, express_async_handler_1.default)((req, res) => __await
 // @Access: public
 exports.getGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const groupId = req.params.id;
-    const group = yield Group_1.default.findById(groupId).populate("admin", "firstName");
+    const group = yield Group_1.default.findById(groupId).populate("admin groupMembers", "firstName");
     res.status(200).json(group);
 }));
 // @Route /api/groups/:id
@@ -87,15 +87,16 @@ exports.getGroups = (0, express_async_handler_1.default)((req, res) => __awaiter
     res.status(200).json(groups);
 }));
 exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f, _g;
+    var _f;
     const userId = (_f = req.user) === null || _f === void 0 ? void 0 : _f._id;
-    console.log('User is a member of', (_g = req.user) === null || _g === void 0 ? void 0 : _g._id);
+    //console.log('User is a member of', req.user?._id);
     try {
         const groups = yield Group_1.default.find({
             groupMembers: {
                 "$in": userId
             }
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: -1 })
+            .populate('admin');
         console.log(groups);
         res.json({
             status: 'success',

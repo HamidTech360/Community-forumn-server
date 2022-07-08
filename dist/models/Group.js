@@ -56,7 +56,8 @@ const groupSchema = new mongoose_1.Schema({
     },
     groupMembers: {
         type: [mongoose_1.default.SchemaTypes.ObjectId],
-        default: []
+        default: [],
+        ref: "User"
     },
     deleted: {
         type: Boolean,
