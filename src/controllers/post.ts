@@ -29,7 +29,8 @@ export const getPosts = expressAsyncHandler(
       groupId: null,
     })
       .sort({ createdAt: -1 })
-      .populate("author", "-password");
+      .populate("author", "-password")
+      .populate("comments");
     res.status(200).json({ msg: "Posts retrieved", posts });
   }
 );
