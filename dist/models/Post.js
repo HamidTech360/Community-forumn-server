@@ -50,6 +50,10 @@ const postSchema = new mongoose_1.default.Schema({
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "Comment",
     },
+    groupId: {
+        type: mongoose_1.default.SchemaTypes.ObjectId,
+        ref: "Group"
+    }
 }, { timestamps: true });
 const Post = mongoose_1.default.models.Post || mongoose_1.default.model("Post", postSchema);
 exports.default = Post;

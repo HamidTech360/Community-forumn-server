@@ -27,11 +27,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const controller = __importStar(require("../controllers/user"));
-// import multer from 'multer'
-//const upload = multer({dest:"./uploads/"})
+const controller = __importStar(require("../controllers/feed"));
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
-router.get("/", controller.getUsers);
-router.get("/:id", controller.getUser);
-router.put("/:id", controller.updateUser);
+router.get('/', controller.fetchFeeds);
+router.post('/', auth_1.loggedIn, controller.saveFeed);
 exports.default = router;

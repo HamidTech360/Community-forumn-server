@@ -41,6 +41,24 @@ const groupSchema = new mongoose_1.Schema({
         required: true,
         ref: "User",
     },
+    privacy: {
+        type: String,
+        required: true
+    },
+    invite: {
+        type: String,
+        required: true,
+        enum: ['admin', 'everyone', 'moderators']
+    },
+    allowedToPost: {
+        type: String,
+        required: true
+    },
+    groupMembers: {
+        type: [mongoose_1.default.SchemaTypes.ObjectId],
+        default: [],
+        ref: "User"
+    },
     deleted: {
         type: Boolean,
         default: false,
