@@ -11,8 +11,10 @@ import groupsRoute from "./routes/group";
 import postsRoute from "./routes/post";
 import gistRoutes from "./routes/gist";
 import commentsRoute from "./routes/comment";
-import feedRoutes from "./routes/feed";
+import feedRoutes from './routes/feed'
+import LikeRoutes from './routes/like'
 import searchRoutes from "./routes/search";
+
 //dotenv config
 config();
 const app: Application = express();
@@ -32,7 +34,9 @@ app.use("/api/groups", groupsRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/gists", gistRoutes);
 app.use("/api/comments", commentsRoute);
-app.use("/api/feeds", feedRoutes);
+app.use('/api/feeds', feedRoutes)
+app.use("/api/likes", LikeRoutes)
+
 
 app.get("/", (res: Response) => res.send("Hello"));
 
