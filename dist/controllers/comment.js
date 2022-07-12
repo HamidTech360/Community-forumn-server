@@ -23,10 +23,10 @@ const Post_1 = __importDefault(require("../models/Post"));
 //@Access: LoggedIn
 exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const type = req.params.type;
+    const type = req.query.type;
     const comment = yield Comment_1.default.create(Object.assign({ author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id }, req.body));
     if (type == "post") {
-        yield Post_1.default.findByIdAndUpdate(req.params.id, {
+        yield Post_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
     }
