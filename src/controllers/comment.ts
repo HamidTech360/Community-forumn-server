@@ -11,7 +11,7 @@ import Post from "../models/Post";
 //@Access: LoggedIn
 export const comment = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const type = req.params.typel;
+    const type = req.params.type;
     const comment = await Comment.create({
       author: req.user?._id,
       ...req.body,
