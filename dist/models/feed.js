@@ -12,15 +12,15 @@ const feedSchema = new mongoose_1.default.Schema({
     },
     content: {
         type: String,
-        required: true
+        required: true,
     },
     comments: {
-        type: Array
+        type: [mongoose_1.default.SchemaTypes.ObjectId],
     },
     likes: {
         type: [mongoose_1.default.SchemaTypes.ObjectId],
-        ref: "User"
-    }
+        ref: "User",
+    },
 }, { timestamps: true });
-const Feed = mongoose_1.default.model('feed', feedSchema);
+const Feed = mongoose_1.default.model("feed", feedSchema);
 exports.default = Feed;
