@@ -17,10 +17,10 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const feed_1 = __importDefault(require("../models/feed"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { content } = req.body;
+    const { post } = req.body;
     try {
         const feed = yield feed_1.default.create({
-            content,
+            post,
             author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id
         });
         res.json({
@@ -35,7 +35,10 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
 }));
 exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const feeds = yield feed_1.default.find();
+        const feeds = yield feed_1.default.find()
+            .sort({ createdAt: -1 })
+            .limit(25)
+            .populate('author');
         res.json({
             status: 'success',
             message: 'Feeds fetched',
