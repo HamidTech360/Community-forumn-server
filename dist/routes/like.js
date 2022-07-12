@@ -23,38 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-const gistSchema = new mongoose_1.default.Schema({
-    author: {
-        type: mongoose_1.default.SchemaTypes.ObjectId,
-        required: true,
-        ref: "User",
-    },
-    title: {
-        type: String,
-        required: true,
-    },
-    country: {
-        type: String,
-        required: true,
-    },
-    categories: {
-        type: String,
-        required: true,
-    },
-    post: {
-        type: String,
-        required: true,
-    },
-    deleted: {
-        type: Boolean,
-        required: true,
-        default: false,
-    },
-    comments: {
-        type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "Comment",
-    }
-}, { timestamps: true });
-const Gist = mongoose_1.default.model("Gist", gistSchema);
-exports.default = Gist;
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth");
+const controller = __importStar(require("../controllers/like"));
+const router = (0, express_1.Router)();
+router.get(`/`, auth_1.loggedIn, controller.saveLike);
+exports.default = router;
