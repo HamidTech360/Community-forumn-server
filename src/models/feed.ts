@@ -6,12 +6,13 @@ const feedSchema = new mongoose.Schema({
       required: true,
       ref: "User",
     },
-    content:{
+    post:{
         type:String,
         required:true
     },
     comments:{
-        type:Array
+        type:Array,
+        default:[]
     },
     likes:{
         type:[mongoose.SchemaTypes.ObjectId],

@@ -5,10 +5,10 @@ import Feed from "../models/feed";
 export const saveFeed = expressAsyncHandler(
     
     async (req:any, res:any)=>{
-        const {content} = req.body
+        const {post} = req.body
         try{
             const feed = await Feed.create({
-                content,
+                post,
                 author:req.user?._id
             })
             res.json({
@@ -27,6 +27,9 @@ export const fetchFeeds = expressAsyncHandler(
     async(req:any, res:any)=>{
         try{
            const feeds = await Feed.find()
+                                .sort({createdAt:-1})
+                                .limit(25)
+                                .populate('author')
            res.json({
             status:'success',
             message:'Feeds fetched',
