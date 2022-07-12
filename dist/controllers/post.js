@@ -25,7 +25,7 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
         postTitle,
         postBody,
         author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
-        groupId
+        groupId,
     });
     res.status(201).json({ msg: "Post created", post });
 }));
@@ -33,13 +33,13 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Get
 //@Access: Public
 exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const posts = yield Post_1.default
-        .find({
+    const posts = yield Post_1.default.find({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-        groupId: null
+        groupId: null,
     })
         .sort({ createdAt: -1 })
-        .populate("author", "-password");
+        .populate("author", "-password")
+        .populate("comments");
     res.status(200).json({ msg: "Posts retrieved", posts });
 }));
 //@Route /api/posts/:id
@@ -49,6 +49,7 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId)
         .populate("author", "firstName lastName")
+        .populate("comments")
         .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
@@ -141,13 +142,13 @@ exports.getGroupPosts = (0, express_async_handler_1.default)((req, res) => __awa
     const groupId = req.params.id;
     console.log(groupId);
     try {
-        const posts = yield Post_1.default
-            .find({
+        const posts = yield Post_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-            groupId: groupId
+            groupId: groupId,
         })
             .sort({ createdAt: -1 })
-            .populate("author", "-password");
+            .populate("author", "-password")
+            .populate("comments");
         res.status(200).json({ msg: " Group Posts retrieved", posts });
     }
     catch (error) {
@@ -160,11 +161,12 @@ exports.getGroupPosts = (0, express_async_handler_1.default)((req, res) => __awa
 exports.getRandomGroupPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield Post_1.default.find({
-            groupId: { $ne: null }
+            groupId: { $ne: null },
         })
             .sort({ createdAt: -1 })
             .limit(20)
-            .populate("author", "-password");
+            .populate("author", "-password")
+            .populate("comments");
         res.status(200).json({ msg: "Random group posts retrieved", posts });
     }
     catch (error) {
@@ -180,27 +182,25 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
         const posts = yield Post_1.default.find({
             $and: [
                 {
-                    $or: [
-                        { deleted: { $eq: false } },
-                        { deleted: { $eq: null } }
-                    ]
+                    $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
                 },
                 {
                     $or: [
                         { author: (_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id },
-                        { likes: { "$in": (_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id } },
+                        { likes: { $in: (_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id } },
                         // {following:{"$in":req?.user?._id}}
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         })
             .sort({ createdAt: -1 })
             .limit(20)
-            .populate('author', '-password');
+            .populate("author", "-password")
+            .populate("comments");
         res.json({
-            status: 'success',
-            message: 'User posts retrieved',
-            posts
+            status: "success",
+            message: "User posts retrieved",
+            posts,
         });
     }
     catch (error) {
