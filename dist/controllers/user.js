@@ -34,6 +34,7 @@ exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(
 exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User_1.default.findById(req.params.id).populate("followers");
+        res.status(200).json(user);
     }
     catch (error) {
         res.status(500).json({ message: "Something went wrong" });
