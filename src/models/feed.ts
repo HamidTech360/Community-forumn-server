@@ -1,4 +1,4 @@
-import mongoose, { Types, SchemaTypes } from "mongoose";
+import mongoose, { Types,Schema, SchemaTypes } from "mongoose";
 
 const feedSchema = new mongoose.Schema({
     author:{
@@ -11,8 +11,8 @@ const feedSchema = new mongoose.Schema({
         required:true
     },
     comments:{
-        type:Array,
-        default:[]
+        type: [Schema.Types.ObjectId],
+        ref: "Comment"
     },
     likes:{
         type:[mongoose.SchemaTypes.ObjectId],

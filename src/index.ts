@@ -13,6 +13,7 @@ import postsRoute from "./routes/post";
 import gistRoutes from "./routes/gist";
 import commentsRoute from "./routes/comment";
 import feedRoutes from './routes/feed'
+import LikeRoutes from './routes/like'
 
 //dotenv config
 config();
@@ -33,6 +34,7 @@ app.use("/api/posts", postsRoute);
 app.use("/api/gists", gistRoutes);
 app.use("/api/comments", commentsRoute);
 app.use('/api/feeds', feedRoutes)
+app.use("/api/likes", LikeRoutes)
 
 app.get("/", (res: Response) => res.send("Hello"));
 
