@@ -30,7 +30,10 @@ export const getPosts = expressAsyncHandler(
     })
       .sort({ createdAt: -1 })
       .populate("author", "-password")
-      .populate("comments");
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
     res.status(200).json({ msg: "Posts retrieved", posts });
   }
 );
@@ -43,7 +46,10 @@ export const getPost = expressAsyncHandler(
     const postId = req.params.id;
     const post = await Post.findById(postId)
       .populate("author", "firstName lastName")
-      .populate("comments")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      })
       .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       });
@@ -148,7 +154,10 @@ export const getGroupPosts = expressAsyncHandler(async (req: any, res: any) => {
     })
       .sort({ createdAt: -1 })
       .populate("author", "-password")
-      .populate("comments");
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
     res.status(200).json({ msg: " Group Posts retrieved", posts });
   } catch (error) {
     res.status(500).json(error);
@@ -167,7 +176,10 @@ export const getRandomGroupPosts = expressAsyncHandler(
         .sort({ createdAt: -1 })
         .limit(20)
         .populate("author", "-password")
-        .populate("comments");
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        });
       res.status(200).json({ msg: "Random group posts retrieved", posts });
     } catch (error) {
       res.status(500).json(error);
@@ -197,8 +209,10 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
       .sort({ createdAt: -1 })
       .limit(20)
       .populate("author", "-password")
-      .populate("comments");
-
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
     res.json({
       status: "success",
       message: "User posts retrieved",

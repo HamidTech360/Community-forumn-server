@@ -39,7 +39,10 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
     })
         .sort({ createdAt: -1 })
         .populate("author", "-password")
-        .populate("comments");
+        .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+    });
     res.status(200).json({ msg: "Posts retrieved", posts });
 }));
 //@Route /api/posts/:id
@@ -49,7 +52,10 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId)
         .populate("author", "firstName lastName")
-        .populate("comments")
+        .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+    })
         .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
@@ -148,7 +154,10 @@ exports.getGroupPosts = (0, express_async_handler_1.default)((req, res) => __awa
         })
             .sort({ createdAt: -1 })
             .populate("author", "-password")
-            .populate("comments");
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
         res.status(200).json({ msg: " Group Posts retrieved", posts });
     }
     catch (error) {
@@ -166,7 +175,10 @@ exports.getRandomGroupPosts = (0, express_async_handler_1.default)((req, res) =>
             .sort({ createdAt: -1 })
             .limit(20)
             .populate("author", "-password")
-            .populate("comments");
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
         res.status(200).json({ msg: "Random group posts retrieved", posts });
     }
     catch (error) {
@@ -196,7 +208,10 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
             .sort({ createdAt: -1 })
             .limit(20)
             .populate("author", "-password")
-            .populate("comments");
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
         res.json({
             status: "success",
             message: "User posts retrieved",
