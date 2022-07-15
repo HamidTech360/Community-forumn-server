@@ -30,7 +30,7 @@ const feedSchema = new mongoose_1.default.Schema({
         required: true,
         ref: "User",
     },
-    content: {
+    post: {
         type: String,
         required: true,
     },
