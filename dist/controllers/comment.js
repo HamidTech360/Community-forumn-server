@@ -38,8 +38,10 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     }
     else if (type == "feed") {
         yield feed_1.default.findByIdAndUpdate(req.params.id, {
-            $addToSet: { comments: [comment._id] }
+            $addToSet: { comments: [comment._id] },
         });
     }
-    res.status(200).json(comment);
+    res
+        .status(200)
+        .json(yield comment.populate("author", "firstName lastName avatar"));
 }));
