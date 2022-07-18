@@ -110,8 +110,12 @@ const userSchema = new mongoose_1.Schema({
         default: [],
     },
     bio: {
-        type: String
-    }
+        type: String,
+    },
+    authProvider: {
+        type: String,
+        default: "LOCAL",
+    },
 });
 userSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
