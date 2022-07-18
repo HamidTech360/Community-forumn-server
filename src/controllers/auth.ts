@@ -120,9 +120,8 @@ export const getCurrentUser = asyncHandler(
     try{
       const user = await User
           .findById(id)
-          .populate('followers')
-          .populate('following')
-
+          .populate('followers following')
+          
           res.json(user)
     }catch(error){
       res.status(500).send(error)

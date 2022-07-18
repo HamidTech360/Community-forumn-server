@@ -15,7 +15,7 @@ const feedSchema = new mongoose.Schema({
         ref: "Comment"
     },
     likes:{
-        type:[mongoose.SchemaTypes.ObjectId],
+        type:[Schema.Types.ObjectId],
         ref:"User"
     }
 }, {timestamps:true})
