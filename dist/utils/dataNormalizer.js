@@ -16,7 +16,7 @@ const normalizeGoogleData = (data) => __awaiter(void 0, void 0, void 0, function
         fullName: data.name,
         picture: data.imageUrl || null,
         authProvider: data.googleId && "GOOGLE",
-        role: data.role
+        role: data.role,
     };
 });
 exports.normalizeGoogleData = normalizeGoogleData;
@@ -24,7 +24,7 @@ const normalizeFacebookData = (data) => __awaiter(void 0, void 0, void 0, functi
     return {
         fullName: data.name,
         authProvider: String(data.graphDomain).toUpperCase(),
-        email: data.email
+        email: data.email,
     };
 });
 exports.normalizeFacebookData = normalizeFacebookData;

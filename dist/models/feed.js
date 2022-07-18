@@ -30,6 +30,11 @@ const feedSchema = new mongoose_1.default.Schema({
         required: true,
         ref: "User",
     },
+    group: {
+        type: mongoose_1.default.SchemaTypes.ObjectId,
+        required: true,
+        ref: "Group",
+    },
     post: {
         type: String,
         required: true,

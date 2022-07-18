@@ -7,6 +7,11 @@ const feedSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+    group: {
+      type: mongoose.SchemaTypes.ObjectId,
+      required: true,
+      ref: "Group",
+    },
     post: {
       type: String,
       required: true,
