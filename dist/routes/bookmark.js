@@ -23,30 +23,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-const feedSchema = new mongoose_1.default.Schema({
-    author: {
-        type: mongoose_1.default.SchemaTypes.ObjectId,
-        required: true,
-        ref: "User",
-    },
-    group: {
-        type: mongoose_1.default.SchemaTypes.ObjectId,
-        required: true,
-        ref: "Group",
-    },
-    post: {
-        type: String,
-        required: true,
-    },
-    comments: {
-        type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "Comment",
-    },
-    likes: {
-        type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "User"
-    }
-}, { timestamps: true });
-const Feed = mongoose_1.models.Feed || mongoose_1.default.model("Feed", feedSchema);
-exports.default = Feed;
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth");
+const controller = __importStar(require("../controllers/bookmark"));
+const router = (0, express_1.Router)();
+router.post(`/`, auth_1.loggedIn, controller.AddToBookMark);
+router.delete('/', auth_1.loggedIn, controller.RemoveFromBookmark);
+router.get('/', auth_1.loggedIn, controller.getBookMarks);
+exports.default = router;

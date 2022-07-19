@@ -26,6 +26,7 @@ export interface IUserSchema extends Document {
   confirmationCode: string;
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
+  bookmarks: Types.ObjectId[];
   deleted: Boolean;
   profilePics: string;
   bio: string;
@@ -97,13 +98,17 @@ const userSchema = new Schema<IUserSchema>({
   followers: {
     type: [Schema.Types.ObjectId],
     ref: "User",
-    default: [],
+    
   },
-
+  bookmarks: {
+    type: [Schema.Types.ObjectId],
+    ref: "Post",
+   
+  },
   following: {
     type: [Schema.Types.ObjectId],
     ref: "User",
-    default: [],
+  
   },
   bio: {
     type: String,

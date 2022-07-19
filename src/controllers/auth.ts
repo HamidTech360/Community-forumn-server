@@ -119,15 +119,15 @@ export const getCurrentUser = asyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const id = req.user?._id;
     console.log(id);
-
-    try {
-      const user = await User.findById(id)
-        .populate("followers")
-        .populate("following");
-
-      res.json(user);
-    } catch (error) {
-      res.status(500).send(error);
+    
+    try{
+      const user = await User
+          .findById(id)
+          .populate('followers following')
+          
+          res.json(user)
+    }catch(error){
+      res.status(500).send(error)
     }
   }
 );

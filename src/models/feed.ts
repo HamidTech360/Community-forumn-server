@@ -20,13 +20,11 @@ const feedSchema = new mongoose.Schema(
       type: [Schema.Types.ObjectId],
       ref: "Comment",
     },
-    likes: {
-      type: [mongoose.SchemaTypes.ObjectId],
-      ref: "User",
-    },
-  },
-  { timestamps: true }
-);
+    likes:{
+        type:[Schema.Types.ObjectId],
+        ref:"User"
+    }
+}, {timestamps:true})
 
 const Feed = models.Feed || mongoose.model("Feed", feedSchema);
 export default Feed;
