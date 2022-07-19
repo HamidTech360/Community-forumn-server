@@ -98,17 +98,14 @@ const userSchema = new Schema<IUserSchema>({
   followers: {
     type: [Schema.Types.ObjectId],
     ref: "User",
-    
   },
   bookmarks: {
     type: [Schema.Types.ObjectId],
-    ref: "Post",
-   
+    ref: "Feed",
   },
   following: {
     type: [Schema.Types.ObjectId],
     ref: "User",
-  
   },
   bio: {
     type: String,
