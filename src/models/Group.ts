@@ -1,4 +1,4 @@
-import mongoose, { Document, model, Schema, Types } from "mongoose";
+import mongoose, { Document, model, models, Schema, Types } from "mongoose";
 
 interface IGroup extends Document {
   name: string;
@@ -51,6 +51,6 @@ const groupSchema = new Schema(
   { timestamps: true }
 );
 
-const Group = model("Group", groupSchema);
+const Group = models.Group || model("Group", groupSchema);
 
 export default Group;

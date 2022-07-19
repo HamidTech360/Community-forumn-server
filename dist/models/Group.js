@@ -64,5 +64,5 @@ const groupSchema = new mongoose_1.Schema({
         default: false,
     },
 }, { timestamps: true });
-const Group = (0, mongoose_1.model)("Group", groupSchema);
+const Group = mongoose_1.models.Group || (0, mongoose_1.model)("Group", groupSchema);
 exports.default = Group;

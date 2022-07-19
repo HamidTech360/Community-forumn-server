@@ -1,4 +1,4 @@
-import mongoose, { Types, Schema, SchemaTypes } from "mongoose";
+import mongoose, { Types, Schema, SchemaTypes, models } from "mongoose";
 
 const feedSchema = new mongoose.Schema(
   {
@@ -28,5 +28,5 @@ const feedSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Feed = mongoose.model("Feed", feedSchema);
+const Feed = models.Feed || mongoose.model("Feed", feedSchema);
 export default Feed;
