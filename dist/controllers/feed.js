@@ -14,12 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const feed_1 = __importDefault(require("../models/feed"));
+const Feed_1 = __importDefault(require("../models/Feed"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { post, group } = req.body;
     try {
-        const feed = yield feed_1.default.create({
+        const feed = yield Feed_1.default.create({
             post,
             author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
             group,
@@ -36,7 +36,7 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
 }));
 exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const feeds = yield feed_1.default.find()
+        const feeds = yield Feed_1.default.find()
             .sort({ createdAt: -1 })
             .limit(25)
             .populate("author");
@@ -52,8 +52,8 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
 }));
 exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const feed = yield feed_1.default.findById(id)
+    const feed = yield Feed_1.default.findById(id)
         .populate("author", "firstName lastName avatar")
-        .populate("Group");
+        .populate("group");
     res.status(200).json(feed);
 }));

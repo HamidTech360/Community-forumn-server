@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
-import Feed from "../models/feed";
+import Feed from "../models/Feed";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group } = req.body;
@@ -41,7 +41,7 @@ export const fetchFeed = expressAsyncHandler(
     const id = req.params.id;
     const feed = await Feed.findById(id)
       .populate("author", "firstName lastName avatar")
-      .populate("Group");
+      .populate("group");
     res.status(200).json(feed);
   }
 );
