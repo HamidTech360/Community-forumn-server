@@ -16,7 +16,7 @@ exports.saveLike = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
-const feed_1 = __importDefault(require("../models/feed"));
+const Feed_1 = __importDefault(require("../models/Feed"));
 exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     const { id, type } = req.query;
@@ -24,7 +24,7 @@ exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(
     try {
         if (type == "post") {
             yield Post_1.default.findByIdAndUpdate(id, {
-                $addToSet: { likes: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id }
+                $addToSet: { likes: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id },
             }).where({
                 $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
             });
@@ -32,15 +32,15 @@ exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(
         }
         else if (type == "gist") {
             yield Gist_1.default.findByIdAndUpdate(id, {
-                $addToSet: { likes: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id }
+                $addToSet: { likes: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id },
             }).where({
                 $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
             });
             res.status(200).json("Liked");
         }
         else if (type == "feed") {
-            yield feed_1.default.findByIdAndUpdate(id, {
-                $addToSet: { likes: (_c = req.user) === null || _c === void 0 ? void 0 : _c._id }
+            yield Feed_1.default.findByIdAndUpdate(id, {
+                $addToSet: { likes: (_c = req.user) === null || _c === void 0 ? void 0 : _c._id },
             }).where({
                 $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
             });
