@@ -35,7 +35,7 @@ app.use("/api/groups", group_1.default);
 app.use("/api/posts", post_1.default);
 app.use("/api/gists", gist_1.default);
 app.use("/api/comments", comment_1.default);
-app.use('/api/feeds', feed_1.default);
+app.use("/api/feed", feed_1.default);
 app.use("/api/likes", like_1.default);
 app.get("/", (res) => res.send("Hello"));
 app.listen(process.env.PORT, () => console.log(`Express app running on ${process.env.PORT}`));
