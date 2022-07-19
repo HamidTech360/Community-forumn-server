@@ -27,5 +27,5 @@ const express_1 = require("express");
 const auth_1 = require("../middleware/auth");
 const controller = __importStar(require("../controllers/comment"));
 const router = (0, express_1.Router)();
-router.post("/:type/:id", auth_1.loggedIn, controller.comment);
+router.post("/", auth_1.loggedIn, controller.comment);
 exports.default = router;

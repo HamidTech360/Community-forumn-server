@@ -19,14 +19,15 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const Comment_1 = __importDefault(require("../models/Comment"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
+const feed_1 = __importDefault(require("../models/feed"));
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
 exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const type = req.params.typel;
+    const type = req.query.type;
     const comment = yield Comment_1.default.create(Object.assign({ author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id }, req.body));
     if (type == "post") {
-        yield Post_1.default.findByIdAndUpdate(req.params.id, {
+        yield Post_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
     }
@@ -35,5 +36,12 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
             $addToSet: { comments: [comment._id] },
         });
     }
-    res.status(200).json(comment);
+    else if (type == "feed") {
+        yield feed_1.default.findByIdAndUpdate(req.params.id, {
+            $addToSet: { comments: [comment._id] },
+        });
+    }
+    res
+        .status(200)
+        .json(yield comment.populate("author", "firstName lastName avatar"));
 }));

@@ -18,7 +18,7 @@ const users = [
     },
     {
         firstName: "Stella",
-        lastName: "Oseyemon",
+        lastName: "Oseyomon",
         password: bcryptjs_1.default.hashSync("password"),
         gender: "female",
         status: "active",

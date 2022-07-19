@@ -43,6 +43,7 @@ export const getBookMarks = expressAsyncHandler(
             const posts =  await User.findById(req.user._id)
                                 .select({bookmarks:1})
                                 .populate('bookmarks')
+                                
             res.json({
                 message:'Bookmarks fetched',
                 posts

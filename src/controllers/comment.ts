@@ -12,27 +12,27 @@ import Feed from "../models/feed";
 //@Access: LoggedIn
 export const comment = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const type = req.params.type;
-    console.log('type is '+ type );
-    
+    const type = req.query.type;
     const comment = await Comment.create({
       author: req.user?._id,
       ...req.body,
     });
 
     if (type == "post") {
-      await Post.findByIdAndUpdate(req.params.id, {
+      await Post.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
     } else if (type == "gist") {
       await Gist.findByIdAndUpdate(req.params.id, {
         $addToSet: { comments: [comment._id] },
       });
-    } else if (type=="feed"){
+    } else if (type == "feed") {
       await Feed.findByIdAndUpdate(req.params.id, {
-        $addToSet:{comments:[comment._id]}
-      })
+        $addToSet: { comments: [comment._id] },
+      });
     }
-    res.status(200).json(comment);
+    res
+      .status(200)
+      .json(await comment.populate("author", "firstName lastName avatar"));
   }
 );

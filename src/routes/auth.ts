@@ -5,5 +5,6 @@ const router = Router();
 
 router.post("/", controller.login);
 router.post("/register", controller.register);
-router.get("/",loggedIn, controller.getCurrentUser )
+router.get("/", loggedIn, controller.getCurrentUser);
+router.get("/oauth", controller.oauth);
 export default router;

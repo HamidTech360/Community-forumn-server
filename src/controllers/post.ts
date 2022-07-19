@@ -13,7 +13,7 @@ export const createPost = expressAsyncHandler(
       postTitle,
       postBody,
       author: req?.user?._id,
-      groupId
+      groupId,
     });
     res.status(201).json({ msg: "Post created", post });
   }
@@ -24,13 +24,16 @@ export const createPost = expressAsyncHandler(
 //@Access: Public
 export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    const posts = await Post
-    .find({
+    const posts = await Post.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-      groupId:null
+      groupId: null,
     })
-    .sort({createdAt:-1})
-    .populate("author", "-password");
+      .sort({ createdAt: -1 })
+      .populate("author", "-password")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
     res.status(200).json({ msg: "Posts retrieved", posts });
   }
 );
@@ -43,6 +46,10 @@ export const getPost = expressAsyncHandler(
     const postId = req.params.id;
     const post = await Post.findById(postId)
       .populate("author", "firstName lastName")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      })
       .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       });
@@ -133,84 +140,85 @@ export const deleteLike = expressAsyncHandler(
   }
 );
 
-
 //@Routes /api/posts/group/:id
 //Method get
 //@ccess: loggedIn
-export const getGroupPosts = expressAsyncHandler(
-  async (req:any, res:any)=>{
-    const groupId = req.params.id
-    console.log(groupId);
-    
-    try{
-      const posts = await Post
-      .find({
-        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-        groupId:groupId
-      })
-      .sort({createdAt:-1})
-      .populate("author", "-password");
-      res.status(200).json({ msg: " Group Posts retrieved", posts });
-    }catch(error){
-      res.status(500).json(error);
-    }
+export const getGroupPosts = expressAsyncHandler(async (req: any, res: any) => {
+  const groupId = req.params.id;
+  console.log(groupId);
+
+  try {
+    const posts = await Post.find({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      groupId: groupId,
+    })
+      .sort({ createdAt: -1 })
+      .populate("author", "-password")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
+    res.status(200).json({ msg: " Group Posts retrieved", posts });
+  } catch (error) {
+    res.status(500).json(error);
   }
-)
+});
 
 //@Routes /api/posts/group/:id
 //Method get
 //@ccess: loggedIn
 export const getRandomGroupPosts = expressAsyncHandler(
-  async(req:any, res:any)=>{
-    try{
+  async (req: any, res: any) => {
+    try {
       const posts = await Post.find({
-        groupId:{$ne:null}
+        groupId: { $ne: null },
       })
-      .sort({createdAt:-1})
-      .limit(20)
-      .populate("author", "-password");
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate("author", "-password")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        });
       res.status(200).json({ msg: "Random group posts retrieved", posts });
-    }catch(error){
+    } catch (error) {
       res.status(500).json(error);
     }
   }
-)
+);
 
 //@Routes /api/posts/user/:id
 //Method get
 //@ccess: loggedIn
-export const getUserPosts = expressAsyncHandler(
-  async (req:any, res:any)=>{
-    try{
-      const posts = await Post.find({
-        $and:[
-         {
+export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
+  try {
+    const posts = await Post.find({
+      $and: [
+        {
+          $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        },
+        {
           $or: [
-            { deleted: { $eq: false } }, 
-            { deleted: { $eq: null } }]
-         },
-         {
-          $or:[
-            { author:req?.user?._id},
-            {likes:{"$in":req?.user?._id}},
+            { author: req?.user?._id },
+            { likes: { $in: req?.user?._id } },
             // {following:{"$in":req?.user?._id}}
-          ]
-         }
-        ]
-       
-        
-      })
-      .sort({createdAt:-1})
+          ],
+        },
+      ],
+    })
+      .sort({ createdAt: -1 })
       .limit(20)
-      .populate('author', '-password')
-
-      res.json({
-        status:'success',
-        message:'User posts retrieved',
-        posts
-      })
-    }catch(error){
-      res.status(500).json(error);
-    }
+      .populate("author", "-password")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
+    res.json({
+      status: "success",
+      message: "User posts retrieved",
+      posts,
+    });
+  } catch (error) {
+    res.status(500).json(error);
   }
-)
+});

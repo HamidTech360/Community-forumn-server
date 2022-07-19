@@ -28,8 +28,9 @@ export interface IUserSchema extends Document {
   following: Types.ObjectId[];
   bookmarks: Types.ObjectId[];
   deleted: Boolean;
-  profilePics:string;
-  bio:string;
+  profilePics: string;
+  bio: string;
+  authProvider: string;
 }
 
 const userSchema = new Schema<IUserSchema>({
@@ -109,9 +110,13 @@ const userSchema = new Schema<IUserSchema>({
     ref: "User",
   
   },
-  bio:{
-    type:String
-  }
+  bio: {
+    type: String,
+  },
+  authProvider: {
+    type: String,
+    default: "LOCAL",
+  },
 });
 
 userSchema.pre("save", async function (next) {

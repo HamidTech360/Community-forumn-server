@@ -22,16 +22,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const controller = __importStar(require("../controllers/user"));
-// import multer from 'multer'
-//const upload = multer({dest:"./uploads/"})
-const router = express_1.default.Router();
-router.get("/", controller.getUsers);
-router.get("/:id", controller.getUser);
-router.put("/:id", controller.updateUser);
-exports.default = router;
+const mongoose_1 = __importStar(require("mongoose"));
+const feedSchema = new mongoose_1.default.Schema({
+    author: {
+        type: mongoose_1.default.SchemaTypes.ObjectId,
+        required: true,
+        ref: "User",
+    },
+    post: {
+        type: String,
+        required: true,
+    },
+    comments: {
+        type: [mongoose_1.Schema.Types.ObjectId],
+        ref: "Comment",
+    },
+    likes: {
+        type: [mongoose_1.default.SchemaTypes.ObjectId],
+        ref: "User",
+    },
+}, { timestamps: true });
+const Feed = mongoose_1.default.model("feed", feedSchema);
+exports.default = Feed;

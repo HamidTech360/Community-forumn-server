@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.follow = exports.getUser = exports.getUsers = void 0;
+exports.updateUser = exports.getUser = exports.getUsers = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
-//@route: ./api/users
+const fs_1 = __importDefault(require("fs"));
+//@route: /api/users
 //@method: GET
 //@access: public
 exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -32,33 +33,32 @@ exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(
 //@access public
 exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.default.findById(req.params.id);
+        const user = yield User_1.default.findById(req.params.id).populate("followers");
+        res.status(200).json(user);
     }
     catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }
 }));
-//@route: ./api/users/:id/follow
-//@Method: GET
-//@Access: LoggedIn
-exports.follow = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.file);
+    if (req.file) {
+        const fileType = req.file.mimetype.split("/")[1];
+        const rename = `${req.file.filename}.${fileType}`;
+        fs_1.default.rename(`./uploads/${req.file.filename}`, `./uploads/${rename}`, function () {
+            //res.send('uploaded successfully')
+            //response.imgUploaded = true
+        });
+    }
+    //return
     try {
-        const me = yield User_1.default.findByIdAndUpdate((_a = req.user) === null || _a === void 0 ? void 0 : _a._id, {
-            $addToSet: { following: [req.params.id] },
-        })
-            .then((user) => console.log(user))
-            .catch((err) => console.log(err));
-        console.log(req.params.id);
-        const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
-            $addToSet: { followers: [req.user.id] },
-        })
-            .then((user) => console.log(user))
-            .catch((err) => console.log(err));
-        res.status(200).json({ msg: "Followed successfully" });
+        const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign({}, req.body));
+        res.json({
+            status: "success",
+            message: "User updated",
+        });
     }
     catch (error) {
-        console.log(error);
-        res.status(500).json("Something went wrong");
+        res.status(500).send(error);
     }
 }));
