@@ -1,4 +1,4 @@
-import mongoose, { Types, Schema, SchemaTypes, models } from "mongoose";
+import mongoose, { Schema, SchemaTypes, models } from "mongoose";
 
 const feedSchema = new mongoose.Schema(
   {
