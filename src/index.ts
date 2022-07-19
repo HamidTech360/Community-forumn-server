@@ -11,9 +11,14 @@ import groupsRoute from "./routes/group";
 import postsRoute from "./routes/post";
 import gistRoutes from "./routes/gist";
 import commentsRoute from "./routes/comment";
+<<<<<<< HEAD
 import feedRoutes from './routes/feed'
 import LikeRoutes from './routes/like'
 import BookmarkRoutes from './routes/bookmark'
+=======
+import feedRoutes from "./routes/feed";
+import LikeRoutes from "./routes/like";
+>>>>>>> 45564244e85524652c21f7a574f3160a61701b96
 import searchRoutes from "./routes/search";
 
 //dotenv config
@@ -35,7 +40,7 @@ app.use("/api/groups", groupsRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/gists", gistRoutes);
 app.use("/api/comments", commentsRoute);
-app.use('/api/feeds', feedRoutes)
+app.use('/api/feed', feedRoutes)
 app.use("/api/likes", LikeRoutes)
 app.use("/api/bookmarks", BookmarkRoutes)
 

@@ -24,12 +24,29 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const LikeSchema = new mongoose_1.default.Schema({
+const feedSchema = new mongoose_1.default.Schema({
     author: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
+        type: mongoose_1.default.SchemaTypes.ObjectId,
         required: true,
-    }
+        ref: "User",
+    },
+    group: {
+        type: mongoose_1.default.SchemaTypes.ObjectId,
+        required: true,
+        ref: "Group",
+    },
+    post: {
+        type: String,
+        required: true,
+    },
+    comments: {
+        type: [mongoose_1.Schema.Types.ObjectId],
+        ref: "Comment",
+    },
+    likes: {
+        type: [mongoose_1.default.SchemaTypes.ObjectId],
+        ref: "User",
+    },
 }, { timestamps: true });
-const Like = mongoose_1.default.model('Like', LikeSchema);
-exports.default = Like;
+const Feed = mongoose_1.models.Feed || mongoose_1.default.model("Feed", feedSchema);
+exports.default = Feed;

@@ -12,21 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchFeeds = exports.saveFeed = void 0;
+exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const feed_1 = __importDefault(require("../models/feed"));
+const Feed_1 = __importDefault(require("../models/Feed"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { post } = req.body;
+    const { post, group } = req.body;
     try {
-        const feed = yield feed_1.default.create({
+        const feed = yield Feed_1.default.create({
             post,
-            author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id
+            author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
+            group,
         });
         res.json({
-            status: 'success',
-            message: 'Feed created',
-            feed
+            status: "success",
+            message: "Feed created",
+            feed,
         });
     }
     catch (error) {
@@ -35,17 +36,24 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
 }));
 exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const feeds = yield feed_1.default.find()
+        const feeds = yield Feed_1.default.find()
             .sort({ createdAt: -1 })
             .limit(25)
-            .populate('author');
+            .populate("author");
         res.json({
-            status: 'success',
-            message: 'Feeds fetched',
-            feeds
+            status: "success",
+            message: "Feeds fetched",
+            feeds,
         });
     }
     catch (error) {
         res.status(500).send(error);
     }
+}));
+exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const feed = yield Feed_1.default.findById(id)
+        .populate("author", "firstName lastName avatar")
+        .populate("group");
+    res.status(200).json(feed);
 }));

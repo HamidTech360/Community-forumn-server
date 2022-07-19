@@ -54,7 +54,7 @@ const gistSchema = new mongoose_1.default.Schema({
     comments: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "Comment",
-    }
+    },
 }, { timestamps: true });
-const Gist = mongoose_1.default.model("Gist", gistSchema);
+const Gist = mongoose_1.models.Gist || mongoose_1.default.model("Gist", gistSchema);
 exports.default = Gist;
