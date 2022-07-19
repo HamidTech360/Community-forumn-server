@@ -107,9 +107,9 @@ exports.getCurrentUser = (0, express_async_handler_1.default)((req, res) => __aw
     const id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
     console.log(id);
     try {
-        const user = yield User_1.default.findById(id)
-            .populate("followers")
-            .populate("following");
+        const user = yield User_1.default
+            .findById(id)
+            .populate('followers following');
         res.json(user);
     }
     catch (error) {
