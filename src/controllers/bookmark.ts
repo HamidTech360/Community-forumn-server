@@ -40,10 +40,12 @@ export const RemoveFromBookmark = expressAsyncHandler(
 export const getBookMarks = expressAsyncHandler(
     async (req:any, res:any)=>{
         try{
-            const posts =  await User.findById(req.user._id)
+            const posts =  await User.findById(req.user?._id)
                                 .select({bookmarks:1})
-                                .populate('bookmarks')
-                                
+                                .populate({
+                                    path:'bookmarks',
+                                })
+
             res.json({
                 message:'Bookmarks fetched',
                 posts
