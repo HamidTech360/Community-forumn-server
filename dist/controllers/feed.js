@@ -54,6 +54,6 @@ exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter
     const id = req.params.id;
     const feed = yield feed_1.default.findById(id)
         .populate("author", "firstName lastName avatar")
-        .populate("group");
+        .populate("Group");
     res.status(200).json(feed);
 }));

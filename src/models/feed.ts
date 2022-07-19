@@ -28,5 +28,5 @@ const feedSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Feed = mongoose.model("feed", feedSchema);
+const Feed = mongoose.model("Feed", feedSchema);
 export default Feed;
