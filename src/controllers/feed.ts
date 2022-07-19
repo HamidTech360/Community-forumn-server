@@ -41,7 +41,7 @@ export const fetchFeed = expressAsyncHandler(
     const id = req.params.id;
     const feed = await Feed.findById(id)
       .populate("author", "firstName lastName avatar")
-      .populate("group");
+      .populate("Group");
     res.status(200).json(feed);
   }
 );
