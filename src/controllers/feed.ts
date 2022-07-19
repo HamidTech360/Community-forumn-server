@@ -45,3 +45,52 @@ export const fetchFeed = expressAsyncHandler(
     res.status(200).json(feed);
   }
 );
+
+//@Routes /api/posts/group/:id
+//Method get
+//@ccess: loggedIn
+export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
+  const groupId = req.params.id;
+  console.log(groupId);
+
+  try {
+    const posts = await Feed.find({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      group: groupId,
+    })
+      .sort({ createdAt: -1 })
+      .populate("group", "name")
+      .populate("author", "-password")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
+    res.status(200).json({ msg: " Group Posts retrieved", posts });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+//@Routes /api/posts/group/:id
+//Method get
+//@ccess: loggedIn
+export const getRandomGroupFeed = expressAsyncHandler(
+  async (req: any, res: any) => {
+    try {
+      const posts = await Feed.find({
+        group: { $ne: null },
+      })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate("group", "name")
+        .populate("author", "-password")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        });
+      res.status(200).json({ msg: "Random group posts retrieved", posts });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+);

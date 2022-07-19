@@ -31,6 +31,8 @@ const controller = __importStar(require("../controllers/feed"));
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 router.get("/", controller.fetchFeeds);
+router.route("/groups/").get(controller.getRandomGroupFeed);
 router.get("/:id", controller.fetchFeed);
 router.post("/", auth_1.loggedIn, controller.saveFeed);
+router.route("/groups/:id").get(controller.getGroupFeed);
 exports.default = router;
