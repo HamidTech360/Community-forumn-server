@@ -40,6 +40,7 @@ app.use("/api/likes", LikeRoutes)
 app.use("/api/bookmarks", BookmarkRoutes)
 
 
+
 app.get("/", (res: Response) => res.send("Hello"));
 
 app.listen(process.env.PORT, () =>

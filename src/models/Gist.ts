@@ -1,4 +1,4 @@
-import mongoose, { Types,Schema, SchemaTypes } from "mongoose";
+import mongoose, { Types, Schema, SchemaTypes, models } from "mongoose";
 
 export interface IGistSchema extends mongoose.Document {
   author: Types.ObjectId;
@@ -41,11 +41,11 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
     comments: {
       type: [Schema.Types.ObjectId],
       ref: "Comment",
-    }
+    },
   },
   { timestamps: true }
 );
 
-const Gist = mongoose.model("Gist", gistSchema);
+const Gist = models.Gist || mongoose.model("Gist", gistSchema);
 
 export default Gist;
