@@ -140,53 +140,6 @@ export const deleteLike = expressAsyncHandler(
   }
 );
 
-//@Routes /api/posts/group/:id
-//Method get
-//@ccess: loggedIn
-export const getGroupPosts = expressAsyncHandler(async (req: any, res: any) => {
-  const groupId = req.params.id;
-  console.log(groupId);
-
-  try {
-    const posts = await Post.find({
-      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-      groupId: groupId,
-    })
-      .sort({ createdAt: -1 })
-      .populate("author", "-password")
-      .populate({
-        path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
-      });
-    res.status(200).json({ msg: " Group Posts retrieved", posts });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-});
-
-//@Routes /api/posts/group/:id
-//Method get
-//@ccess: loggedIn
-export const getRandomGroupPosts = expressAsyncHandler(
-  async (req: any, res: any) => {
-    try {
-      const posts = await Post.find({
-        groupId: { $ne: null },
-      })
-        .sort({ createdAt: -1 })
-        .limit(20)
-        .populate("author", "-password")
-        .populate({
-          path: "comments",
-          populate: { path: "author", select: "firstName lastName avatar" },
-        });
-      res.status(200).json({ msg: "Random group posts retrieved", posts });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  }
-);
-
 //@Routes /api/posts/user/:id
 //Method get
 //@ccess: loggedIn
