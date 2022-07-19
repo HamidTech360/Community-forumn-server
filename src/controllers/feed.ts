@@ -35,3 +35,13 @@ export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
     res.status(500).send(error);
   }
 });
+
+export const fetchFeed = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const feed = await Feed.findById(id)
+      .populate("author", "firstName lastName avatar")
+      .populate("group");
+    res.status(200).json(feed);
+  }
+);
