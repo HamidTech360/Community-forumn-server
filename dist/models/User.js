@@ -102,12 +102,14 @@ const userSchema = new mongoose_1.Schema({
     followers: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User",
-        default: [],
+    },
+    bookmarks: {
+        type: [mongoose_1.Schema.Types.ObjectId],
+        ref: "Post",
     },
     following: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User",
-        default: [],
     },
     bio: {
         type: String,

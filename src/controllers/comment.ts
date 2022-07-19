@@ -6,7 +6,7 @@ import expressAsyncHandler from "express-async-handler";
 import Comment from "../models/Comment";
 import Gist from "../models/Gist";
 import Post from "../models/Post";
-import Feed from "../models/feed";
+import Feed from "../models/Feed";
 
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
