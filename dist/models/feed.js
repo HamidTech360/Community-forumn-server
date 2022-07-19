@@ -48,5 +48,5 @@ const feedSchema = new mongoose_1.default.Schema({
         ref: "User",
     },
 }, { timestamps: true });
-const Feed = mongoose_1.default.model("Feed", feedSchema);
+const Feed = mongoose_1.models.Feed || mongoose_1.default.model("Feed", feedSchema);
 exports.default = Feed;
