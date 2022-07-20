@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
+exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Feed_1 = __importDefault(require("../models/Feed"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -56,4 +56,50 @@ exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter
         .populate("author", "firstName lastName avatar")
         .populate("group");
     res.status(200).json(feed);
+}));
+//@Routes /api/posts/group/:id
+//Method get
+//@ccess: loggedIn
+exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const groupId = req.params.id;
+    console.log(groupId);
+    try {
+        const posts = yield Feed_1.default.find({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+            group: groupId,
+        })
+            .sort({ createdAt: -1 })
+            .populate("group", "name")
+            .populate("author", "-password")
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
+        res.status(200).json({ msg: " Group Posts retrieved", posts });
+    }
+    catch (error) {
+        res.status(500).json(error);
+    }
+}));
+//@Routes /api/posts/group/:id
+//Method get
+//@ccess: loggedIn
+exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const posts = yield Feed_1.default.find({
+            group: { $ne: null },
+        })
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .populate("group", "name")
+            .populate("author", "-password")
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
+        res.status(200).json({ msg: "Random group posts retrieved", posts });
+    }
+    catch (error) {
+        res.status(500).json(error);
+    }
 }));

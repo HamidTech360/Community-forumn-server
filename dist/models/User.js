@@ -105,7 +105,7 @@ const userSchema = new mongoose_1.Schema({
     },
     bookmarks: {
         type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "Post",
+        ref: "Feed",
     },
     following: {
         type: [mongoose_1.Schema.Types.ObjectId],
