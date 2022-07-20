@@ -23,11 +23,11 @@ export const comment = expressAsyncHandler(
         $addToSet: { comments: [comment._id] },
       });
     } else if (type == "gist") {
-      await Gist.findByIdAndUpdate(req.params.id, {
+      await Gist.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
     } else if (type == "feed") {
-      await Feed.findByIdAndUpdate(req.params.id, {
+      await Feed.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
     }
