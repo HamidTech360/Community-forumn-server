@@ -32,12 +32,12 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
         });
     }
     else if (type == "gist") {
-        yield Gist_1.default.findByIdAndUpdate(req.params.id, {
+        yield Gist_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
     }
     else if (type == "feed") {
-        yield Feed_1.default.findByIdAndUpdate(req.params.id, {
+        yield Feed_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
     }
