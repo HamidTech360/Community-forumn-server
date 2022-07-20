@@ -22,14 +22,28 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
 
 export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
   try {
-    const feeds = await Feed.find()
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = await Feed.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
+
+    const feed = await Feed.find({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    })
       .sort({ createdAt: -1 })
-      .limit(25)
-      .populate("author");
+      .limit(perPage)
+      .skip(page * perPage)
+      .populate("author", "firstName lastName avatar")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      });
     res.json({
       status: "success",
-      message: "Feeds fetched",
-      feeds,
+      message: "Feed retrieved",
+      feed,
+      count,
+      numPages,
     });
   } catch (error) {
     res.status(500).send(error);
@@ -54,18 +68,30 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
   console.log(groupId);
 
   try {
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = await Feed.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
+
     const posts = await Feed.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       group: groupId,
     })
       .sort({ createdAt: -1 })
-      .populate("group", "name")
-      .populate("author", "-password")
+      .limit(perPage)
+      .skip(page * perPage)
+      .populate("author", "firstName lastName avatar")
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
       });
-    res.status(200).json({ msg: " Group Posts retrieved", posts });
+    res.json({
+      status: "success",
+      message: "Group feed retrieved",
+      posts,
+      count,
+      numPages,
+    });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -77,18 +103,29 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
 export const getRandomGroupFeed = expressAsyncHandler(
   async (req: any, res: any) => {
     try {
+      const perPage = Number(req.query.perPage) || 25;
+      const page = Number(req.query.page) || 0;
+      const count = await Feed.find().estimatedDocumentCount();
+      const numPages = Math.ceil(count / perPage);
+
       const posts = await Feed.find({
         group: { $ne: null },
       })
         .sort({ createdAt: -1 })
-        .limit(20)
-        .populate("group", "name")
-        .populate("author", "-password")
+        .limit(perPage)
+        .skip(page * perPage)
+        .populate("author", "firstName lastName avatar")
         .populate({
           path: "comments",
           populate: { path: "author", select: "firstName lastName avatar" },
         });
-      res.status(200).json({ msg: "Random group posts retrieved", posts });
+      res.json({
+        status: "success",
+        message: "Group feed retrieved",
+        posts,
+        count,
+        numPages,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
