@@ -9,9 +9,13 @@ import User from "../models/User";
 export const getUsers = asyncHandler(async (req, res) => {
   try {
     const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
     const count = await User.find().estimatedDocumentCount();
-    const numPages = count / perPage;
-    const users = await User.find().sort({ createdAt: -1 }).limit(perPage);
+    const numPages = Math.ceil(count / perPage);
+    const users = await User.find()
+      .sort({ createdAt: -1 })
+      .limit(perPage)
+      .skip(page * perPage);
 
     res.status(200).json({ users, count, numPages });
   } catch (error) {
