@@ -33,7 +33,7 @@ export const fetchAllGist = expressAsyncHandler(
     try {
       const perPage = Number(req.query.perPage) || 25;
       const page = Number(req.query.page) || 0;
-      const count = await Feed.find().estimatedDocumentCount();
+      const count = await Gist.find().estimatedDocumentCount();
       const numPages = Math.ceil(count / perPage);
 
       const gists = await Gist.find()

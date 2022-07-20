@@ -15,14 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateUser = exports.getUser = exports.getUsers = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
-const fs_1 = __importDefault(require("fs"));
 //@route: /api/users
 //@method: GET
 //@access: public
 exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield User_1.default.find();
-        res.status(200).json(users);
+        const perPage = Number(req.query.perPage) || 25;
+        const page = Number(req.query.page) || 0;
+        const count = yield User_1.default.find().estimatedDocumentCount();
+        const numPages = Math.ceil(count / perPage);
+        const users = yield User_1.default.find()
+            .sort({ createdAt: -1 })
+            .limit(perPage)
+            .skip(page * perPage);
+        res.status(200).json({ users, count, numPages });
     }
     catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -41,16 +47,6 @@ exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     }
 }));
 exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.file);
-    if (req.file) {
-        const fileType = req.file.mimetype.split("/")[1];
-        const rename = `${req.file.filename}.${fileType}`;
-        fs_1.default.rename(`./uploads/${req.file.filename}`, `./uploads/${rename}`, function () {
-            //res.send('uploaded successfully')
-            //response.imgUploaded = true
-        });
-    }
-    //return
     try {
         const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign({}, req.body));
         res.json({
