@@ -21,9 +21,13 @@ const User_1 = __importDefault(require("../models/User"));
 exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const perPage = Number(req.query.perPage) || 25;
+        const page = Number(req.query.page) || 0;
         const count = yield User_1.default.find().estimatedDocumentCount();
-        const numPages = count / perPage;
-        const users = yield User_1.default.find().sort({ createdAt: -1 }).limit(perPage);
+        const numPages = Math.ceil(count / perPage);
+        const users = yield User_1.default.find()
+            .sort({ createdAt: -1 })
+            .limit(perPage)
+            .skip(page * perPage);
         res.status(200).json({ users, count, numPages });
     }
     catch (error) {

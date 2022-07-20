@@ -41,13 +41,29 @@ exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaite
 }));
 exports.fetchAllGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const perPage = Number(req.query.perPage) || 25;
+        const page = Number(req.query.page) || 0;
+        const count = yield Gist_1.default.find().estimatedDocumentCount();
+        const numPages = Math.ceil(count / perPage);
         const gists = yield Gist_1.default.find()
             .where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-            .populate("author", "-password")
-            .sort({ createdAt: -1 });
-        res.status(200).json(gists);
+            .sort({ createdAt: -1 })
+            .limit(perPage)
+            .skip(page * perPage)
+            .populate("author", "firstName lastName avatar")
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
+        res.json({
+            status: "success",
+            message: "Gists retrieved",
+            gists,
+            count,
+            numPages,
+        });
     }
     catch (error) {
         console.log(error);
@@ -61,7 +77,7 @@ exports.fetchSingleGist = (0, express_async_handler_1.default)((req, res) => __a
             .where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-            .populate("author", "-password");
+            .populate("author", "firstName lastName avatar");
         res.json({
             status: "success",
             message: "Gist fetched",
