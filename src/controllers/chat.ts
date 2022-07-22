@@ -46,7 +46,7 @@ export const fetchConversation = expressAsyncHandler(
     async (req:any, res:any)=>{
         let discussions:any= []
         try{
-            const chats = await Chat.find().sort({createdAt:-1})
+            const chats = await Chat.find().sort({createdAt:-1}).populate("sender receiver")
            
             
             chats.forEach((item)=>{
