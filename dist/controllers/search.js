@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.search = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Gist_1 = __importDefault(require("../models/Gist"));
+const Group_1 = __importDefault(require("../models/Group"));
 const Post_1 = __importDefault(require("../models/Post"));
 const User_1 = __importDefault(require("../models/User"));
 //@Route /api/search
@@ -41,6 +42,12 @@ exports.search = (0, express_async_handler_1.default)((req, res) => __awaiter(vo
                     { title: { $regex: keyword, $options: "i" } },
                     { post: { $regex: keyword, $options: "i" } },
                     { categories: { $regex: keyword, $options: "i" } },
+                ],
+            }),
+            group: yield Group_1.default.find({
+                $or: [
+                    { name: { $regex: keyword, $options: "i" } },
+                    { description: { $regex: keyword, $options: "i" } },
                 ],
             }),
         };
