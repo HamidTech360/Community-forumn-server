@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Gist from "../models/Gist";
+import Group from "../models/Group";
 import Post from "../models/Post";
 import User from "../models/User";
 
@@ -29,6 +30,12 @@ export const search = expressAsyncHandler(
             { title: { $regex: keyword, $options: "i" } },
             { post: { $regex: keyword, $options: "i" } },
             { categories: { $regex: keyword, $options: "i" } },
+          ],
+        }),
+        group: await Group.find({
+          $or: [
+            { name: { $regex: keyword, $options: "i" } },
+            { description: { $regex: keyword, $options: "i" } },
           ],
         }),
       };

@@ -107,9 +107,7 @@ exports.getCurrentUser = (0, express_async_handler_1.default)((req, res) => __aw
     const id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
     console.log(id);
     try {
-        const user = yield User_1.default
-            .findById(id)
-            .populate('followers following');
+        const user = yield User_1.default.findById(id).populate("followers following");
         res.json(user);
     }
     catch (error) {
@@ -137,8 +135,11 @@ exports.oauth = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     let accessToken, refreshToken;
     console.log(userData);
     if (!dbUser) {
-        const newUser = new User_1.default(Object.assign(Object.assign({}, userData), { avatar: userData === null || userData === void 0 ? void 0 : userData.picture }));
-        console.log(newUser);
+        const newUser = new User_1.default(Object.assign(Object.assign({}, userData), { images: {
+                avatar: userData === null || userData === void 0 ? void 0 : userData.avatar,
+            } }));
+        console.log("db", dbUser);
+        console.log("new", newUser);
         const savedUser = yield newUser.save();
         accessToken = (0, token_1.generateAccessToken)({ sub: savedUser._id });
         refreshToken = (0, token_1.generateRefreshToken)({ sub: savedUser._id });

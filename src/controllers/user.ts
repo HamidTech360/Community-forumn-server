@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import User from "../models/User";
-import fs from "fs";
 
 //@route: /api/users
 //@method: GET
@@ -9,8 +8,16 @@ import fs from "fs";
 
 export const getUsers = asyncHandler(async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = await User.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
+    const users = await User.find()
+      .sort({ createdAt: -1 })
+      .limit(perPage)
+      .skip(page * perPage);
+
+    res.status(200).json({ users, count, numPages });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
   }
@@ -30,21 +37,6 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUser = asyncHandler(async (req: any, res) => {
-  console.log(req.file);
-  if (req.file) {
-    const fileType = req.file.mimetype.split("/")[1];
-    const rename = `${req.file.filename}.${fileType}`;
-    fs.rename(
-      `./uploads/${req.file.filename}`,
-      `./uploads/${rename}`,
-      function () {
-        //res.send('uploaded successfully')
-        //response.imgUploaded = true
-      }
-    );
-  }
-
-  //return
   try {
     const user = await User.findByIdAndUpdate(req.params.id, {
       ...req.body,
@@ -58,3 +50,37 @@ export const updateUser = asyncHandler(async (req: any, res) => {
     res.status(500).send(error);
   }
 });
+
+export const followUser = asyncHandler(
+  async (req: Request & { user?: { _id?: string } }, res: Response) => {
+    try {
+      const me = await User.findByIdAndUpdate(req.user?._id, {
+        $addToSet: { following: [req.params.id] },
+      }).select("followers following");
+      const them = await User.findByIdAndUpdate(req.params.id, {
+        $addToSet: { followers: [req.params.id] },
+      }).select("followers following");
+
+      res.status(200).json({ me, them });
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
+
+export const unFollowUser = asyncHandler(
+  async (req: Request & { user?: { _id?: string } }, res: Response) => {
+    try {
+      const me = await User.findByIdAndUpdate(req.user?._id, {
+        $pull: { following: [req.params.id] },
+      }).select("followers following");
+      const them = await User.findByIdAndUpdate(req.params.id, {
+        $pull: { followers: [req.params.id] },
+      }).select("followers following");
+
+      res.status(200).json({ me, them });
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);

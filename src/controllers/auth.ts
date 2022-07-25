@@ -119,15 +119,13 @@ export const getCurrentUser = asyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const id = req.user?._id;
     console.log(id);
-    
-    try{
-      const user = await User
-          .findById(id)
-          .populate('followers following')
-          
-          res.json(user)
-    }catch(error){
-      res.status(500).send(error)
+
+    try {
+      const user = await User.findById(id).populate("followers following");
+
+      res.json(user);
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
 );
@@ -142,7 +140,7 @@ export const oauth = asyncHandler(async (req: Request, res: Response) => {
   if (!provider) {
     return res.status(400).json("Provider not set");
   }
-  let userData: (AnyKeys<IUserSchema> & AnyObject) | undefined;
+  let userData;
   switch (provider) {
     case "GOOGLE":
       userData = await normalizeGoogleData(req.body);
@@ -161,10 +159,12 @@ export const oauth = asyncHandler(async (req: Request, res: Response) => {
   if (!dbUser) {
     const newUser = new User({
       ...userData,
-      avatar: userData?.picture,
+      images: {
+        avatar: userData?.avatar,
+      },
     });
-
-    console.log(newUser);
+    console.log("db", dbUser);
+    console.log("new", newUser);
     const savedUser = await newUser.save();
     accessToken = generateAccessToken({ sub: savedUser._id });
     refreshToken = generateRefreshToken({ sub: savedUser._id });

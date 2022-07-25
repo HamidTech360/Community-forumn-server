@@ -33,17 +33,28 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Get
 //@Access: Public
 exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = yield Post_1.default.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
     const posts = yield Post_1.default.find({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-        groupId: null,
     })
         .sort({ createdAt: -1 })
+        .limit(perPage)
+        .skip(page * perPage)
         .populate("author", "-password")
         .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
     });
-    res.status(200).json({ msg: "Posts retrieved", posts });
+    res.json({
+        status: "success",
+        message: "User posts retrieved",
+        posts,
+        count,
+        numPages,
+    });
 }));
 //@Route /api/posts/:id
 //@Method Get
@@ -147,6 +158,10 @@ exports.deleteLike = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _f, _g;
     try {
+        const perPage = Number(req.query.perPage) || 25;
+        const page = Number(req.query.page) || 0;
+        const count = yield Post_1.default.find().estimatedDocumentCount();
+        const numPages = Math.ceil(count / perPage);
         const posts = yield Post_1.default.find({
             $and: [
                 {
@@ -162,7 +177,8 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
             ],
         })
             .sort({ createdAt: -1 })
-            .limit(20)
+            .limit(perPage)
+            .skip(page * perPage)
             .populate("author", "-password")
             .populate({
             path: "comments",
@@ -172,6 +188,8 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
             status: "success",
             message: "User posts retrieved",
             posts,
+            count,
+            numPages,
         });
     }
     catch (error) {
