@@ -9,5 +9,8 @@ router.get("/", controller.getUsers);
 
 router.get("/:id", controller.getUser);
 router.put("/:id", controller.updateUser);
-router.get("/:id/follow", loggedIn, controller.followUser);
+router
+  .route("/:id/follow")
+  .get(loggedIn, controller.followUser)
+  .delete(controller.unFollowUser);
 export default router;

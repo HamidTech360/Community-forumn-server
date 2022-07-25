@@ -35,5 +35,8 @@ const router = express_1.default.Router();
 router.get("/", controller.getUsers);
 router.get("/:id", controller.getUser);
 router.put("/:id", controller.updateUser);
-router.get("/:id/follow", auth_1.loggedIn, controller.followUser);
+router
+    .route("/:id/follow")
+    .get(auth_1.loggedIn, controller.followUser)
+    .delete(controller.unFollowUser);
 exports.default = router;
