@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.followUser = exports.updateUser = exports.getUser = exports.getUsers = void 0;
+exports.unFollowUser = exports.followUser = exports.updateUser = exports.getUser = exports.getUsers = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
 //@route: /api/users
@@ -63,10 +63,25 @@ exports.followUser = (0, express_async_handler_1.default)((req, res) => __awaite
     try {
         const me = yield User_1.default.findByIdAndUpdate((_a = req.user) === null || _a === void 0 ? void 0 : _a._id, {
             $addToSet: { following: [req.params.id] },
-        });
+        }).select("followers following");
         const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
             $addToSet: { followers: [req.params.id] },
-        });
+        }).select("followers following");
+        res.status(200).json({ me, them });
+    }
+    catch (error) {
+        res.status(500).send(error);
+    }
+}));
+exports.unFollowUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        const me = yield User_1.default.findByIdAndUpdate((_b = req.user) === null || _b === void 0 ? void 0 : _b._id, {
+            $pull: { following: [req.params.id] },
+        }).select("followers following");
+        const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
+            $pull: { followers: [req.params.id] },
+        }).select("followers following");
         res.status(200).json({ me, them });
     }
     catch (error) {

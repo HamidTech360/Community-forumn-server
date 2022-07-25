@@ -56,10 +56,27 @@ export const followUser = asyncHandler(
     try {
       const me = await User.findByIdAndUpdate(req.user?._id, {
         $addToSet: { following: [req.params.id] },
-      });
+      }).select("followers following");
       const them = await User.findByIdAndUpdate(req.params.id, {
         $addToSet: { followers: [req.params.id] },
-      });
+      }).select("followers following");
+
+      res.status(200).json({ me, them });
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
+
+export const unFollowUser = asyncHandler(
+  async (req: Request & { user?: { _id?: string } }, res: Response) => {
+    try {
+      const me = await User.findByIdAndUpdate(req.user?._id, {
+        $pull: { following: [req.params.id] },
+      }).select("followers following");
+      const them = await User.findByIdAndUpdate(req.params.id, {
+        $pull: { followers: [req.params.id] },
+      }).select("followers following");
 
       res.status(200).json({ me, them });
     } catch (error) {
