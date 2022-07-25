@@ -38,5 +38,5 @@ router.put("/:id", controller.updateUser);
 router
     .route("/:id/follow")
     .get(auth_1.loggedIn, controller.followUser)
-    .delete(controller.unFollowUser);
+    .delete(auth_1.loggedIn, controller.unFollowUser);
 exports.default = router;
