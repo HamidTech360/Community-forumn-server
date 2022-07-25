@@ -16,6 +16,7 @@ import LikeRoutes from "./routes/like";
 import BookmarkRoutes from "./routes/bookmark";
 import searchRoutes from "./routes/search";
 import chatRoutes from './routes/chat'
+import categoryRoutes from './routes/category'
 
 //dotenv config
 config();
@@ -40,6 +41,7 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/likes", LikeRoutes);
 app.use("/api/bookmarks", BookmarkRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/category", categoryRoutes)
 
 app.get("/", (res: Response) => res.send("Hello"));
 
