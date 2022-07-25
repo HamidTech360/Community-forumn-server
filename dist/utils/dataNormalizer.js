@@ -13,10 +13,10 @@ exports.normalizeFacebookData = exports.normalizeGoogleData = void 0;
 const normalizeGoogleData = (data) => __awaiter(void 0, void 0, void 0, function* () {
     return {
         email: data.email,
-        firstName: data.givenName,
-        lastName: data.familyName,
-        avatar: data.imageUrl || null,
-        authProvider: data.googleId && "GOOGLE",
+        firstName: data.given_name,
+        lastName: data.family_name,
+        avatar: data.picture || null,
+        authProvider: "GOOGLE",
     };
 });
 exports.normalizeGoogleData = normalizeGoogleData;
