@@ -63,11 +63,11 @@ exports.followUser = (0, express_async_handler_1.default)((req, res) => __awaite
     try {
         const me = yield User_1.default.findByIdAndUpdate((_a = req.user) === null || _a === void 0 ? void 0 : _a._id, {
             $addToSet: { following: [req.params.id] },
-        }).select("followers following");
+        });
         const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
             $addToSet: { followers: [req.params.id] },
-        }).select("followers following");
-        res.status(200).json({ me, them });
+        });
+        res.status(200).json("followed");
     }
     catch (error) {
         res.status(500).send(error);
@@ -77,12 +77,12 @@ exports.unFollowUser = (0, express_async_handler_1.default)((req, res) => __awai
     var _b;
     try {
         const me = yield User_1.default.findByIdAndUpdate((_b = req.user) === null || _b === void 0 ? void 0 : _b._id, {
-            $pull: { following: [req.params.id] },
-        }).select("followers following");
+            $pull: { following: { $in: [req.params.id] } },
+        });
         const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
-            $pull: { followers: [req.params.id] },
-        }).select("followers following");
-        res.status(200).json({ me, them });
+            $pull: { followers: { $in: [req.params.id] } },
+        });
+        res.status(200).json("unfollowed");
     }
     catch (error) {
         res.status(500).send(error);
