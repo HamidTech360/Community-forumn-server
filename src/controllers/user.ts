@@ -50,3 +50,20 @@ export const updateUser = asyncHandler(async (req: any, res) => {
     res.status(500).send(error);
   }
 });
+
+export const followUser = asyncHandler(
+  async (req: Request & { user?: { _id?: string } }, res: Response) => {
+    try {
+      const me = await User.findByIdAndUpdate(req.user?._id, {
+        $addToSet: { following: [req.params.id] },
+      });
+      const them = await User.findByIdAndUpdate(req.params.id, {
+        $addToSet: { followers: [req.params.id] },
+      });
+
+      res.status(200).json({ me, them });
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);

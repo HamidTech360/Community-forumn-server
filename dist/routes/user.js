@@ -28,10 +28,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const controller = __importStar(require("../controllers/user"));
+const auth_1 = require("../middleware/auth");
 // import multer from 'multer'
 //const upload = multer({dest:"./uploads/"})
 const router = express_1.default.Router();
 router.get("/", controller.getUsers);
 router.get("/:id", controller.getUser);
 router.put("/:id", controller.updateUser);
+router.get("/:id/follow", auth_1.loggedIn, controller.followUser);
 exports.default = router;

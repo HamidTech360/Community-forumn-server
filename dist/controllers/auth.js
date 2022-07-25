@@ -123,7 +123,6 @@ exports.oauth = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     let userData;
     switch (provider) {
         case "GOOGLE":
-            console.log(req.body);
             userData = yield (0, dataNormalizer_1.normalizeGoogleData)(req.body);
             break;
         case "FACEBOOK":
@@ -139,7 +138,8 @@ exports.oauth = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
         const newUser = new User_1.default(Object.assign(Object.assign({}, userData), { images: {
                 avatar: userData === null || userData === void 0 ? void 0 : userData.avatar,
             } }));
-        console.log(newUser);
+        console.log("db", dbUser);
+        console.log("new", newUser);
         const savedUser = yield newUser.save();
         accessToken = (0, token_1.generateAccessToken)({ sub: savedUser._id });
         refreshToken = (0, token_1.generateRefreshToken)({ sub: savedUser._id });
