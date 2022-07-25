@@ -143,7 +143,6 @@ export const oauth = asyncHandler(async (req: Request, res: Response) => {
   let userData;
   switch (provider) {
     case "GOOGLE":
-      console.log(req.body);
       userData = await normalizeGoogleData(req.body);
       break;
     case "FACEBOOK":
@@ -164,8 +163,8 @@ export const oauth = asyncHandler(async (req: Request, res: Response) => {
         avatar: userData?.avatar,
       },
     });
-
-    console.log(newUser);
+    console.log("db", dbUser);
+    console.log("new", newUser);
     const savedUser = await newUser.save();
     accessToken = generateAccessToken({ sub: savedUser._id });
     refreshToken = generateRefreshToken({ sub: savedUser._id });
