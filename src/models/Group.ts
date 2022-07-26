@@ -1,4 +1,4 @@
-import mongoose, { Document, model, Schema, Types } from "mongoose";
+import mongoose, { Document, model, models, Schema, Types } from "mongoose";
 
 interface IGroup extends Document {
   name: string;
@@ -25,23 +25,23 @@ const groupSchema = new Schema(
       required: true,
       ref: "User",
     },
-    privacy:{
-      type:String,
-      required:true
+    privacy: {
+      type: String,
+      required: true,
     },
-    invite:{
-      type:String,
-      required:true,
-      enum:['admin', 'everyone', 'moderators']
+    invite: {
+      type: String,
+      required: true,
+      enum: ["admin", "everyone", "moderators"],
     },
-    allowedToPost:{
-      type:String,
-      required:true
+    allowedToPost: {
+      type: String,
+      required: true,
     },
-    groupMembers:{
+    groupMembers: {
       type: [mongoose.SchemaTypes.ObjectId],
-      default:[],
-      ref:"User"
+      default: [],
+      ref: "User",
     },
     deleted: {
       type: Boolean,
@@ -51,6 +51,6 @@ const groupSchema = new Schema(
   { timestamps: true }
 );
 
-const Group = model("group", groupSchema);
+const Group = models.Group || model("Group", groupSchema);
 
 export default Group;

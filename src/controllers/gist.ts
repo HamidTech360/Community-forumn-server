@@ -31,13 +31,37 @@ export const createGist = expressAsyncHandler(
 export const fetchAllGist = expressAsyncHandler(
   async (req: Request, res: Response) => {
     try {
+      const perPage = Number(req.query.perPage) || 25;
+      const page = Number(req.query.page) || 0;
+      const count = await Gist.find().estimatedDocumentCount();
+      const numPages = Math.ceil(count / perPage);
+
       const gists = await Gist.find()
         .where({
           $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-        .populate("author", "-password")
-        .sort({ createdAt: -1 });
-      res.status(200).json(gists);
+        .sort({ createdAt: -1 })
+        .limit(perPage)
+        .skip(page * perPage)
+        .populate("author", "firstName lastName avatar")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+          },
+        });
+      res.json({
+        status: "success",
+        message: "Gists retrieved",
+        gists,
+        count,
+        numPages,
+      });
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: error, message: "Something went wrong" });
@@ -54,7 +78,18 @@ export const fetchSingleGist = expressAsyncHandler(
         .where({
           $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-        .populate("author", "-password");
+        .populate("author", "firstName lastName avatar")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+          },
+        });
       res.json({
         status: "success",
         message: "Gist fetched",

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserPosts = exports.getRandomGroupPosts = exports.getGroupPosts = exports.deleteLike = exports.likePost = exports.updatePost = exports.deletePost = exports.getPost = exports.getPosts = exports.createPost = void 0;
+exports.getUserPosts = exports.deleteLike = exports.likePost = exports.updatePost = exports.deletePost = exports.getPost = exports.getPosts = exports.createPost = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Post_1 = __importDefault(require("../models/Post"));
 //@Route /api/posts
@@ -33,14 +33,38 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Get
 //@Access: Public
 exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = yield Post_1.default.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
     const posts = yield Post_1.default.find({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-        groupId: null,
     })
         .sort({ createdAt: -1 })
+        .limit(perPage)
+        .skip(page * perPage)
         .populate("author", "-password")
-        .populate("comments");
-    res.status(200).json({ msg: "Posts retrieved", posts });
+        .populate({
+        path: "comments",
+        populate: {
+            path: "author",
+            select: "firstName lastName avatar",
+        },
+    })
+        .populate({
+        path: "comments",
+        populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        },
+    });
+    res.json({
+        status: "success",
+        message: "User posts retrieved",
+        posts,
+        count,
+        numPages,
+    });
 }));
 //@Route /api/posts/:id
 //@Method Get
@@ -49,7 +73,14 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId)
         .populate("author", "firstName lastName")
-        .populate("comments")
+        .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+    })
+        .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+    })
         .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
@@ -135,50 +166,16 @@ exports.deleteLike = (0, express_async_handler_1.default)((req, res) => __awaite
         res.status(500).json(error);
     }
 }));
-//@Routes /api/posts/group/:id
-//Method get
-//@ccess: loggedIn
-exports.getGroupPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const groupId = req.params.id;
-    console.log(groupId);
-    try {
-        const posts = yield Post_1.default.find({
-            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-            groupId: groupId,
-        })
-            .sort({ createdAt: -1 })
-            .populate("author", "-password")
-            .populate("comments");
-        res.status(200).json({ msg: " Group Posts retrieved", posts });
-    }
-    catch (error) {
-        res.status(500).json(error);
-    }
-}));
-//@Routes /api/posts/group/:id
-//Method get
-//@ccess: loggedIn
-exports.getRandomGroupPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const posts = yield Post_1.default.find({
-            groupId: { $ne: null },
-        })
-            .sort({ createdAt: -1 })
-            .limit(20)
-            .populate("author", "-password")
-            .populate("comments");
-        res.status(200).json({ msg: "Random group posts retrieved", posts });
-    }
-    catch (error) {
-        res.status(500).json(error);
-    }
-}));
 //@Routes /api/posts/user/:id
 //Method get
 //@ccess: loggedIn
 exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _f, _g;
     try {
+        const perPage = Number(req.query.perPage) || 25;
+        const page = Number(req.query.page) || 0;
+        const count = yield Post_1.default.find().estimatedDocumentCount();
+        const numPages = Math.ceil(count / perPage);
         const posts = yield Post_1.default.find({
             $and: [
                 {
@@ -194,13 +191,23 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
             ],
         })
             .sort({ createdAt: -1 })
-            .limit(20)
+            .limit(perPage)
+            .skip(page * perPage)
             .populate("author", "-password")
-            .populate("comments");
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        })
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        });
         res.json({
             status: "success",
             message: "User posts retrieved",
             posts,
+            count,
+            numPages,
         });
     }
     catch (error) {

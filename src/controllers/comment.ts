@@ -6,7 +6,7 @@ import expressAsyncHandler from "express-async-handler";
 import Comment from "../models/Comment";
 import Gist from "../models/Gist";
 import Post from "../models/Post";
-import Feed from "../models/feed";
+import Feed from "../models/Feed";
 
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
@@ -23,18 +23,22 @@ export const comment = expressAsyncHandler(
         $addToSet: { comments: [comment._id] },
       });
     } else if (type == "gist") {
-      await Gist.findByIdAndUpdate(req.params.id, {
+      await Gist.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
     } else if (type == "feed") {
-      await Feed.findByIdAndUpdate(req.params.id, {
+      await Feed.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
     } else if (type == "reply") {
-      await Comment.findByIdAndUpdate(req.params.id, {
+      console.log("replying");
+      const reply = await Comment.findByIdAndUpdate(req.query.id, {
         $addToSet: { replies: [comment._id] },
       });
+      console.log(reply);
     }
-    res.status(200).json(comment);
+    res
+      .status(200)
+      .json(await comment.populate("author", "firstName lastName avatar"));
   }
 );

@@ -19,7 +19,7 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const Comment_1 = __importDefault(require("../models/Comment"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
-const feed_1 = __importDefault(require("../models/feed"));
+const Feed_1 = __importDefault(require("../models/Feed"));
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
 exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -32,14 +32,23 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
         });
     }
     else if (type == "gist") {
-        yield Gist_1.default.findByIdAndUpdate(req.params.id, {
+        yield Gist_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
     }
     else if (type == "feed") {
-        yield feed_1.default.findByIdAndUpdate(req.params.id, {
-            $addToSet: { comments: [comment._id] }
+        yield Feed_1.default.findByIdAndUpdate(req.query.id, {
+            $addToSet: { comments: [comment._id] },
         });
     }
-    res.status(200).json(comment);
+    else if (type == "reply") {
+        console.log("replying");
+        const reply = yield Comment_1.default.findByIdAndUpdate(req.query.id, {
+            $addToSet: { replies: [comment._id] },
+        });
+        console.log(reply);
+    }
+    res
+        .status(200)
+        .json(yield comment.populate("author", "firstName lastName avatar"));
 }));

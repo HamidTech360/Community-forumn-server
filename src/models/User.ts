@@ -26,9 +26,11 @@ export interface IUserSchema extends Document {
   confirmationCode: string;
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
+  bookmarks: Types.ObjectId[];
   deleted: Boolean;
-  profilePics:string;
-  bio:string;
+  profilePics: string;
+  bio: string;
+  authProvider: string;
 }
 
 const userSchema = new Schema<IUserSchema>({
@@ -52,7 +54,6 @@ const userSchema = new Schema<IUserSchema>({
   password: {
     type: String,
     min: 8,
-    required: true,
   },
   email: {
     type: String,
@@ -96,17 +97,22 @@ const userSchema = new Schema<IUserSchema>({
   followers: {
     type: [Schema.Types.ObjectId],
     ref: "User",
-    default: [],
   },
-
+  bookmarks: {
+    type: [Schema.Types.ObjectId],
+    ref: "Feed",
+  },
   following: {
     type: [Schema.Types.ObjectId],
     ref: "User",
-    default: [],
   },
-  bio:{
-    type:String
-  }
+  bio: {
+    type: String,
+  },
+  authProvider: {
+    type: String,
+    default: "LOCAL",
+  },
 });
 
 userSchema.pre("save", async function (next) {

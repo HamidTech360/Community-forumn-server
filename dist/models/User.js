@@ -58,7 +58,6 @@ const userSchema = new mongoose_1.Schema({
     password: {
         type: String,
         min: 8,
-        required: true,
     },
     email: {
         type: String,
@@ -102,16 +101,22 @@ const userSchema = new mongoose_1.Schema({
     followers: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User",
-        default: [],
+    },
+    bookmarks: {
+        type: [mongoose_1.Schema.Types.ObjectId],
+        ref: "Feed",
     },
     following: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User",
-        default: [],
     },
     bio: {
-        type: String
-    }
+        type: String,
+    },
+    authProvider: {
+        type: String,
+        default: "LOCAL",
+    },
 });
 userSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
