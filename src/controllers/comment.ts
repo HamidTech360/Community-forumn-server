@@ -12,7 +12,6 @@ import Feed from "../models/feed";
 //@Access: LoggedIn
 export const comment = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-
     const type = req.query.type;
     const comment = await Comment.create({
       author: req.user?._id,
@@ -27,10 +26,14 @@ export const comment = expressAsyncHandler(
       await Gist.findByIdAndUpdate(req.params.id, {
         $addToSet: { comments: [comment._id] },
       });
-    } else if (type=="feed"){
+    } else if (type == "feed") {
       await Feed.findByIdAndUpdate(req.params.id, {
-        $addToSet:{comments:[comment._id]}
-      })
+        $addToSet: { comments: [comment._id] },
+      });
+    } else if (type == "reply") {
+      await Comment.findByIdAndUpdate(req.params.id, {
+        $addToSet: { replies: [comment._id] },
+      });
     }
     res.status(200).json(comment);
   }
