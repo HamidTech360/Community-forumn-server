@@ -95,6 +95,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
     const groupId = req.params.id;
     console.log(groupId);
     try {
+
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.find().estimatedDocumentCount();
@@ -118,6 +119,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
                 populate: { path: "author", select: "firstName lastName avatar" },
             },
         });
+
         res.json({
             status: "success",
             message: "Group feed retrieved",
@@ -135,6 +137,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
 //@ccess: loggedIn
 exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.find().estimatedDocumentCount();
@@ -157,6 +160,7 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
                 populate: { path: "author", select: "firstName lastName avatar" },
             },
         });
+
         res.json({
             status: "success",
             message: "Group feed retrieved",
@@ -164,6 +168,7 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             count,
             numPages,
         });
+
     }
     catch (error) {
         res.status(500).json(error);
