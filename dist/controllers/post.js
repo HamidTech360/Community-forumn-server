@@ -46,7 +46,17 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
         .populate("author", "-password")
         .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: {
+            path: "author",
+            select: "firstName lastName avatar",
+        },
+    })
+        .populate({
+        path: "comments",
+        populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        },
     });
     res.json({
         status: "success",
@@ -63,6 +73,10 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId)
         .populate("author", "firstName lastName")
+        .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+    })
         .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -180,6 +194,10 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
             .limit(perPage)
             .skip(page * perPage)
             .populate("author", "-password")
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        })
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },

@@ -30,6 +30,12 @@ export const comment = expressAsyncHandler(
       await Feed.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
+    } else if (type == "reply") {
+      console.log("replying");
+      const reply = await Comment.findByIdAndUpdate(req.query.id, {
+        $addToSet: { replies: [comment._id] },
+      });
+      console.log(reply);
     }
     res
       .status(200)

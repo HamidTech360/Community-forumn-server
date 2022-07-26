@@ -38,8 +38,19 @@ export const getPosts = expressAsyncHandler(
       .populate("author", "-password")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: {
+          path: "author",
+          select: "firstName lastName avatar",
+        },
+      })
+      .populate({
+        path: "comments",
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        },
       });
+
     res.json({
       status: "success",
       message: "User posts retrieved",
@@ -58,6 +69,10 @@ export const getPost = expressAsyncHandler(
     const postId = req.params.id;
     const post = await Post.findById(postId)
       .populate("author", "firstName lastName")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      })
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -183,7 +198,12 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
+      })
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
       });
+
     res.json({
       status: "success",
       message: "User posts retrieved",

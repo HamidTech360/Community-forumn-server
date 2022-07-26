@@ -50,6 +50,13 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
+        })
+            .populate({
+            path: "comments",
+            populate: {
+                path: "replies",
+                populate: { path: "author", select: "firstName lastName avatar" },
+            },
         });
         res.json({
             status: "success",
@@ -67,7 +74,18 @@ exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter
     const id = req.params.id;
     const feed = yield Feed_1.default.findById(id)
         .populate("author", "firstName lastName avatar")
-        .populate("group");
+        .populate("group")
+        .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+    })
+        .populate({
+        path: "comments",
+        populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+        },
+    });
     res.status(200).json(feed);
 }));
 //@Routes /api/posts/group/:id
@@ -92,6 +110,13 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
+        })
+            .populate({
+            path: "comments",
+            populate: {
+                path: "replies",
+                populate: { path: "author", select: "firstName lastName avatar" },
+            },
         });
         res.json({
             status: "success",
@@ -124,6 +149,13 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
+        })
+            .populate({
+            path: "comments",
+            populate: {
+                path: "replies",
+                populate: { path: "author", select: "firstName lastName avatar" },
+            },
         });
         res.json({
             status: "success",

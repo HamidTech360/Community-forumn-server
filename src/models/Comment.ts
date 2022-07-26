@@ -1,4 +1,4 @@
-import { Types, Schema, models, model } from "mongoose";
+import { Types, Schema, models, model, SchemaTypes } from "mongoose";
 
 const commentSchema = new Schema(
   {
@@ -10,6 +10,18 @@ const commentSchema = new Schema(
     content: {
       type: String,
       required: true,
+    },
+    likes: {
+      type: [SchemaTypes.ObjectId],
+      ref: "User",
+    },
+    replies: {
+      type: [SchemaTypes.ObjectId],
+      ref: "Comment",
+    },
+    deleted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

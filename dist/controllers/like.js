@@ -16,9 +16,10 @@ exports.saveLike = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
-const Feed_1 = __importDefault(require("../models/Feed"));
+const feed_1 = __importDefault(require("../models/feed"));
+const Comment_1 = __importDefault(require("../models/Comment"));
 exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const { id, type } = req.query;
     console.log(`the post to be liked has the Id ${id}`);
     try {
@@ -39,8 +40,16 @@ exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(
             res.status(200).json("Liked");
         }
         else if (type == "feed") {
-            yield Feed_1.default.findByIdAndUpdate(id, {
+            yield feed_1.default.findByIdAndUpdate(id, {
                 $addToSet: { likes: (_c = req.user) === null || _c === void 0 ? void 0 : _c._id },
+            }).where({
+                $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+            });
+            res.status(200).json("Liked");
+        }
+        else if (type == "comment") {
+            yield Comment_1.default.findByIdAndUpdate(id, {
+                $addToSet: { likes: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id },
             }).where({
                 $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
             });

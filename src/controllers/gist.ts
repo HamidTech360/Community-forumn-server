@@ -47,6 +47,13 @@ export const fetchAllGist = expressAsyncHandler(
         .populate({
           path: "comments",
           populate: { path: "author", select: "firstName lastName avatar" },
+        })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+          },
         });
       res.json({
         status: "success",
@@ -71,7 +78,18 @@ export const fetchSingleGist = expressAsyncHandler(
         .where({
           $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-        .populate("author", "firstName lastName avatar");
+        .populate("author", "firstName lastName avatar")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+          },
+        });
       res.json({
         status: "success",
         message: "Gist fetched",

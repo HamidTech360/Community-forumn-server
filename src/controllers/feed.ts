@@ -37,6 +37,13 @@ export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
+      })
+      .populate({
+        path: "comments",
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        },
       });
     res.json({
       status: "success",
@@ -55,7 +62,18 @@ export const fetchFeed = expressAsyncHandler(
     const id = req.params.id;
     const feed = await Feed.findById(id)
       .populate("author", "firstName lastName avatar")
-      .populate("group");
+      .populate("group")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      })
+      .populate({
+        path: "comments",
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        },
+      });
     res.status(200).json(feed);
   }
 );
@@ -84,6 +102,13 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
+      })
+      .populate({
+        path: "comments",
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        },
       });
     res.json({
       status: "success",
@@ -118,6 +143,13 @@ export const getRandomGroupFeed = expressAsyncHandler(
         .populate({
           path: "comments",
           populate: { path: "author", select: "firstName lastName avatar" },
+        })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName avatar" },
+          },
         });
       res.json({
         status: "success",
