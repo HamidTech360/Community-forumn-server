@@ -7,13 +7,14 @@ import Comment from "../models/Comment";
 //@Access: LoggedIn
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const { postTitle, postBody, groupId } = req.body;
+    const { postTitle, postBody, groupId, category } = req.body;
 
     const post = await Post.create({
       postTitle,
       postBody,
       author: req?.user?._id,
       groupId,
+      category
     });
     res.status(201).json({ msg: "Post created", post });
   }
@@ -24,17 +25,29 @@ export const createPost = expressAsyncHandler(
 //@Access: Public
 export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = await Post.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
+
     const posts = await Post.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-      groupId: null,
     })
       .sort({ createdAt: -1 })
+      .limit(perPage)
+      .skip(page * perPage)
       .populate("author", "-password")
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
       });
-    res.status(200).json({ msg: "Posts retrieved", posts });
+    res.json({
+      status: "success",
+      message: "User posts retrieved",
+      posts,
+      count,
+      numPages,
+    });
   }
 );
 
@@ -145,6 +158,11 @@ export const deleteLike = expressAsyncHandler(
 //@ccess: loggedIn
 export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
   try {
+    const perPage = Number(req.query.perPage) || 25;
+    const page = Number(req.query.page) || 0;
+    const count = await Post.find().estimatedDocumentCount();
+    const numPages = Math.ceil(count / perPage);
+
     const posts = await Post.find({
       $and: [
         {
@@ -160,7 +178,8 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
       ],
     })
       .sort({ createdAt: -1 })
-      .limit(20)
+      .limit(perPage)
+      .skip(page * perPage)
       .populate("author", "-password")
       .populate({
         path: "comments",
@@ -170,6 +189,8 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
       status: "success",
       message: "User posts retrieved",
       posts,
+      count,
+      numPages,
     });
   } catch (error) {
     res.status(500).json(error);

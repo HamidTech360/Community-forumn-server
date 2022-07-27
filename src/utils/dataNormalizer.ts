@@ -1,10 +1,10 @@
 export const normalizeGoogleData = async (data: any) => {
   return {
     email: data.email,
-    fullName: data.name,
-    picture: data.imageUrl || null,
-    authProvider: data.googleId && "GOOGLE",
-    role: data.role,
+    firstName: data.given_name,
+    lastName: data.family_name,
+    avatar: data.picture || null,
+    authProvider: "GOOGLE",
   };
 };
 
