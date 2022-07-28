@@ -33,6 +33,13 @@ export const comment = expressAsyncHandler(
         $addToSet: { comments: [comment._id] },
       });
        itemAuthor = await Post.findById(req.query.id)
+    } else if (type == "reply") {
+      console.log("replying");
+      const reply = await Comment.findByIdAndUpdate(req.query.id, {
+        $addToSet: { replies: [comment._id] },
+      });
+      console.log(reply);
+
     }
     
     const notification = await Notification.create({

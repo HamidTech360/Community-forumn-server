@@ -41,6 +41,13 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
             $addToSet: { comments: [comment._id] },
         });
     }
+    else if (type == "reply") {
+        console.log("replying");
+        const reply = yield Comment_1.default.findByIdAndUpdate(req.query.id, {
+            $addToSet: { replies: [comment._id] },
+        });
+        console.log(reply);
+    }
     res
         .status(200)
         .json(yield comment.populate("author", "firstName lastName avatar"));
