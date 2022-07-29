@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { ObjectId } from "mongoose";
 import User from "../models/User";
+import Notification from "../models/notification";
 
 //@route: /api/users
 //@method: GET
@@ -53,14 +54,24 @@ export const updateUser = asyncHandler(async (req: any, res) => {
 });
 
 export const followUser = asyncHandler(
-  async (req: Request & { user?: { _id?: string } }, res: Response) => {
+  async (req: Request & { user?: { _id?: string, firstName?:string, lastName?:string } }, res: Response) => {
+   
     try {
       const me = await User.findByIdAndUpdate(req.user?._id, {
         $addToSet: { following: [req.params.id] },
       });
       const them = await User.findByIdAndUpdate(req.params.id, {
         $addToSet: { followers: [req.params.id] },
+        
       });
+      const itemAuthor = await User.findById(req.params.id)
+      const notification = await Notification.create({
+        content:`${req.user?.firstName} ${req.user?.lastName} followed you `,
+        forItem:'follow',
+        itemId:req.user?._id,
+        author:req.user?._id,
+        targetedAudience:[itemAuthor._id]
+      })
 
       res.status(200).json("followed");
     } catch (error) {
@@ -70,7 +81,7 @@ export const followUser = asyncHandler(
 );
 
 export const unFollowUser = asyncHandler(
-  async (req: Request & { user?: { _id?: string } }, res: Response) => {
+  async (req: Request & { user?: { _id?: string, firstName?:string, lastName?:string  } }, res: Response) => {
     try {
       const me = await User.findByIdAndUpdate(
         req.user?._id as unknown as ObjectId,
@@ -84,7 +95,14 @@ export const unFollowUser = asyncHandler(
           $pull: { followers: { $in: [req.params.id as unknown as ObjectId] } },
         }
       );
-
+      const itemAuthor = await User.findById(req.params.id)
+      const notification = await Notification.create({
+        content:`${req.user?.firstName} ${req.user?.lastName} Unfollowed you `,
+        forItem:'follow',
+        itemId:req.user?._id,
+        author:req.user?._id,
+        targetedAudience:[itemAuthor._id]
+      })
       res.status(200).json("unfollowed");
     } catch (error) {
       res.status(500).send(error);

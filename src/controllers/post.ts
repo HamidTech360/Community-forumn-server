@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Post from "../models/Post";
 import Comment from "../models/Comment";
+import Notification from "../models/notification";
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
@@ -16,6 +17,16 @@ export const createPost = expressAsyncHandler(
       groupId,
       category
     });
+
+    const notification = await Notification.create({
+      content:`${req.user?.firstName} ${req.user?.lastName} created a post`,
+      forItem:'post',
+      itemId:post._id,
+      author:req.user?._id,
+      targetedAudience:[...req.user?.followers]
+    })
+
+
     res.status(201).json({ msg: "Post created", post });
   }
 );

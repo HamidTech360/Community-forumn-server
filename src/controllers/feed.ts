@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Feed from "../models/Feed";
+import Notification from "../models/notification";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group } = req.body;
@@ -10,6 +11,16 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       author: req.user?._id,
       group,
     });
+
+    const notification = await Notification.create({
+      content:`${req.user?.firstName} ${req.user?.lastName} posted an item in the feed`,
+      forItem:'feed',
+      itemId:feed._id,
+      author:req.user?._id,
+      targetedAudience:[...req.user?.followers]
+    })
+
+
     res.json({
       status: "success",
       message: "Feed created",
@@ -72,10 +83,6 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
     const page = Number(req.query.page) || 0;
     const count = await Feed.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
-<<<<<<< HEAD
-
-=======
->>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
     const posts = await Feed.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       group: groupId,
@@ -88,10 +95,6 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
       });
-<<<<<<< HEAD
-=======
-
->>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
     res.json({
       status: "success",
       message: "Group feed retrieved",
@@ -126,10 +129,6 @@ export const getRandomGroupFeed = expressAsyncHandler(
           path: "comments",
           populate: { path: "author", select: "firstName lastName avatar" },
         });
-<<<<<<< HEAD
-=======
-
->>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
       res.json({
         status: "success",
         message: "Group feed retrieved",
