@@ -50,7 +50,7 @@ export const getPosts = expressAsyncHandler(
       .populate("author", "-password")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: { path: "author", select: "firstName lastName avatar", options:{sort:{createdAt:-1}} },
       });
     res.json({
       status: "success",
