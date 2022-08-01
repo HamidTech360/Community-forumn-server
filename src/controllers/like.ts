@@ -32,8 +32,9 @@ export const saveLike = expressAsyncHandler(async (req: any, res: any) => {
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       });  
       itemAuthor = await Feed.findById(req.query.id)
-    
-    
+
+     
+      res.status(200).json("Liked");
     } else if (type == "comment") {
       await Comment.findByIdAndUpdate(id, {
         $addToSet: { likes: req.user?._id },

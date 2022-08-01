@@ -73,6 +73,7 @@ export const followUser = asyncHandler(
         targetedAudience:[itemAuthor._id]
       })
 
+  
       res.status(200).json("followed");
     } catch (error) {
       res.status(500).send(error);
@@ -95,6 +96,7 @@ export const unFollowUser = asyncHandler(
           $pull: { followers: { $in: [req.params.id as unknown as ObjectId] } },
         }
       );
+
       const itemAuthor = await User.findById(req.params.id)
       const notification = await Notification.create({
         content:`${req.user?.firstName} ${req.user?.lastName} Unfollowed you `,
@@ -103,6 +105,7 @@ export const unFollowUser = asyncHandler(
         author:req.user?._id,
         targetedAudience:[itemAuthor._id]
       })
+
       res.status(200).json("unfollowed");
     } catch (error) {
       res.status(500).send(error);
