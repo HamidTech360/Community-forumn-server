@@ -3,6 +3,7 @@ import Gist from "../models/Gist";
 import Post from "../models/Post";
 import Feed from "../models/Feed";
 import Notification from '../models/notification'
+import Comment from "../models/Comment";
 
 export const saveLike = expressAsyncHandler(async (req: any, res: any) => {
   const { id, type } = req.query;
@@ -31,6 +32,15 @@ export const saveLike = expressAsyncHandler(async (req: any, res: any) => {
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       });  
       itemAuthor = await Feed.findById(req.query.id)
+    
+    
+    } else if (type == "comment") {
+      await Comment.findByIdAndUpdate(id, {
+        $addToSet: { likes: req.user?._id },
+      }).where({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      });
+      res.status(200).json("Liked");
     }
     const notification = await Notification.create({
       content:`${req.user?.firstName} ${req.user?.lastName} liked your post `,

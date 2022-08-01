@@ -37,11 +37,12 @@ export const createPost = expressAsyncHandler(
 export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const perPage = Number(req.query.perPage) || 25;
+    const category = req.query.category
     const page = Number(req.query.page) || 0;
     const count = await Post.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
 
-    const posts = await Post.find({
+    const posts = await Post.find(category?{category}:{
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     })
       .sort({ createdAt: -1 })
@@ -50,8 +51,19 @@ export const getPosts = expressAsyncHandler(
       .populate("author", "-password")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar", options:{sort:{createdAt:-1}} },
+        populate: {
+          path: "author",
+          select: "firstName lastName avatar",
+        },
+      })
+      .populate({
+        path: "comments",
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName avatar" },
+        },
       });
+
     res.json({
       status: "success",
       message: "User posts retrieved",
@@ -70,6 +82,10 @@ export const getPost = expressAsyncHandler(
     const postId = req.params.id;
     const post = await Post.findById(postId)
       .populate("author", "firstName lastName")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
+      })
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -195,7 +211,12 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
+      })
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "firstName lastName avatar" },
       });
+
     res.json({
       status: "success",
       message: "User posts retrieved",

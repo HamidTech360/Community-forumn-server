@@ -61,7 +61,7 @@ export const followUser = asyncHandler(
         $addToSet: { following: [req.params.id] },
       });
       const them = await User.findByIdAndUpdate(req.params.id, {
-        $addToSet: { followers: [req.params.id] },
+        $addToSet: { followers: [req.user?._id] },
         
       });
       const itemAuthor = await User.findById(req.params.id)
