@@ -20,34 +20,47 @@ const Comment_1 = __importDefault(require("../models/Comment"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
 const Feed_1 = __importDefault(require("../models/Feed"));
+const notification_1 = __importDefault(require("../models/notification"));
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
 exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b, _c, _d;
     const type = req.query.type;
     const comment = yield Comment_1.default.create(Object.assign({ author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id }, req.body));
+    let itemAuthor;
     if (type == "post") {
         yield Post_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
+        itemAuthor = yield Post_1.default.findById(req.query.id);
     }
     else if (type == "gist") {
         yield Gist_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
+        itemAuthor = yield Gist_1.default.findById(req.query.id);
     }
     else if (type == "feed") {
         yield Feed_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { comments: [comment._id] },
         });
+        itemAuthor = yield Feed_1.default.findById(req.query.id);
     }
     else if (type == "reply") {
         console.log("replying");
         const reply = yield Comment_1.default.findByIdAndUpdate(req.query.id, {
             $addToSet: { replies: [comment._id] },
         });
-        console.log(reply);
+        //console.log(reply);
+        itemAuthor = yield Comment_1.default.findById(req.query.id);
     }
+    const notification = yield notification_1.default.create({
+        content: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName} ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName} commented on a ${type} you created`,
+        forItem: type,
+        itemId: itemAuthor._id,
+        author: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id,
+        targetedAudience: [itemAuthor.author]
+    });
     res
         .status(200)
         .json(yield comment.populate("author", "firstName lastName avatar"));

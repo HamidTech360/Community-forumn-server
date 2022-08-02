@@ -13,11 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateGist = exports.deleteGist = exports.fetchSingleGist = exports.fetchAllGist = exports.createGist = void 0;
+const notification_1 = __importDefault(require("../models/notification"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 //import {validateGist} from '../validators/gist'
 exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b, _c, _d, _e;
     try {
         const { title, post, country, categories } = req.body;
         // const error = validateGist(req.body)
@@ -31,6 +32,13 @@ exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaite
             country,
             categories,
             author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
+        });
+        const notification = yield notification_1.default.create({
+            content: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName} ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName} started a gist`,
+            forItem: 'gist',
+            itemId: gist._id,
+            author: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id,
+            targetedAudience: [...(_e = req.user) === null || _e === void 0 ? void 0 : _e.followers]
         });
         res.status(201).json({ message: "Gist created", gist });
     }
@@ -107,7 +115,7 @@ exports.fetchSingleGist = (0, express_async_handler_1.default)((req, res) => __a
     }
 }));
 exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _f;
     const gistID = req.params.id;
     try {
         //find gist with gistID and delete
@@ -116,7 +124,7 @@ exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaite
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
             .catch((error) => console.log(error));
-        if (gist && gist.author.toString() === ((_b = req === null || req === void 0 ? void 0 : req.user) === null || _b === void 0 ? void 0 : _b._id.toString())) {
+        if (gist && gist.author.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
             gist.deleted === true;
             yield gist.save();
             res.status(200).json({ msg: "Gist deleted" });
@@ -131,12 +139,12 @@ exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaite
     }
 }));
 exports.updateGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _g;
     const gistID = req.params.id;
     const gist = yield Gist_1.default.findById(gistID).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (gist && gist.author.toString() === ((_c = req === null || req === void 0 ? void 0 : req.user) === null || _c === void 0 ? void 0 : _c._id.toString())) {
+    if (gist && gist.author.toString() === ((_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id.toString())) {
         const gistKeys = Object.keys(req.body);
         for (let i = 0; i < gistKeys.length; i++) {
             gist[gistKeys[i]] = req.body[gistKeys[i]];

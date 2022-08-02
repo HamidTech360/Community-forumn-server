@@ -23,40 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-const postSchema = new mongoose_1.default.Schema({
-    author: {
-        type: mongoose_1.default.SchemaTypes.ObjectId,
-        required: true,
-        ref: "User",
-    },
-    postTitle: {
-        type: String,
-        required: true,
-    },
-    postBody: {
-        type: String,
-        required: true,
-    },
-    deleted: {
-        type: Boolean,
-        default: false,
-    },
-    likes: {
-        type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "User",
-    },
-    comments: {
-        type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "Comment",
-    },
-    groupId: {
-        type: mongoose_1.default.SchemaTypes.ObjectId,
-        ref: "Group"
-    },
-    category: {
-        type: String
-    }
-}, { timestamps: true });
-const Post = mongoose_1.default.models.Post || mongoose_1.default.model("Post", postSchema);
-exports.default = Post;
+const express_1 = require("express");
+const controller = __importStar(require("../controllers/notification"));
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.get('/', auth_1.loggedIn, controller.fetchUserNotifications);
+exports.default = router;
