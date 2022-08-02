@@ -21,6 +21,7 @@ const bookmark_1 = __importDefault(require("./routes/bookmark"));
 const search_1 = __importDefault(require("./routes/search"));
 const chat_1 = __importDefault(require("./routes/chat"));
 const category_1 = __importDefault(require("./routes/category"));
+const notification_1 = __importDefault(require("./routes/notification"));
 //dotenv config
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
@@ -43,5 +44,6 @@ app.use("/api/likes", like_1.default);
 app.use("/api/bookmarks", bookmark_1.default);
 app.use("/api/chats", chat_1.default);
 app.use("/api/category", category_1.default);
+app.use('/api/notifications', notification_1.default);
 app.get("/", (res) => res.send("Hello"));
 app.listen(process.env.PORT, () => console.log(`Express app running on ${process.env.PORT}`));

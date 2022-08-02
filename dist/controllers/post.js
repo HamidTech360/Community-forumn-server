@@ -15,17 +15,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserPosts = exports.deleteLike = exports.likePost = exports.updatePost = exports.deletePost = exports.getPost = exports.getPosts = exports.createPost = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Post_1 = __importDefault(require("../models/Post"));
+const notification_1 = __importDefault(require("../models/notification"));
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
 exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const { postTitle, postBody, groupId } = req.body;
+    var _a, _b, _c, _d, _e;
+    const { postTitle, postBody, groupId, category } = req.body;
     const post = yield Post_1.default.create({
         postTitle,
         postBody,
         author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
         groupId,
+        category
+    });
+    const notification = yield notification_1.default.create({
+        content: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName} ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName} created a post`,
+        forItem: 'post',
+        itemId: post._id,
+        author: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id,
+        targetedAudience: [...(_e = req.user) === null || _e === void 0 ? void 0 : _e.followers]
     });
     res.status(201).json({ msg: "Post created", post });
 }));
@@ -34,10 +43,11 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Access: Public
 exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const perPage = Number(req.query.perPage) || 25;
+    const category = req.query.category;
     const page = Number(req.query.page) || 0;
     const count = yield Post_1.default.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
-    const posts = yield Post_1.default.find({
+    const posts = yield Post_1.default.find(category ? { category } : {
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     })
         .sort({ createdAt: -1 })
@@ -95,12 +105,12 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
 //@Method Delete
 //@Access: LoggedIn
 exports.deletePost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _f;
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (post && post.author.toString() === ((_b = req === null || req === void 0 ? void 0 : req.user) === null || _b === void 0 ? void 0 : _b._id.toString())) {
+    if (post && post.author.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
         post.deleted === true;
         yield post.save();
         res.status(200).json({ msg: "Post deleted" });
@@ -113,12 +123,12 @@ exports.deletePost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Put
 //@Access: LoggedIn
 exports.updatePost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _g;
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (post && post.author.toString() === ((_c = req === null || req === void 0 ? void 0 : req.user) === null || _c === void 0 ? void 0 : _c._id.toString())) {
+    if (post && post.author.toString() === ((_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id.toString())) {
         const postKeys = Object.keys(req.body);
         for (let i = 0; i < postKeys.length; i++) {
             post[postKeys[i]] = req.body[postKeys[i]];
@@ -134,11 +144,11 @@ exports.updatePost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Put
 //@Access: LoggedIn
 exports.likePost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
+    var _h;
     try {
         const postId = req.params.id;
         const post = yield Post_1.default.findByIdAndUpdate(postId, {
-            $addToSet: { likes: [(_d = req.user) === null || _d === void 0 ? void 0 : _d._id] },
+            $addToSet: { likes: [(_h = req.user) === null || _h === void 0 ? void 0 : _h._id] },
         }).where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         });
@@ -152,11 +162,11 @@ exports.likePost = (0, express_async_handler_1.default)((req, res) => __awaiter(
 //@Method Put
 //@Access: LoggedIn
 exports.deleteLike = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e;
+    var _j;
     try {
         const postId = req.params.id;
         const post = yield Post_1.default.findByIdAndUpdate(postId, {
-            $pull: { likes: [(_e = req.user) === null || _e === void 0 ? void 0 : _e._id] },
+            $pull: { likes: [(_j = req.user) === null || _j === void 0 ? void 0 : _j._id] },
         }).where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         });
@@ -170,7 +180,7 @@ exports.deleteLike = (0, express_async_handler_1.default)((req, res) => __awaite
 //Method get
 //@ccess: loggedIn
 exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f, _g;
+    var _k, _l;
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
@@ -183,8 +193,8 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
                 },
                 {
                     $or: [
-                        { author: (_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id },
-                        { likes: { $in: (_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id } },
+                        { author: (_k = req === null || req === void 0 ? void 0 : req.user) === null || _k === void 0 ? void 0 : _k._id },
+                        { likes: { $in: (_l = req === null || req === void 0 ? void 0 : req.user) === null || _l === void 0 ? void 0 : _l._id } },
                         // {following:{"$in":req?.user?._id}}
                     ],
                 },
