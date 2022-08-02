@@ -8,6 +8,7 @@ export interface IPost extends mongoose.Document {
   deleted?: boolean;
   likes?: [Types.ObjectId];
   groupId?:string;
+  category?:string;
 }
 
 const postSchema = new mongoose.Schema<IPost>(
@@ -40,6 +41,9 @@ const postSchema = new mongoose.Schema<IPost>(
     groupId:{
       type:mongoose.SchemaTypes.ObjectId,
       ref:"Group"
+    },
+    category:{
+      type:String
     }
   },
   { timestamps: true }

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import asyncHandler from "express-async-handler";
+import Notification from '../models/notification'
 import expressAsyncHandler from "express-async-handler";
 import Gist from "../models/Gist";
 //import {validateGist} from '../validators/gist'
@@ -20,6 +20,15 @@ export const createGist = expressAsyncHandler(
         categories,
         author: req?.user?._id,
       });
+
+      const notification = await Notification.create({
+        content:`${req.user?.firstName} ${req.user?.lastName} started a gist`,
+        forItem:'gist',
+        itemId:gist._id,
+        author:req.user?._id,
+        targetedAudience:[...req.user?.followers]
+      })
+
       res.status(201).json({ message: "Gist created", gist });
     } catch (error) {
       console.log(error);

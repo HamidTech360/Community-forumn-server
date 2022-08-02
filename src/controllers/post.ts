@@ -2,19 +2,31 @@ import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Post from "../models/Post";
 import Comment from "../models/Comment";
+import Notification from "../models/notification";
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const { postTitle, postBody, groupId } = req.body;
+    const { postTitle, postBody, groupId, category } = req.body;
 
     const post = await Post.create({
       postTitle,
       postBody,
       author: req?.user?._id,
       groupId,
+      category
     });
+
+    const notification = await Notification.create({
+      content:`${req.user?.firstName} ${req.user?.lastName} created a post`,
+      forItem:'post',
+      itemId:post._id,
+      author:req.user?._id,
+      targetedAudience:[...req.user?.followers]
+    })
+
+
     res.status(201).json({ msg: "Post created", post });
   }
 );
@@ -25,11 +37,12 @@ export const createPost = expressAsyncHandler(
 export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const perPage = Number(req.query.perPage) || 25;
+    const category = req.query.category
     const page = Number(req.query.page) || 0;
     const count = await Post.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
 
-    const posts = await Post.find({
+    const posts = await Post.find(category?{category}:{
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     })
       .sort({ createdAt: -1 })

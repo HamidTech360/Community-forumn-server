@@ -95,15 +95,32 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
     const groupId = req.params.id;
     console.log(groupId);
     try {
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+
+>>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
+=======
+>>>>>>> dd15352676e3f1768d60297be462f71e25a4718f
+=======
+
+>>>>>>> 66d0ccfa38e869a0be8609de745db17382f217ab
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.find().estimatedDocumentCount();
         const numPages = Math.ceil(count / perPage);
+
         const posts = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
             group: groupId,
         })
             .sort({ createdAt: -1 })
+
+            .populate("group", "name")
+            .populate("author", "-password")
             .limit(perPage)
             .skip(page * perPage)
             .populate("author", "firstName lastName avatar")
@@ -118,6 +135,22 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
                 populate: { path: "author", select: "firstName lastName avatar" },
             },
         });
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+        res.status(200).json({ msg: " Group Posts retrieved", posts });
+=======
+=======
+
+>>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
+=======
+>>>>>>> dd15352676e3f1768d60297be462f71e25a4718f
+=======
+
+        res.status(200).json({ msg: " Group Posts retrieved", posts });
+
+>>>>>>> 66d0ccfa38e869a0be8609de745db17382f217ab
         res.json({
             status: "success",
             message: "Group feed retrieved",
@@ -125,6 +158,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             count,
             numPages,
         });
+
     }
     catch (error) {
         res.status(500).json(error);
@@ -135,6 +169,19 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
 //@ccess: loggedIn
 exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+
+>>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
+=======
+>>>>>>> dd15352676e3f1768d60297be462f71e25a4718f
+=======
+
+>>>>>>> 66d0ccfa38e869a0be8609de745db17382f217ab
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.find().estimatedDocumentCount();
@@ -157,6 +204,21 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
                 populate: { path: "author", select: "firstName lastName avatar" },
             },
         });
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+        res.status(200).json({ msg: "Random group posts retrieved", posts });
+=======
+=======
+
+>>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
+=======
+>>>>>>> dd15352676e3f1768d60297be462f71e25a4718f
+=======
+
+        res.status(200).json({ msg: "Random group posts retrieved", posts });
+>>>>>>> 66d0ccfa38e869a0be8609de745db17382f217ab
         res.json({
             status: "success",
             message: "Group feed retrieved",
@@ -164,6 +226,18 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             count,
             numPages,
         });
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 6e4eab027056f87dd130241b704165e5f2ec6b4e
+=======
+
+>>>>>>> 7a1c18029dbb431114f38f5696c03e45e4762948
+=======
+>>>>>>> dd15352676e3f1768d60297be462f71e25a4718f
+=======
+
+>>>>>>> 66d0ccfa38e869a0be8609de745db17382f217ab
     }
     catch (error) {
         res.status(500).json(error);

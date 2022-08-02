@@ -1,0 +1,23 @@
+import { json } from "express";
+import expressAsyncHandler from "express-async-handler";
+import Notification from "../models/notification";
+
+export const fetchUserNotifications = expressAsyncHandler(
+    async(req:any, res:any)=>{
+        try{
+            const response = await Notification.find({targetedAudience:{
+                "$in":req.user?._id
+            }}).sort({createdAt:-1})
+
+            const notifications = response.filter(item=>item.author.toString() !==req.user?._id.toString())
+           
+            res.json({
+                message:'notifications fetched',
+                notifications
+            })
+
+        }catch(error){
+            res.status(500).send(error)
+        }
+    }
+)

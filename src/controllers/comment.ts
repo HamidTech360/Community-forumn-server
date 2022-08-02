@@ -7,7 +7,7 @@ import Comment from "../models/Comment";
 import Gist from "../models/Gist";
 import Post from "../models/Post";
 import Feed from "../models/Feed";
-
+import Notification from "../models/notification";
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
 export const comment = expressAsyncHandler(
@@ -17,26 +17,39 @@ export const comment = expressAsyncHandler(
       author: req.user?._id,
       ...req.body,
     });
-
+    let itemAuthor;
     if (type == "post") {
       await Post.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
+       itemAuthor = await Post.findById(req.query.id)
     } else if (type == "gist") {
       await Gist.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
+       itemAuthor = await Gist.findById(req.query.id)
     } else if (type == "feed") {
       await Feed.findByIdAndUpdate(req.query.id, {
         $addToSet: { comments: [comment._id] },
       });
+       itemAuthor = await Feed.findById(req.query.id)
+       
     } else if (type == "reply") {
       console.log("replying");
       const reply = await Comment.findByIdAndUpdate(req.query.id, {
         $addToSet: { replies: [comment._id] },
       });
-      console.log(reply);
+      //console.log(reply);
+       itemAuthor = await Comment.findById(req.query.id)
     }
+    
+    const notification = await Notification.create({
+      content:`${req.user?.firstName} ${req.user?.lastName} commented on a ${type} you created`,
+      forItem:type,
+      itemId:itemAuthor._id,
+      author:req.user?._id,
+      targetedAudience:[itemAuthor.author]
+    })
     res
       .status(200)
       .json(await comment.populate("author", "firstName lastName avatar"));

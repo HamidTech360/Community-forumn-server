@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Feed from "../models/Feed";
+import Notification from "../models/notification";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group } = req.body;
@@ -10,6 +11,16 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       author: req.user?._id,
       group,
     });
+
+    const notification = await Notification.create({
+      content:`${req.user?.firstName} ${req.user?.lastName} posted an item in the feed`,
+      forItem:'feed',
+      itemId:feed._id,
+      author:req.user?._id,
+      targetedAudience:[...req.user?.followers]
+    })
+
+
     res.json({
       status: "success",
       message: "Feed created",
@@ -109,7 +120,6 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
           populate: { path: "author", select: "firstName lastName avatar" },
         },
       });
-
     res.json({
       status: "success",
       message: "Group feed retrieved",
@@ -151,7 +161,6 @@ export const getRandomGroupFeed = expressAsyncHandler(
             populate: { path: "author", select: "firstName lastName avatar" },
           },
         });
-
       res.json({
         status: "success",
         message: "Group feed retrieved",
