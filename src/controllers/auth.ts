@@ -91,6 +91,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         interests,
         gender,
         confirmationCode: token,
+        username:firstName
       });
 
       await user.save();

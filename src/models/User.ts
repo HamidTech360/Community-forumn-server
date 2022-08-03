@@ -109,6 +109,9 @@ const userSchema = new Schema<IUserSchema>({
   bio: {
     type: String,
   },
+  username:{
+      type:String
+  },
   authProvider: {
     type: String,
     default: "LOCAL",
