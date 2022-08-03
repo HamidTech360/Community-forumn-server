@@ -28,4 +28,5 @@ const auth_1 = require("../middleware/auth");
 const controller = __importStar(require("../controllers/like"));
 const router = (0, express_1.Router)();
 router.get(`/`, auth_1.loggedIn, controller.saveLike);
+router.delete(`/`, auth_1.loggedIn, controller.unlike);
 exports.default = router;
