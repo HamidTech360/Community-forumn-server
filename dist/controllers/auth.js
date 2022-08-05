@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.oauth = exports.getCurrentUser = exports.register = exports.login = void 0;
+exports.updatePasssword = exports.oauth = exports.getCurrentUser = exports.register = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
 const auth_cookie_1 = require("../utils/auth-cookie");
 const token_1 = require("../utils/token");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const mailer_1 = require("../lib/mailer");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const dataNormalizer_1 = require("../utils/dataNormalizer");
 //@Route /api/login
 //@Desc login User
@@ -86,6 +87,7 @@ exports.register = (0, express_async_handler_1.default)((req, res) => __awaiter(
                 interests,
                 gender,
                 confirmationCode: token,
+                username: firstName
             });
             yield user.save();
             (0, mailer_1.sendMail)(user.email, `<h1>Email Confirmation</h1>,<p>Hi ${user.firstName}, welcome to Setlinn.  <a href=${process.env.NODE_ENV === "production"
@@ -153,4 +155,24 @@ exports.oauth = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     accessToken = (0, token_1.generateAccessToken)({ sub: dbUser._id });
     refreshToken = (0, token_1.generateRefreshToken)({ sub: dbUser._id });
     return res.status(200).json({ accessToken, refreshToken });
+}));
+exports.updatePasssword = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b, _c;
+    const { oldPassword, newPassword } = req.body;
+    try {
+        const user = yield User_1.default.findById((_b = req.user) === null || _b === void 0 ? void 0 : _b._id);
+        if (!(yield user.matchPassword(oldPassword))) {
+            res.status(401).send('Incorrect password');
+            return;
+        }
+        const salt = yield bcryptjs_1.default.genSalt(10);
+        const password = yield bcryptjs_1.default.hash(newPassword, salt);
+        yield User_1.default.findByIdAndUpdate((_c = req.user) === null || _c === void 0 ? void 0 : _c._id, { password });
+        res.json({
+            message: 'Password updated'
+        });
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
 }));

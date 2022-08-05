@@ -30,5 +30,6 @@ const router = (0, express_1.Router)();
 router.post("/", controller.login);
 router.post("/register", controller.register);
 router.get("/", auth_1.loggedIn, controller.getCurrentUser);
+router.put('/password', auth_1.loggedIn, controller.updatePasssword);
 router.post("/oauth", controller.oauth);
 exports.default = router;

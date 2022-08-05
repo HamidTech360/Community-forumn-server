@@ -33,8 +33,13 @@ const auth_1 = require("../middleware/auth");
 //const upload = multer({dest:"./uploads/"})
 const router = express_1.default.Router();
 router.get("/", controller.getUsers);
+router.get("/follow", auth_1.loggedIn, controller.usersToFollow);
 router.get("/:id", controller.getUser);
 router.put("/:id", controller.updateUser);
+router.get("/topwriters/all", controller.getTopWriters);
+router.get("/connections/all", auth_1.loggedIn, controller.getUnfollowedUsers);
+router.put("/notifications/add", auth_1.loggedIn, controller.addNotificationPreference);
+router.put("/notifications/remove", auth_1.loggedIn, controller.removeNotificationPreference);
 router
     .route("/:id/follow")
     .get(auth_1.loggedIn, controller.followUser)
