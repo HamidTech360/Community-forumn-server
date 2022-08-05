@@ -6,6 +6,7 @@ import { loggedIn } from "../middleware/auth";
 const router = express.Router();
 
 router.get("/", controller.getUsers);
+router.get("/follow", loggedIn, controller.usersToFollow);
 
 router.get("/:id", controller.getUser);
 router.put("/:id", controller.updateUser);
