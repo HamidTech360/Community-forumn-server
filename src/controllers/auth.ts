@@ -6,6 +6,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import jwt from "jsonwebtoken";
 import { sendMail } from "../lib/mailer";
 import { AnyKeys, AnyObject } from "mongoose";
+import bcrypt from 'bcryptjs'
 import {
   normalizeFacebookData,
   normalizeGoogleData,
@@ -91,6 +92,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         interests,
         gender,
         confirmationCode: token,
+        username:firstName
       });
 
       await user.save();
@@ -182,3 +184,27 @@ export const oauth = asyncHandler(async (req: Request, res: Response) => {
 
   return res.status(200).json({ accessToken, refreshToken });
 });
+
+
+export const updatePasssword = asyncHandler(
+  async(req:any, res:Response)=>{
+    const {oldPassword, newPassword} = req.body
+    try{
+      const user = await User.findById(req.user?._id)
+      if(!(await user.matchPassword(oldPassword))){
+         res.status(401).send('Incorrect password')
+         return
+      }
+     const salt = await bcrypt.genSalt(10);
+     const password = await bcrypt.hash(newPassword, salt);
+
+     await User.findByIdAndUpdate(req.user?._id, {password})
+     res.json({
+      message:'Password updated'
+     })
+
+    }catch(err){
+      res.status(500).send(err)
+    }
+  }
+)

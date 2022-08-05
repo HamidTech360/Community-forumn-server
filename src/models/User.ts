@@ -31,6 +31,7 @@ export interface IUserSchema extends Document {
   profilePics: string;
   bio: string;
   authProvider: string;
+  notificationOptions:String[];
 }
 
 const userSchema = new Schema<IUserSchema>({
@@ -109,10 +110,16 @@ const userSchema = new Schema<IUserSchema>({
   bio: {
     type: String,
   },
+  username:{
+      type:String
+  },
   authProvider: {
     type: String,
     default: "LOCAL",
   },
+  notificationOptions:{
+    type:[String]
+  }
 });
 
 userSchema.pre("save", async function (next) {

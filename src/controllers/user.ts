@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import { ObjectId } from "mongoose";
 import User from "../models/User";
 import Notification from "../models/notification";
+import expressAsyncHandler from "express-async-handler";
 
 //@route: /api/users
 //@method: GET
@@ -146,3 +147,38 @@ export const unFollowUser = asyncHandler(
     }
   }
 );
+
+
+export const addNotificationPreference = asyncHandler(
+  async (req:any, res:Response)=>{
+    const {option} = req.body
+    console.log(option, req.params.id);
+    
+    try{
+        const response = await User.findByIdAndUpdate(req.user?._id, {
+          $addToSet:{notificationOptions:option}
+        })
+        res.json({
+          message:'preference updated'
+        })
+    }catch(error){
+      res.status(500).send(error);
+    }
+  }
+)
+
+export const removeNotificationPreference = asyncHandler(
+  async (req:any, res:Response)=>{
+    const {option} = req.body
+    try{
+      const response = await User.findByIdAndUpdate(req.user?._id, {
+        $pull:{notificationOptions:option}
+      })
+      res.json({
+        message:'preference removed'
+      })
+    }catch(error){
+      res.status(500).send(error);
+    }
+  }
+)
