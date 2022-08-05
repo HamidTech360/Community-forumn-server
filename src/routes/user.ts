@@ -10,6 +10,8 @@ router.get("/follow", loggedIn, controller.usersToFollow);
 
 router.get("/:id", controller.getUser);
 router.put("/:id", controller.updateUser);
+router.get("/topwriters/all", controller.getTopWriters)
+router.get("/connections/all", loggedIn, controller.getUnfollowedUsers)
 router.put("/notifications/add", loggedIn, controller.addNotificationPreference)
 router.put("/notifications/remove", loggedIn, controller.removeNotificationPreference)
 

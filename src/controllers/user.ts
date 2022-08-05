@@ -2,8 +2,10 @@ import { raw, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { ObjectId } from "mongoose";
 import User from "../models/User";
+import Post from "../models/Post";
 import Notification from "../models/notification";
 import expressAsyncHandler from "express-async-handler";
+import users from "../data/users";
 
 //@route: /api/users
 //@method: GET
@@ -177,6 +179,56 @@ export const removeNotificationPreference = asyncHandler(
       res.json({
         message:'preference removed'
       })
+    }catch(error){
+      res.status(500).send(error);
+    }
+  }
+)
+
+export const getUnfollowedUsers = asyncHandler(
+  async(req:any, res:Response)=>{
+    try{
+      const users = await User.find({followers:{
+        $nin:req.user?._id
+      }}).limit(25)
+      res.json({
+        message:'suggested connections fetched',
+        connections:users
+      })
+    }catch(error){
+      res.status(500).send(error);
+    }
+  }
+)
+
+export const getTopWriters = asyncHandler(
+  async(req:any, res:Response)=>{
+    let frequency = {}
+    let topWriters = []
+    try{
+      const posts = await Post.find().populate('author')
+      for(var i in posts){
+        //@ts-ignore
+        frequency[posts[i].author._id] = ( frequency[posts[i].author._id] || 0) +1
+      }
+      //@ts-ignore
+     const sortedFrequency =  Object.entries(frequency).sort(([,a],[,b]) => b-a)
+      .reduce((obj, [k, v]) => ({
+        ...obj,
+        [k]: v
+      }), {})
+    
+     for(let key in sortedFrequency){
+        const user = posts.find(item=>item.author._id.toString() === key)
+        //@ts-ignore
+        topWriters.push(user?.author)
+     }
+      //console.log( sortedFrequency, topWriters);
+      res.json({
+        message:'top writers fetched',
+        users:topWriters
+      })
+      
     }catch(error){
       res.status(500).send(error);
     }
