@@ -35,6 +35,7 @@ router
     .route("/group/:id")
     .get(controller.getGroup)
     .put(auth_1.loggedIn, controller.updateGroup)
+    .patch(auth_1.loggedIn, controller.joinGroup)
     .delete(auth_1.loggedIn, controller.deleteGroup);
 router
     .route("/user")

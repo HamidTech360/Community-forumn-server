@@ -55,7 +55,8 @@ const postSchema = new mongoose_1.default.Schema({
         ref: "Group"
     },
     category: {
-        type: String
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 const Post = mongoose_1.default.models.Post || mongoose_1.default.model("Post", postSchema);

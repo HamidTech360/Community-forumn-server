@@ -53,8 +53,8 @@ exports.fetchAllGist = (0, express_async_handler_1.default)((req, res) => __awai
         const page = Number(req.query.page) || 0;
         const count = yield Gist_1.default.find().estimatedDocumentCount();
         const numPages = Math.ceil(count / perPage);
-        const gists = yield Gist_1.default.find()
-            .where({
+        const category = req.query.category;
+        const gists = yield Gist_1.default.find(category ? { categories: category } : {
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
             .sort({ createdAt: -1 })

@@ -40,7 +40,7 @@ const gistSchema = new mongoose_1.default.Schema({
     },
     categories: {
         type: String,
-        required: true,
+        required: true
     },
     post: {
         type: String,

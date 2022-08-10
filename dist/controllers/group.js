@@ -15,7 +15,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
+exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Group_1 = __importDefault(require("../models/Group"));
 exports.createGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -102,6 +102,20 @@ exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awa
             status: 'success',
             message: 'User groups retrieved',
             groups
+        });
+    }
+    catch (error) {
+        res.status(500).send(error);
+    }
+}));
+exports.joinGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _g;
+    try {
+        yield Group_1.default.findByIdAndUpdate(req.params.id, {
+            $addToSet: { groupMembers: (_g = req.user) === null || _g === void 0 ? void 0 : _g._id }
+        });
+        res.json({
+            message: 'User joined group'
         });
     }
     catch (error) {
