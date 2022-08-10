@@ -43,7 +43,8 @@ const postSchema = new mongoose.Schema<IPost>(
       ref:"Group"
     },
     category:{
-      type:String
+      type:String,
+      required: true
     }
   },
   { timestamps: true }
