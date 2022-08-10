@@ -44,11 +44,11 @@ export const fetchAllGist = expressAsyncHandler(
       const page = Number(req.query.page) || 0;
       const count = await Gist.find().estimatedDocumentCount();
       const numPages = Math.ceil(count / perPage);
+      const category = req.query.category
 
-      const gists = await Gist.find()
-        .where({
-          $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-        })
+      const gists = await Gist.find(category?{categories:category}:{
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      })
         .sort({ createdAt: -1 })
         .limit(perPage)
         .skip(page * perPage)

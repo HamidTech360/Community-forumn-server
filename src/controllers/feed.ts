@@ -150,6 +150,7 @@ export const getRandomGroupFeed = expressAsyncHandler(
         .limit(perPage)
         .skip(page * perPage)
         .populate("author", "firstName lastName avatar")
+        .populate('group')
         .populate({
           path: "comments",
           populate: { path: "author", select: "firstName lastName avatar" },

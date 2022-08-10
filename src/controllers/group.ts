@@ -119,3 +119,18 @@ export const getUserGroups = expressAsyncHandler(
     }
   }
 );
+
+export const joinGroup = expressAsyncHandler(
+  async(req:any, res:Response)=>{
+    try{
+      await Group.findByIdAndUpdate(req.params.id, {
+        $addToSet:{groupMembers:req.user?._id}
+      })
+      res.json({
+        message:'User joined group'
+      })
+    }catch(error){
+      res.status(500).send(error)
+    }
+  }
+)

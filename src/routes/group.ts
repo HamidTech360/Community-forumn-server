@@ -13,6 +13,7 @@ router
   .route("/group/:id")
   .get(controller.getGroup)
   .put(loggedIn, controller.updateGroup)
+  .patch(loggedIn, controller.joinGroup)
   .delete(loggedIn, controller.deleteGroup);
 
   router

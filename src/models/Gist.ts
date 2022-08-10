@@ -26,8 +26,8 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
       required: true,
     },
     categories: {
-      type: String,
-      required: true,
+      type:String,
+      required: true
     },
     post: {
       type: String,

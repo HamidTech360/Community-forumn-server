@@ -41,7 +41,8 @@ export const getPosts = expressAsyncHandler(
     const page = Number(req.query.page) || 0;
     const count = await Post.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
-
+    //console.log(req.query.category);
+    
     const posts = await Post.find(category?{category}:{
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     })
