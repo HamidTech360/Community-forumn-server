@@ -13,13 +13,12 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
     });
 
     const notification = await Notification.create({
-      content:`${req.user?.firstName} ${req.user?.lastName} posted an item in the feed`,
-      forItem:'feed',
-      itemId:feed._id,
-      author:req.user?._id,
-      targetedAudience:[...req.user?.followers]
-    })
-
+      content: `${req.user?.firstName} ${req.user?.lastName} posted an item in the feed`,
+      forItem: "feed",
+      itemId: feed._id,
+      author: req.user?._id,
+      targetedAudience: [...req.user?.followers],
+    });
 
     res.json({
       status: "success",
@@ -49,6 +48,7 @@ export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
       })
+      .populate("likes", "firstName lastName")
       .populate({
         path: "comments",
         populate: {
@@ -74,6 +74,7 @@ export const fetchFeed = expressAsyncHandler(
     const feed = await Feed.findById(id)
       .populate("author", "firstName lastName avatar")
       .populate("group")
+      .populate("likes", "firstName lastName")
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -109,6 +110,7 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
       .limit(perPage)
       .skip(page * perPage)
       .populate("author", "firstName lastName avatar")
+      .populate("likes", "firstName lastName")
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -150,7 +152,8 @@ export const getRandomGroupFeed = expressAsyncHandler(
         .limit(perPage)
         .skip(page * perPage)
         .populate("author", "firstName lastName avatar")
-        .populate('group')
+        .populate("likes", "firstName lastName")
+        .populate("group")
         .populate({
           path: "comments",
           populate: { path: "author", select: "firstName lastName avatar" },

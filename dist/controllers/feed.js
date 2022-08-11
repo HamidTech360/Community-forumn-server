@@ -27,10 +27,10 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
         });
         const notification = yield notification_1.default.create({
             content: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName} ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName} posted an item in the feed`,
-            forItem: 'feed',
+            forItem: "feed",
             itemId: feed._id,
             author: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id,
-            targetedAudience: [...(_e = req.user) === null || _e === void 0 ? void 0 : _e.followers]
+            targetedAudience: [...(_e = req.user) === null || _e === void 0 ? void 0 : _e.followers],
         });
         res.json({
             status: "success",
@@ -59,6 +59,7 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
         })
+            .populate("likes", "firstName lastName")
             .populate({
             path: "comments",
             populate: {
@@ -83,6 +84,7 @@ exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter
     const feed = yield Feed_1.default.findById(id)
         .populate("author", "firstName lastName avatar")
         .populate("group")
+        .populate("likes", "firstName lastName")
         .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -115,6 +117,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             .limit(perPage)
             .skip(page * perPage)
             .populate("author", "firstName lastName avatar")
+            .populate("likes", "firstName lastName")
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
@@ -154,7 +157,8 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             .limit(perPage)
             .skip(page * perPage)
             .populate("author", "firstName lastName avatar")
-            .populate('group')
+            .populate("likes", "firstName lastName")
+            .populate("group")
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
