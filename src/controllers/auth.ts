@@ -123,7 +123,7 @@ export const getCurrentUser = asyncHandler(
     console.log(id);
 
     try {
-      const user = await User.findById(id).populate("followers following");
+      const user = await User.findById(id).populate("followers following", "-password");
 
       res.json(user);
     } catch (error) {

@@ -34,7 +34,7 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 export const getUser = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("followers");
+    const user = await User.findById(req.params.id).populate("followers", "firstName lastName avatar");
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
@@ -172,7 +172,7 @@ export const getTopWriters = asyncHandler(
     let frequency = {}
     let topWriters = []
     try{
-      const posts = await Post.find().populate('author')
+      const posts = await Post.find().populate('author', "firstName lastName avatar")
       for(var i in posts){
         //@ts-ignore
         frequency[posts[i].author._id] = ( frequency[posts[i].author._id] || 0) +1

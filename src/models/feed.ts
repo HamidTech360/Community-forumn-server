@@ -23,6 +23,10 @@ const feedSchema = new mongoose.Schema(
       type: [Schema.Types.ObjectId],
       ref: "User",
     },
+    deleted:{
+      type:Boolean,
+      default:false
+    }
   },
   { timestamps: true }
 );
