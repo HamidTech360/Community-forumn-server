@@ -146,6 +146,7 @@ export const getRandomGroupFeed = expressAsyncHandler(
       const numPages = Math.ceil(count / perPage);
 
       const posts = await Feed.find({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         group: { $ne: null },
       })
         .sort({ createdAt: -1 })
@@ -196,6 +197,19 @@ export const updateFeed = expressAsyncHandler(
       res.status(200).json(updatedFeed);
     } else {
       res.status(404).json({ msg: "Feed not found" });
+    }
+  }
+);
+export const deleteFeed = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    const id = req.query.id;
+    try {
+      await Feed.findByIdAndUpdate(id, { deleted: true });
+      res.json({
+        message: "Feed deleted",
+      });
+    } catch (error) {
+      res.status(500).json(error);
     }
   }
 );

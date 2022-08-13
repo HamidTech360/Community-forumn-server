@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFeed = exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
+exports.deleteFeed = exports.updateFeed = exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Feed_1 = __importDefault(require("../models/Feed"));
 const notification_1 = __importDefault(require("../models/notification"));
@@ -151,6 +151,7 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
         const count = yield Feed_1.default.find().estimatedDocumentCount();
         const numPages = Math.ceil(count / perPage);
         const posts = yield Feed_1.default.find({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
             group: { $ne: null },
         })
             .sort({ createdAt: -1 })
@@ -201,5 +202,17 @@ exports.updateFeed = (0, express_async_handler_1.default)((req, res) => __awaite
     }
     else {
         res.status(404).json({ msg: "Feed not found" });
+    }
+}));
+exports.deleteFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.query.id;
+    try {
+        yield Feed_1.default.findByIdAndUpdate(id, { deleted: true });
+        res.json({
+            message: "Feed deleted",
+        });
+    }
+    catch (error) {
+        res.status(500).json(error);
     }
 }));

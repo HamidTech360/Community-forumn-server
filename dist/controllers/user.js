@@ -41,7 +41,7 @@ exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(
 //@access public
 exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.default.findById(req.params.id).populate("followers");
+        const user = yield User_1.default.findById(req.params.id).populate("followers", "firstName lastName avatar");
         res.status(200).json(user);
     }
     catch (error) {
@@ -177,7 +177,7 @@ exports.getTopWriters = (0, express_async_handler_1.default)((req, res) => __awa
     let frequency = {};
     let topWriters = [];
     try {
-        const posts = yield Post_1.default.find().populate('author');
+        const posts = yield Post_1.default.find().populate('author', "firstName lastName avatar");
         for (var i in posts) {
             //@ts-ignore
             frequency[posts[i].author._id] = (frequency[posts[i].author._id] || 0) + 1;

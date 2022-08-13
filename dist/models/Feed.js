@@ -46,6 +46,10 @@ const feedSchema = new mongoose_1.default.Schema({
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User",
     },
+    deleted: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true });
 const Feed = mongoose_1.models.Feed || mongoose_1.default.model("Feed", feedSchema);
 exports.default = Feed;
