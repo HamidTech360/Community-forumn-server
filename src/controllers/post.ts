@@ -85,7 +85,7 @@ export const getPost = expressAsyncHandler(
       .populate("author", "firstName lastName")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: { path: "author", select: "firstName lastName avatar _id" },
       })
       .populate({
         path: "comments",
@@ -112,7 +112,7 @@ export const deletePost = expressAsyncHandler(
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
     if (post && post.author.toString() === req?.user?._id.toString()) {
-      post.deleted === true;
+      post.deleted = true;
       await post.save();
       res.status(200).json({ msg: "Post deleted" });
     } else {

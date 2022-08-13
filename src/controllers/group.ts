@@ -104,7 +104,7 @@ export const getUserGroups = expressAsyncHandler(
           "$in":userId
         }
       }).sort({createdAt:-1})
-      .populate('admin')
+      .populate('admin', "firstNam lastName avatar")
 
       console.log(groups);
       

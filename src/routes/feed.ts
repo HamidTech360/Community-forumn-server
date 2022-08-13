@@ -11,6 +11,7 @@ router
   .get(controller.fetchFeed)
   .put(loggedIn, controller.updateFeed);
 router.post("/", loggedIn, controller.saveFeed);
+router.delete("/", loggedIn, controller.deleteFeed);
 
 router.route("/groups/:id").get(controller.getGroupFeed);
 export default router;

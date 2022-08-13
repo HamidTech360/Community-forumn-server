@@ -96,7 +96,7 @@ exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awa
                 "$in": userId
             }
         }).sort({ createdAt: -1 })
-            .populate('admin');
+            .populate('admin', "firstNam lastName avatar");
         console.log(groups);
         res.json({
             status: 'success',
