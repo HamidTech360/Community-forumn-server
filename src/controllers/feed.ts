@@ -177,3 +177,25 @@ export const getRandomGroupFeed = expressAsyncHandler(
     }
   }
 );
+
+//@Route /api/feed/:id
+//@Method Put
+//@Access: LoggedIn
+export const updateFeed = expressAsyncHandler(
+  async (req: Request & { user?: Record<string, any> }, res: Response) => {
+    const feedId = req.params.id;
+    const feed = await Feed.findById(feedId).where({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    });
+    if (feed && feed.author.toString() === req?.user?._id.toString()) {
+      const feedKeys = Object.keys(req.body);
+      for (let i = 0; i < feedKeys.length; i++) {
+        feed[feedKeys[i]] = req.body[feedKeys[i]];
+      }
+      const updatedFeed = await feed.save();
+      res.status(200).json(updatedFeed);
+    } else {
+      res.status(404).json({ msg: "Feed not found" });
+    }
+  }
+);

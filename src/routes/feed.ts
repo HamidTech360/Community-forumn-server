@@ -6,7 +6,10 @@ const router = express.Router();
 
 router.get("/", controller.fetchFeeds);
 router.route("/groups/").get(controller.getRandomGroupFeed);
-router.get("/:id", controller.fetchFeed);
+router
+  .route("/:id")
+  .get(controller.fetchFeed)
+  .put(loggedIn, controller.updateFeed);
 router.post("/", loggedIn, controller.saveFeed);
 
 router.route("/groups/:id").get(controller.getGroupFeed);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
+exports.updateFeeds = exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Feed_1 = __importDefault(require("../models/Feed"));
 const notification_1 = __importDefault(require("../models/notification"));
@@ -180,5 +180,26 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
     }
     catch (error) {
         res.status(500).json(error);
+    }
+}));
+//@Route /api/feed/:id
+//@Method Put
+//@Access: LoggedIn
+exports.updateFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    const feedId = req.params.id;
+    const feed = yield Feed_1.default.findById(feedId).where({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    });
+    if (feed && feed.author.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
+        const feedKeys = Object.keys(req.body);
+        for (let i = 0; i < feedKeys.length; i++) {
+            feed[feedKeys[i]] = req.body[feedKeys[i]];
+        }
+        const updatedFeed = yield feed.save();
+        res.status(200).json(updatedFeed);
+    }
+    else {
+        res.status(404).json({ msg: "Feed not found" });
     }
 }));
