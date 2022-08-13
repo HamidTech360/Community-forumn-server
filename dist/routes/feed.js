@@ -32,7 +32,10 @@ const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 router.get("/", controller.fetchFeeds);
 router.route("/groups/").get(controller.getRandomGroupFeed);
-router.get("/:id", controller.fetchFeed);
+router
+    .route("/:id")
+    .get(controller.fetchFeed)
+    .put(auth_1.loggedIn, controller.updateFeed);
 router.post("/", auth_1.loggedIn, controller.saveFeed);
 router.route("/groups/:id").get(controller.getGroupFeed);
 exports.default = router;
