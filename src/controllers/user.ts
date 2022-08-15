@@ -157,6 +157,12 @@ export const getUnfollowedUsers = asyncHandler(
       const users = await User.find({followers:{
         $nin:req.user?._id
       }}).limit(25)
+      for (var i = users.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = users[i];
+        users[i] = users[j];
+        users[j] = temp;
+    }
       res.json({
         message:'suggested connections fetched',
         connections:users
