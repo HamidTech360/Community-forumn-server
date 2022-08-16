@@ -42,14 +42,17 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUser = asyncHandler(async (req: any, res) => {
+  console.log(req.body);
+  
   try {
     const user = await User.findByIdAndUpdate(req.params.id, {
       ...req.body,
-    });
+    }, {new:true});
 
     res.json({
       status: "success",
       message: "User updated",
+      user
     });
   } catch (error) {
     res.status(500).send(error);

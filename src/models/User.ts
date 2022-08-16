@@ -22,6 +22,7 @@ export interface IUserSchema extends Document {
   otherNames: string;
   isAdmin: boolean;
   address?: IAddress;
+  fullAddress:string,
   status: string;
   confirmationCode: string;
   followers: Types.ObjectId[];
@@ -32,6 +33,10 @@ export interface IUserSchema extends Document {
   bio: string;
   authProvider: string;
   notificationOptions:String[];
+  interests:string,
+  dob:string,
+  mobileNumber:string,
+  websites:string
 }
 
 const userSchema = new Schema<IUserSchema>({
@@ -63,6 +68,9 @@ const userSchema = new Schema<IUserSchema>({
   },
   gender: {
     type: String,
+  },
+  fullAddress:{
+    type:String
   },
   address: {
     type: new Schema({
@@ -119,6 +127,18 @@ const userSchema = new Schema<IUserSchema>({
   },
   notificationOptions:{
     type:[String]
+  },
+  interests:{
+    type:String
+  },
+  dob:{
+    type:String
+  },
+  mobileNumber:{
+    type:String
+  },
+  websites:{
+    type:String
   }
 });
 
