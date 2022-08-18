@@ -34,7 +34,7 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 export const getUser = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("followers", "firstName lastName avatar");
+    const user = await User.findById(req.params.id).populate("followers following", "firstName lastName avatar");
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
@@ -42,14 +42,17 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUser = asyncHandler(async (req: any, res) => {
+  console.log(req.body);
+  
   try {
     const user = await User.findByIdAndUpdate(req.params.id, {
       ...req.body,
-    });
+    }, {new:true});
 
     res.json({
       status: "success",
       message: "User updated",
+      user
     });
   } catch (error) {
     res.status(500).send(error);
@@ -191,6 +194,12 @@ export const getUnfollowedUsers = asyncHandler(
       const users = await User.find({followers:{
         $nin:req.user?._id
       }}).limit(25)
+      for (var i = users.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = users[i];
+        users[i] = users[j];
+        users[j] = temp;
+    }
       res.json({
         message:'suggested connections fetched',
         connections:users
