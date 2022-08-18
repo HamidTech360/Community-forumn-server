@@ -67,6 +67,9 @@ const userSchema = new mongoose_1.Schema({
     gender: {
         type: String,
     },
+    fullAddress: {
+        type: String
+    },
     address: {
         type: new mongoose_1.Schema({
             city: {
@@ -122,6 +125,18 @@ const userSchema = new mongoose_1.Schema({
     },
     notificationOptions: {
         type: [String]
+    },
+    interests: {
+        type: String
+    },
+    dob: {
+        type: String
+    },
+    mobileNumber: {
+        type: String
+    },
+    websites: {
+        type: String
     }
 });
 userSchema.pre("save", function (next) {

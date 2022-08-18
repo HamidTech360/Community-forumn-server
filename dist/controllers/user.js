@@ -41,7 +41,7 @@ exports.getUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(
 //@access public
 exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.default.findById(req.params.id).populate("followers", "firstName lastName avatar");
+        const user = yield User_1.default.findById(req.params.id).populate("followers following", "firstName lastName avatar");
         res.status(200).json(user);
     }
     catch (error) {
@@ -49,11 +49,13 @@ exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     }
 }));
 exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     try {
-        const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign({}, req.body));
+        const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign({}, req.body), { new: true });
         res.json({
             status: "success",
             message: "User updated",
+            user
         });
     }
     catch (error) {
@@ -164,6 +166,12 @@ exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => 
         const users = yield User_1.default.find({ followers: {
                 $nin: (_q = req.user) === null || _q === void 0 ? void 0 : _q._id
             } }).limit(25);
+        for (var i = users.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = users[i];
+            users[i] = users[j];
+            users[j] = temp;
+        }
         res.json({
             message: 'suggested connections fetched',
             connections: users
