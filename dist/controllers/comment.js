@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.comment = void 0;
+exports.deleteComment = exports.editComment = exports.comment = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Comment_1 = __importDefault(require("../models/Comment"));
 const Gist_1 = __importDefault(require("../models/Gist"));
@@ -59,9 +59,50 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
         forItem: type,
         itemId: itemAuthor._id,
         author: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id,
-        targetedAudience: [itemAuthor.author]
+        targetedAudience: [itemAuthor.author],
     });
     res
         .status(200)
         .json(yield comment.populate("author", "firstName lastName avatar"));
+}));
+//@route /api/comments/:id
+//@method PUT
+//Access Private
+exports.editComment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _e;
+    try {
+        const comment = yield Comment_1.default.findById(req.params.id);
+        if (comment && comment.author.toString() === ((_e = req === null || req === void 0 ? void 0 : req.user) === null || _e === void 0 ? void 0 : _e._id.toString())) {
+            const commentKeys = Object.keys(req.body);
+            for (let i = 0; i < commentKeys.length; i++) {
+                comment[commentKeys[i]] = req.body[commentKeys[i]];
+            }
+            const updatedComment = yield comment.save();
+            res.status(200).json(updatedComment);
+        }
+        else {
+            res.status(404).json({ msg: "Comment not found" });
+        }
+    }
+    catch (error) { }
+}));
+//@route /api/comments/:id
+//@method Delete
+//Access Private
+exports.deleteComment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    try {
+        const comment = yield Comment_1.default.findById(req.params.id).where({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
+        if (comment && comment.author.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
+            comment.deleted = true;
+            yield comment.save();
+            res.status(200).json({ msg: "comment deleted" });
+        }
+        else {
+            res.status(404).json({ msg: "comment not found" });
+        }
+    }
+    catch (error) { }
 }));

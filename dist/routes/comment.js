@@ -28,4 +28,8 @@ const auth_1 = require("../middleware/auth");
 const controller = __importStar(require("../controllers/comment"));
 const router = (0, express_1.Router)();
 router.post("/", auth_1.loggedIn, controller.comment);
+router
+    .route("/:id")
+    .put(auth_1.loggedIn, controller.editComment)
+    .delete(auth_1.loggedIn, controller.deleteComment);
 exports.default = router;
