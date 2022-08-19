@@ -21,6 +21,9 @@ const notificationSchema = new Schema({
     targetedAudience:{
         type: [Schema.Types.ObjectId],
         ref:"User"
+    },
+    read:{
+        type:Boolean
     }
 }, {timestamps:true})
 
