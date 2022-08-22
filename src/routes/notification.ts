@@ -5,5 +5,6 @@ const router = Router();
 
 
 router.get('/', loggedIn, controller.fetchUserNotifications)
+router.delete('/', loggedIn, controller.MarkAsRead)
 
 export default router;

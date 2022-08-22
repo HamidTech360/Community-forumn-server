@@ -21,3 +21,17 @@ export const fetchUserNotifications = expressAsyncHandler(
         }
     }
 )
+
+export const MarkAsRead = expressAsyncHandler(
+    async(req:any, res:any)=>{
+        try{
+            const markAsRead = await Notification.findByIdAndUpdate(req.query.id, {read:true})
+            res.json({
+                meessage:'Notification mark as read'
+            })
+
+        }catch(error){
+            res.status(500).send(error)
+        }
+    }
+)
