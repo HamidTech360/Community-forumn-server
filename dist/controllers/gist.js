@@ -125,7 +125,7 @@ exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaite
         })
             .catch((error) => console.log(error));
         if (gist && gist.author.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
-            gist.deleted === true;
+            gist.deleted = true;
             yield gist.save();
             res.status(200).json({ msg: "Gist deleted" });
         }

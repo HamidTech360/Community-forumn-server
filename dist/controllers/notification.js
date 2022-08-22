@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchUserNotifications = void 0;
+exports.MarkAsRead = exports.fetchUserNotifications = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const notification_1 = __importDefault(require("../models/notification"));
 exports.fetchUserNotifications = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -25,6 +25,17 @@ exports.fetchUserNotifications = (0, express_async_handler_1.default)((req, res)
         res.json({
             message: 'notifications fetched',
             notifications
+        });
+    }
+    catch (error) {
+        res.status(500).send(error);
+    }
+}));
+exports.MarkAsRead = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const markAsRead = yield notification_1.default.findByIdAndUpdate(req.query.id, { read: true });
+        res.json({
+            meessage: 'Notification mark as read'
         });
     }
     catch (error) {

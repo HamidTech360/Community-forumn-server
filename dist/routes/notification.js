@@ -28,4 +28,5 @@ const controller = __importStar(require("../controllers/notification"));
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 router.get('/', auth_1.loggedIn, controller.fetchUserNotifications);
+router.delete('/', auth_1.loggedIn, controller.MarkAsRead);
 exports.default = router;

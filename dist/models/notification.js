@@ -22,6 +22,9 @@ const notificationSchema = new mongoose_1.Schema({
     targetedAudience: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User"
+    },
+    read: {
+        type: Boolean
     }
 }, { timestamps: true });
 const Notification = mongoose_1.models.notification || (0, mongoose_1.model)('notification', notificationSchema);
