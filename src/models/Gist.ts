@@ -8,6 +8,7 @@ export interface IGistSchema extends mongoose.Document {
   categories: string;
   post: string;
   deleted: boolean;
+  media: [string];
 }
 
 const gistSchema = new mongoose.Schema<IGistSchema>(
@@ -26,8 +27,8 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
       required: true,
     },
     categories: {
-      type:String,
-      required: true
+      type: String,
+      required: true,
     },
     post: {
       type: String,
@@ -42,6 +43,7 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
       type: [Schema.Types.ObjectId],
       ref: "Comment",
     },
+    media: { type: [String] },
   },
   { timestamps: true }
 );

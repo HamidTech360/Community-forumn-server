@@ -49,13 +49,14 @@ exports.getUser = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     }
 }));
 exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
     try {
-        const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign({}, req.body), { new: true });
+        const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign(Object.assign({}, req.body), { images: {
+                avatar: req.file.location,
+            } }), { new: true });
         res.json({
             status: "success",
             message: "User updated",
-            user
+            user,
         });
     }
     catch (error) {
@@ -135,10 +136,10 @@ exports.addNotificationPreference = (0, express_async_handler_1.default)((req, r
     console.log(option, req.params.id);
     try {
         const response = yield User_1.default.findByIdAndUpdate((_o = req.user) === null || _o === void 0 ? void 0 : _o._id, {
-            $addToSet: { notificationOptions: option }
+            $addToSet: { notificationOptions: option },
         });
         res.json({
-            message: 'preference updated'
+            message: "preference updated",
         });
     }
     catch (error) {
@@ -150,10 +151,10 @@ exports.removeNotificationPreference = (0, express_async_handler_1.default)((req
     const { option } = req.body;
     try {
         const response = yield User_1.default.findByIdAndUpdate((_p = req.user) === null || _p === void 0 ? void 0 : _p._id, {
-            $pull: { notificationOptions: option }
+            $pull: { notificationOptions: option },
         });
         res.json({
-            message: 'preference removed'
+            message: "preference removed",
         });
     }
     catch (error) {
@@ -163,9 +164,11 @@ exports.removeNotificationPreference = (0, express_async_handler_1.default)((req
 exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _q;
     try {
-        const users = yield User_1.default.find({ followers: {
-                $nin: (_q = req.user) === null || _q === void 0 ? void 0 : _q._id
-            } }).limit(25);
+        const users = yield User_1.default.find({
+            followers: {
+                $nin: (_q = req.user) === null || _q === void 0 ? void 0 : _q._id,
+            },
+        }).limit(25);
         for (var i = users.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = users[i];
@@ -173,8 +176,8 @@ exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => 
             users[j] = temp;
         }
         res.json({
-            message: 'suggested connections fetched',
-            connections: users
+            message: "suggested connections fetched",
+            connections: users,
         });
     }
     catch (error) {
@@ -185,23 +188,26 @@ exports.getTopWriters = (0, express_async_handler_1.default)((req, res) => __awa
     let frequency = {};
     let topWriters = [];
     try {
-        const posts = yield Post_1.default.find().populate('author', "firstName lastName avatar");
+        const posts = yield Post_1.default.find().populate("author", "firstName lastName avatar");
         for (var i in posts) {
             //@ts-ignore
-            frequency[posts[i].author._id] = (frequency[posts[i].author._id] || 0) + 1;
+            frequency[posts[i].author._id] =
+                //@ts-ignore
+                (frequency[posts[i].author._id] || 0) + 1;
         }
-        //@ts-ignore
-        const sortedFrequency = Object.entries(frequency).sort(([, a], [, b]) => b - a)
+        const sortedFrequency = Object.entries(frequency)
+            //@ts-ignore
+            .sort(([, a], [, b]) => b - a)
             .reduce((obj, [k, v]) => (Object.assign(Object.assign({}, obj), { [k]: v })), {});
         for (let key in sortedFrequency) {
-            const user = posts.find(item => item.author._id.toString() === key);
+            const user = posts.find((item) => item.author._id.toString() === key);
             //@ts-ignore
             topWriters.push(user === null || user === void 0 ? void 0 : user.author);
         }
         //console.log( sortedFrequency, topWriters);
         res.json({
-            message: 'top writers fetched',
-            users: topWriters
+            message: "top writers fetched",
+            users: topWriters,
         });
     }
     catch (error) {

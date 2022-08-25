@@ -34,7 +34,10 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 export const getUser = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("followers following", "firstName lastName avatar");
+    const user = await User.findById(req.params.id).populate(
+      "followers following",
+      "firstName lastName avatar"
+    );
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
@@ -42,17 +45,24 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUser = asyncHandler(async (req: any, res) => {
-  console.log(req.body);
-  
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, {
-      ...req.body,
-    }, {new:true});
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+
+      {
+        ...req.body,
+        images: {
+          avatar: req.file.location,
+        },
+      },
+
+      { new: true }
+    );
 
     res.json({
       status: "success",
       message: "User updated",
-      user
+      user,
     });
   } catch (error) {
     res.status(500).send(error);
@@ -153,93 +163,100 @@ export const unFollowUser = asyncHandler(
   }
 );
 
-
 export const addNotificationPreference = asyncHandler(
-  async (req:any, res:Response)=>{
-    const {option} = req.body
+  async (req: any, res: Response) => {
+    const { option } = req.body;
     console.log(option, req.params.id);
-    
-    try{
-        const response = await User.findByIdAndUpdate(req.user?._id, {
-          $addToSet:{notificationOptions:option}
-        })
-        res.json({
-          message:'preference updated'
-        })
-    }catch(error){
+
+    try {
+      const response = await User.findByIdAndUpdate(req.user?._id, {
+        $addToSet: { notificationOptions: option },
+      });
+      res.json({
+        message: "preference updated",
+      });
+    } catch (error) {
       res.status(500).send(error);
     }
   }
-)
+);
 
 export const removeNotificationPreference = asyncHandler(
-  async (req:any, res:Response)=>{
-    const {option} = req.body
-    try{
+  async (req: any, res: Response) => {
+    const { option } = req.body;
+    try {
       const response = await User.findByIdAndUpdate(req.user?._id, {
-        $pull:{notificationOptions:option}
-      })
+        $pull: { notificationOptions: option },
+      });
       res.json({
-        message:'preference removed'
-      })
-    }catch(error){
+        message: "preference removed",
+      });
+    } catch (error) {
       res.status(500).send(error);
     }
   }
-)
+);
 
 export const getUnfollowedUsers = asyncHandler(
-  async(req:any, res:Response)=>{
-    try{
-      const users = await User.find({followers:{
-        $nin:req.user?._id
-      }}).limit(25)
+  async (req: any, res: Response) => {
+    try {
+      const users = await User.find({
+        followers: {
+          $nin: req.user?._id,
+        },
+      }).limit(25);
       for (var i = users.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = users[i];
         users[i] = users[j];
         users[j] = temp;
-    }
-      res.json({
-        message:'suggested connections fetched',
-        connections:users
-      })
-    }catch(error){
-      res.status(500).send(error);
-    }
-  }
-)
-
-export const getTopWriters = asyncHandler(
-  async(req:any, res:Response)=>{
-    let frequency = {}
-    let topWriters = []
-    try{
-      const posts = await Post.find().populate('author', "firstName lastName avatar")
-      for(var i in posts){
-        //@ts-ignore
-        frequency[posts[i].author._id] = ( frequency[posts[i].author._id] || 0) +1
       }
-      //@ts-ignore
-     const sortedFrequency =  Object.entries(frequency).sort(([,a],[,b]) => b-a)
-      .reduce((obj, [k, v]) => ({
-        ...obj,
-        [k]: v
-      }), {})
-    
-     for(let key in sortedFrequency){
-        const user = posts.find(item=>item.author._id.toString() === key)
-        //@ts-ignore
-        topWriters.push(user?.author)
-     }
-      //console.log( sortedFrequency, topWriters);
       res.json({
-        message:'top writers fetched',
-        users:topWriters
-      })
-      
-    }catch(error){
+        message: "suggested connections fetched",
+        connections: users,
+      });
+    } catch (error) {
       res.status(500).send(error);
     }
   }
-)
+);
+
+export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
+  let frequency = {};
+  let topWriters = [];
+  try {
+    const posts = await Post.find().populate(
+      "author",
+      "firstName lastName avatar"
+    );
+    for (var i in posts) {
+      //@ts-ignore
+      frequency[posts[i].author._id] =
+        //@ts-ignore
+        (frequency[posts[i].author._id] || 0) + 1;
+    }
+    const sortedFrequency = Object.entries(frequency)
+      //@ts-ignore
+      .sort(([, a], [, b]) => b - a)
+      .reduce(
+        (obj, [k, v]) => ({
+          ...obj,
+          [k]: v,
+        }),
+        {}
+      );
+
+    for (let key in sortedFrequency) {
+      const user = posts.find((item) => item.author._id.toString() === key);
+      //@ts-ignore
+      topWriters.push(user?.author);
+    }
+    //console.log( sortedFrequency, topWriters);
+    res.json({
+      message: "top writers fetched",
+      users: topWriters,
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});

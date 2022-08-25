@@ -25,6 +25,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const groupSchema = new mongoose_1.Schema({
+    images: {
+        type: new mongoose_1.Schema({
+            avatar: String,
+            cover: String,
+        }),
+    },
     name: {
         type: String,
         required: true,

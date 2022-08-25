@@ -30,7 +30,7 @@ exports.createGroup = (0, express_async_handler_1.default)((req, res) => __await
         invite,
         privacy,
         allowedToPost,
-        groupMembers: [(_c = req.user) === null || _c === void 0 ? void 0 : _c._id, ...groupMembers]
+        groupMembers: [(_c = req.user) === null || _c === void 0 ? void 0 : _c._id, ...groupMembers],
     });
     res.status(201).json({ group });
 }));
@@ -46,13 +46,20 @@ exports.getGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(
 // @Method: Put
 // @Access: Private (Group admin/moderator)
 exports.updateGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
+    var _d, _e;
     const groupId = req.params.id;
     const group = yield Group_1.default.findById(groupId);
     if (group.admin.toString() === ((_d = req === null || req === void 0 ? void 0 : req.user) === null || _d === void 0 ? void 0 : _d._id.toString())) {
         const groupKeys = Object.keys(req.body);
         for (let i = 0; i < groupKeys.length; i++) {
-            group[groupKeys[i]] = req.body[groupKeys[i]];
+            if (groupKeys[i] !== "avatar") {
+                group[groupKeys[i]] = req.body[groupKeys[i]];
+            }
+            else {
+                group.images = {
+                    avatar: (_e = req.file) === null || _e === void 0 ? void 0 : _e.location,
+                };
+            }
         }
         const updatedGroup = yield group.save();
         res.status(200).json(updatedGroup);
@@ -65,10 +72,10 @@ exports.updateGroup = (0, express_async_handler_1.default)((req, res) => __await
 // @Method: Delete
 // @Access: Private (Group admin/moderator)
 exports.deleteGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e;
+    var _f;
     const groupId = req.params.id;
     const group = yield Group_1.default.findById(groupId);
-    if (group.admin.toString() === ((_e = req === null || req === void 0 ? void 0 : req.user) === null || _e === void 0 ? void 0 : _e._id.toString())) {
+    if (group.admin.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
         group.deleted = true;
         const updated = yield group.save();
         res.status(200).json(updated);
@@ -87,21 +94,22 @@ exports.getGroups = (0, express_async_handler_1.default)((req, res) => __awaiter
     res.status(200).json(groups);
 }));
 exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
-    const userId = (_f = req.user) === null || _f === void 0 ? void 0 : _f._id;
+    var _g;
+    const userId = (_g = req.user) === null || _g === void 0 ? void 0 : _g._id;
     //console.log('User is a member of', req.user?._id);
     try {
         const groups = yield Group_1.default.find({
             groupMembers: {
-                "$in": userId
-            }
-        }).sort({ createdAt: -1 })
-            .populate('admin', "firstNam lastName avatar");
+                $in: userId,
+            },
+        })
+            .sort({ createdAt: -1 })
+            .populate("admin", "firstNam lastName avatar");
         console.log(groups);
         res.json({
-            status: 'success',
-            message: 'User groups retrieved',
-            groups
+            status: "success",
+            message: "User groups retrieved",
+            groups,
         });
     }
     catch (error) {
@@ -109,13 +117,13 @@ exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awa
     }
 }));
 exports.joinGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g;
+    var _h;
     try {
         yield Group_1.default.findByIdAndUpdate(req.params.id, {
-            $addToSet: { groupMembers: (_g = req.user) === null || _g === void 0 ? void 0 : _g._id }
+            $addToSet: { groupMembers: (_h = req.user) === null || _h === void 0 ? void 0 : _h._id },
         });
         res.json({
-            message: 'User joined group'
+            message: "User joined group",
         });
     }
     catch (error) {

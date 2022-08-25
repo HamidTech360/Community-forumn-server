@@ -2,14 +2,17 @@ import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Feed from "../models/Feed";
 import Notification from "../models/notification";
+import { File } from "../types";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group } = req.body;
+
   try {
     const feed = await Feed.create({
       post,
       author: req.user?._id,
       group,
+      media: req.files?.map((file: File) => file.location),
     });
 
     const notification = await Notification.create({
@@ -191,7 +194,13 @@ export const updateFeed = expressAsyncHandler(
     if (feed && feed.author.toString() === req?.user?._id.toString()) {
       const feedKeys = Object.keys(req.body);
       for (let i = 0; i < feedKeys.length; i++) {
-        feed[feedKeys[i]] = req.body[feedKeys[i]];
+        if (feedKeys[i] !== "media") {
+          feed[feedKeys[i]] = req.body[feedKeys[i]];
+        } else {
+          feed.media = (req.files as [File])?.map(
+            (file: File) => file.location
+          );
+        }
       }
       const updatedFeed = await feed.save();
       res.status(200).json(updatedFeed);

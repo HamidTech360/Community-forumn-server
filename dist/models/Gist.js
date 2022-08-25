@@ -40,7 +40,7 @@ const gistSchema = new mongoose_1.default.Schema({
     },
     categories: {
         type: String,
-        required: true
+        required: true,
     },
     post: {
         type: String,
@@ -55,6 +55,7 @@ const gistSchema = new mongoose_1.default.Schema({
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "Comment",
     },
+    media: { type: [String] },
 }, { timestamps: true });
 const Gist = mongoose_1.models.Gist || mongoose_1.default.model("Gist", gistSchema);
 exports.default = Gist;

@@ -26,14 +26,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/gist"));
 const auth_1 = require("../middleware/auth");
+const upload_1 = require("../middleware/upload");
 const router = (0, express_1.Router)();
 router
     .route(`/`)
-    .post(auth_1.loggedIn, controller.createGist)
+    .post(auth_1.loggedIn, upload_1.upload.array("media", 3), controller.createGist)
     .get(controller.fetchAllGist);
 router
     .route(`/:id`)
     .get(controller.fetchSingleGist)
-    .put(auth_1.loggedIn, controller.updateGist)
+    .put(auth_1.loggedIn, upload_1.upload.array("media", 3), controller.updateGist)
     .delete(auth_1.loggedIn, controller.deleteGist);
 exports.default = router;

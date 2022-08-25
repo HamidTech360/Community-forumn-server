@@ -26,17 +26,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+//@ts-nocheck
 const express_1 = __importDefault(require("express"));
 const controller = __importStar(require("../controllers/feed"));
 const auth_1 = require("../middleware/auth");
+const upload_1 = require("../middleware/upload");
 const router = express_1.default.Router();
 router.get("/", controller.fetchFeeds);
 router.route("/groups/").get(controller.getRandomGroupFeed);
 router
     .route("/:id")
     .get(controller.fetchFeed)
-    .put(auth_1.loggedIn, controller.updateFeed);
-router.post("/", auth_1.loggedIn, controller.saveFeed);
+    .put(auth_1.loggedIn, upload_1.upload.array("media"), controller.updateFeed);
+router.post("/", auth_1.loggedIn, upload_1.upload.array("media"), controller.saveFeed);
 router.delete("/", auth_1.loggedIn, controller.deleteFeed);
 router.route("/groups/:id").get(controller.getGroupFeed);
 exports.default = router;

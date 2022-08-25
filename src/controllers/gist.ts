@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import Notification from '../models/notification'
+import Notification from "../models/notification";
 import expressAsyncHandler from "express-async-handler";
 import Gist from "../models/Gist";
+import { File } from "../types";
 //import {validateGist} from '../validators/gist'
 
 export const createGist = expressAsyncHandler(
@@ -19,15 +20,16 @@ export const createGist = expressAsyncHandler(
         country,
         categories,
         author: req?.user?._id,
+        media: (req?.files as [File])?.map((file: File) => file.location),
       });
 
       const notification = await Notification.create({
-        content:`${req.user?.firstName} ${req.user?.lastName} started a gist`,
-        forItem:'gist',
-        itemId:gist._id,
-        author:req.user?._id,
-        targetedAudience:[...req.user?.followers]
-      })
+        content: `${req.user?.firstName} ${req.user?.lastName} started a gist`,
+        forItem: "gist",
+        itemId: gist._id,
+        author: req.user?._id,
+        targetedAudience: [...req.user?.followers],
+      });
 
       res.status(201).json({ message: "Gist created", gist });
     } catch (error) {
@@ -44,11 +46,15 @@ export const fetchAllGist = expressAsyncHandler(
       const page = Number(req.query.page) || 0;
       const count = await Gist.find().estimatedDocumentCount();
       const numPages = Math.ceil(count / perPage);
-      const category = req.query.category
+      const category = req.query.category;
 
-      const gists = await Gist.find(category?{categories:category}:{
-        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-      })
+      const gists = await Gist.find(
+        category
+          ? { categories: category }
+          : {
+              $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+            }
+      )
         .sort({ createdAt: -1 })
         .limit(perPage)
         .skip(page * perPage)
@@ -143,7 +149,13 @@ export const updateGist = expressAsyncHandler(
     if (gist && gist.author.toString() === req?.user?._id.toString()) {
       const gistKeys = Object.keys(req.body);
       for (let i = 0; i < gistKeys.length; i++) {
-        (gist as Record<string, any>)[gistKeys[i]] = req.body[gistKeys[i]];
+        if (gistKeys[i] !== "media") {
+          (gist as Record<string, any>)[gistKeys[i]] = req.body[gistKeys[i]];
+        } else {
+          gist.media = (req.files as [File])?.map(
+            (file: File) => file.location
+          );
+        }
       }
       const updatedGist = await gist.save();
       res.status(200).json(updatedGist);

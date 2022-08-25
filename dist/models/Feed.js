@@ -48,8 +48,11 @@ const feedSchema = new mongoose_1.default.Schema({
     },
     deleted: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
+    media: {
+        type: [String],
+    },
 }, { timestamps: true });
 const Feed = mongoose_1.models.Feed || mongoose_1.default.model("Feed", feedSchema);
 exports.default = Feed;

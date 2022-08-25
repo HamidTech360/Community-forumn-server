@@ -5,13 +5,15 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Group from "../models/Group";
+import { File } from "../types";
 
 export const createGroup = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res) => {
-    const { name, description, privacy,invite, allowedToPost, groupMembers } = req.body;
+    const { name, description, privacy, invite, allowedToPost, groupMembers } =
+      req.body;
 
-     console.log(req.body);
-    
+    console.log(req.body);
+
     const group = await Group.create({
       admin: req?.user?._id,
       moderators: [req.user?._id],
@@ -20,7 +22,7 @@ export const createGroup = expressAsyncHandler(
       invite,
       privacy,
       allowedToPost,
-      groupMembers:[req.user?._id, ...groupMembers]
+      groupMembers: [req.user?._id, ...groupMembers],
     });
 
     res.status(201).json({ group });
@@ -35,7 +37,10 @@ export const getGroup = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const groupId = req.params.id;
 
-    const group = await Group.findById(groupId).populate("admin groupMembers", "firstName");
+    const group = await Group.findById(groupId).populate(
+      "admin groupMembers",
+      "firstName"
+    );
     res.status(200).json(group);
   }
 );
@@ -52,7 +57,13 @@ export const updateGroup = expressAsyncHandler(
     if (group.admin.toString() === req?.user?._id.toString()) {
       const groupKeys = Object.keys(req.body);
       for (let i = 0; i < groupKeys.length; i++) {
-        group[groupKeys[i]] = req.body[groupKeys[i]];
+        if (groupKeys[i] !== "avatar") {
+          group[groupKeys[i]] = req.body[groupKeys[i]];
+        } else {
+          group.images = {
+            avatar: (req.file as File)?.location,
+          };
+        }
       }
       const updatedGroup = await group.save();
       res.status(200).json(updatedGroup);
@@ -95,42 +106,41 @@ export const getGroups = expressAsyncHandler(
 
 export const getUserGroups = expressAsyncHandler(
   async (req: any, res: Response) => {
-    
-    const userId = req.user?._id
+    const userId = req.user?._id;
     //console.log('User is a member of', req.user?._id);
-    try{
+    try {
       const groups = await Group.find({
-        groupMembers:{
-          "$in":userId
-        }
-      }).sort({createdAt:-1})
-      .populate('admin', "firstNam lastName avatar")
+        groupMembers: {
+          $in: userId,
+        },
+      })
+        .sort({ createdAt: -1 })
+        .populate("admin", "firstNam lastName avatar");
 
       console.log(groups);
-      
 
       res.json({
-        status:'success',
-        message:'User groups retrieved',
-        groups
-      })
-    }catch(error){
-      res.status(500).send(error)
+        status: "success",
+        message: "User groups retrieved",
+        groups,
+      });
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
 );
 
 export const joinGroup = expressAsyncHandler(
-  async(req:any, res:Response)=>{
-    try{
+  async (req: any, res: Response) => {
+    try {
       await Group.findByIdAndUpdate(req.params.id, {
-        $addToSet:{groupMembers:req.user?._id}
-      })
+        $addToSet: { groupMembers: req.user?._id },
+      });
       res.json({
-        message:'User joined group'
-      })
-    }catch(error){
-      res.status(500).send(error)
+        message: "User joined group",
+      });
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
-)
+);

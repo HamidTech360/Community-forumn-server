@@ -26,16 +26,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/post"));
 const auth_1 = require("../middleware/auth");
+const upload_1 = require("../middleware/upload");
 const router = (0, express_1.Router)();
 router
     .route("/")
     .get(controller.getPosts)
-    .post(auth_1.loggedIn, controller.createPost);
+    .post(auth_1.loggedIn, upload_1.upload.array("media", 3), controller.createPost);
 router
     .route("/:id")
     .get(controller.getPost)
     .delete(auth_1.loggedIn, controller.deletePost)
-    .put(auth_1.loggedIn, controller.updatePost);
+    .put(auth_1.loggedIn, upload_1.upload.array("media", 3), controller.updatePost);
 router
     .route("/:id/like")
     .get(auth_1.loggedIn, controller.likePost)

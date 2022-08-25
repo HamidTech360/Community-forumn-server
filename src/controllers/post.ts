@@ -3,6 +3,7 @@ import expressAsyncHandler from "express-async-handler";
 import Post from "../models/Post";
 import Comment from "../models/Comment";
 import Notification from "../models/notification";
+import { File } from "../types";
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
@@ -15,17 +16,17 @@ export const createPost = expressAsyncHandler(
       postBody,
       author: req?.user?._id,
       groupId,
-      category
+      category,
+      media: (req.files as [File])?.map((file: File) => file.location),
     });
 
     const notification = await Notification.create({
-      content:`${req.user?.firstName} ${req.user?.lastName} created a post`,
-      forItem:'post',
-      itemId:post._id,
-      author:req.user?._id,
-      targetedAudience:[...req.user?.followers]
-    })
-
+      content: `${req.user?.firstName} ${req.user?.lastName} created a post`,
+      forItem: "post",
+      itemId: post._id,
+      author: req.user?._id,
+      targetedAudience: [...req.user?.followers],
+    });
 
     res.status(201).json({ msg: "Post created", post });
   }
@@ -37,19 +38,23 @@ export const createPost = expressAsyncHandler(
 export const getPosts = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const perPage = Number(req.query.perPage) || 25;
-    const category = req.query.category
+    const category = req.query.category;
     const page = Number(req.query.page) || 0;
     const count = await Post.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);
-    
-    const posts = await Post.find(category?{category}:{
-      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    })
+
+    const posts = await Post.find(
+      category
+        ? { category }
+        : {
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+          }
+    )
       .sort({ createdAt: -1 })
       .limit(perPage)
       .skip(page * perPage)
-      .populate("author", "-password")
+      .populate("author", "firstName lastName avatar")
       .populate({
         path: "comments",
         populate: {
@@ -133,7 +138,13 @@ export const updatePost = expressAsyncHandler(
     if (post && post.author.toString() === req?.user?._id.toString()) {
       const postKeys = Object.keys(req.body);
       for (let i = 0; i < postKeys.length; i++) {
-        post[postKeys[i]] = req.body[postKeys[i]];
+        if (postKeys[i] !== "media") {
+          post[postKeys[i]] = req.body[postKeys[i]];
+        } else {
+          post.media = (req.files as [File])?.map(
+            (file: File) => file.location
+          );
+        }
       }
       const updatedPost = await post.save();
       res.status(200).json(updatedPost);

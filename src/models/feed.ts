@@ -23,10 +23,13 @@ const feedSchema = new mongoose.Schema(
       type: [Schema.Types.ObjectId],
       ref: "User",
     },
-    deleted:{
-      type:Boolean,
-      default:false
-    }
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
+    media: {
+      type: [String],
+    },
   },
   { timestamps: true }
 );
