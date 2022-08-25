@@ -26,10 +26,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_1 = require("../middleware/auth");
 const controller = __importStar(require("../controllers/group"));
+const upload_1 = require("../middleware/upload");
 const router = (0, express_1.Router)();
 router
     .route("/")
-    .post(auth_1.loggedIn, controller.createGroup)
+    .post(auth_1.loggedIn, upload_1.upload.single("avatar"), controller.createGroup)
     .get(controller.getGroups);
 router
     .route("/group/:id")
@@ -37,7 +38,5 @@ router
     .put(auth_1.loggedIn, controller.updateGroup)
     .patch(auth_1.loggedIn, controller.joinGroup)
     .delete(auth_1.loggedIn, controller.deleteGroup);
-router
-    .route("/user")
-    .get(auth_1.loggedIn, controller.getUserGroups);
+router.route("/user").get(auth_1.loggedIn, controller.getUserGroups);
 exports.default = router;

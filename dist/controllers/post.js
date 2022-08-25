@@ -20,21 +20,22 @@ const notification_1 = __importDefault(require("../models/notification"));
 //@Method POST
 //@Access: LoggedIn
 exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     const { postTitle, postBody, groupId, category } = req.body;
     const post = yield Post_1.default.create({
         postTitle,
         postBody,
         author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
         groupId,
-        category
+        category,
+        media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
     });
     const notification = yield notification_1.default.create({
-        content: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName} ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName} created a post`,
-        forItem: 'post',
+        content: `${(_c = req.user) === null || _c === void 0 ? void 0 : _c.firstName} ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.lastName} created a post`,
+        forItem: "post",
         itemId: post._id,
-        author: (_d = req.user) === null || _d === void 0 ? void 0 : _d._id,
-        targetedAudience: [...(_e = req.user) === null || _e === void 0 ? void 0 : _e.followers]
+        author: (_e = req.user) === null || _e === void 0 ? void 0 : _e._id,
+        targetedAudience: [...(_f = req.user) === null || _f === void 0 ? void 0 : _f.followers],
     });
     res.status(201).json({ msg: "Post created", post });
 }));
@@ -48,13 +49,15 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
     const count = yield Post_1.default.find().estimatedDocumentCount();
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);
-    const posts = yield Post_1.default.find(category ? { category } : {
-        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    })
+    const posts = yield Post_1.default.find(category
+        ? { category }
+        : {
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        })
         .sort({ createdAt: -1 })
         .limit(perPage)
         .skip(page * perPage)
-        .populate("author", "-password")
+        .populate("author", "firstName lastName avatar")
         .populate({
         path: "comments",
         populate: {
@@ -106,12 +109,12 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
 //@Method Delete
 //@Access: LoggedIn
 exports.deletePost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
+    var _g;
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (post && post.author.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
+    if (post && post.author.toString() === ((_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id.toString())) {
         post.deleted = true;
         yield post.save();
         res.status(200).json({ msg: "Post deleted" });
@@ -124,15 +127,20 @@ exports.deletePost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Put
 //@Access: LoggedIn
 exports.updatePost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g;
+    var _h, _j;
     const postId = req.params.id;
     const post = yield Post_1.default.findById(postId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (post && post.author.toString() === ((_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id.toString())) {
+    if (post && post.author.toString() === ((_h = req === null || req === void 0 ? void 0 : req.user) === null || _h === void 0 ? void 0 : _h._id.toString())) {
         const postKeys = Object.keys(req.body);
         for (let i = 0; i < postKeys.length; i++) {
-            post[postKeys[i]] = req.body[postKeys[i]];
+            if (postKeys[i] !== "media") {
+                post[postKeys[i]] = req.body[postKeys[i]];
+            }
+            else {
+                post.media = (_j = req.files) === null || _j === void 0 ? void 0 : _j.map((file) => file.location);
+            }
         }
         const updatedPost = yield post.save();
         res.status(200).json(updatedPost);
@@ -145,11 +153,11 @@ exports.updatePost = (0, express_async_handler_1.default)((req, res) => __awaite
 //@Method Put
 //@Access: LoggedIn
 exports.likePost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h;
+    var _k;
     try {
         const postId = req.params.id;
         const post = yield Post_1.default.findByIdAndUpdate(postId, {
-            $addToSet: { likes: [(_h = req.user) === null || _h === void 0 ? void 0 : _h._id] },
+            $addToSet: { likes: [(_k = req.user) === null || _k === void 0 ? void 0 : _k._id] },
         }).where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         });
@@ -163,11 +171,11 @@ exports.likePost = (0, express_async_handler_1.default)((req, res) => __awaiter(
 //@Method Put
 //@Access: LoggedIn
 exports.deleteLike = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _j;
+    var _l;
     try {
         const postId = req.params.id;
         const post = yield Post_1.default.findByIdAndUpdate(postId, {
-            $pull: { likes: [(_j = req.user) === null || _j === void 0 ? void 0 : _j._id] },
+            $pull: { likes: [(_l = req.user) === null || _l === void 0 ? void 0 : _l._id] },
         }).where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         });
@@ -181,7 +189,7 @@ exports.deleteLike = (0, express_async_handler_1.default)((req, res) => __awaite
 //Method get
 //@ccess: loggedIn
 exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _k, _l;
+    var _m, _o;
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
@@ -194,8 +202,8 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
                 },
                 {
                     $or: [
-                        { author: (_k = req === null || req === void 0 ? void 0 : req.user) === null || _k === void 0 ? void 0 : _k._id },
-                        { likes: { $in: (_l = req === null || req === void 0 ? void 0 : req.user) === null || _l === void 0 ? void 0 : _l._id } },
+                        { author: (_m = req === null || req === void 0 ? void 0 : req.user) === null || _m === void 0 ? void 0 : _m._id },
+                        { likes: { $in: (_o = req === null || req === void 0 ? void 0 : req.user) === null || _o === void 0 ? void 0 : _o._id } },
                         // {following:{"$in":req?.user?._id}}
                     ],
                 },

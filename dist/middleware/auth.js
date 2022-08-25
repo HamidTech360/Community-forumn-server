@@ -31,12 +31,12 @@ const loggedIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             next();
         }
         catch (error) {
-            res.status(401).send('unauthorized');
+            res.status(401).send("unauthorized");
             throw new Error("Unauthorized");
         }
     }
     else {
-        res.status(401).send('Invalid token format');
+        res.status(401).send("Invalid token format");
     }
 });
 exports.loggedIn = loggedIn;

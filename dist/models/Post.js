@@ -52,12 +52,13 @@ const postSchema = new mongoose_1.default.Schema({
     },
     groupId: {
         type: mongoose_1.default.SchemaTypes.ObjectId,
-        ref: "Group"
+        ref: "Group",
     },
     category: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
+    media: { type: [String] },
 }, { timestamps: true });
 const Post = mongoose_1.default.models.Post || mongoose_1.default.model("Post", postSchema);
 exports.default = Post;
