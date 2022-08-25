@@ -6,9 +6,19 @@ interface IGroup extends Document {
   moderators: [Types.ObjectId];
   admin: Types.ObjectId;
   deleted: boolean;
+  images: {
+    avatar: string;
+    cover: string;
+  };
 }
 const groupSchema = new Schema(
   {
+    images: {
+      type: new Schema({
+        avatar: String,
+        cover: String,
+      }),
+    },
     name: {
       type: String,
       required: true,
