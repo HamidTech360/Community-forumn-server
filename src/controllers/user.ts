@@ -36,7 +36,7 @@ export const getUser = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id).populate(
       "followers following",
-      "firstName lastName avatar"
+      "firstName lastName images"
     );
     res.status(200).json(user);
   } catch (error) {
@@ -45,15 +45,23 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUser = asyncHandler(async (req: any, res) => {
+  console.log(req.file?.location);
+  
   try {
     const user = await User.findByIdAndUpdate(
       req.params.id,
 
       {
         ...req.body,
-        images: {
-          avatar: req.file.location,
-        },
+        ...(req.file?.location && {images:req.query.imageType=="cover"?
+         {
+          cover: req.file.location || req.user?.images?.cover,
+          avatar:req.user?.images?.avatar
+        }:{
+          avatar: req.file.location || req.user?.images?.avatar,
+          cover:req.user?.images?.cover
+        }
+      })
       },
 
       { new: true }
@@ -227,7 +235,7 @@ export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
   try {
     const posts = await Post.find().populate(
       "author",
-      "firstName lastName avatar"
+      "firstName lastName images"
     );
     for (var i in posts) {
       //@ts-ignore

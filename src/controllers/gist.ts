@@ -58,16 +58,16 @@ export const fetchAllGist = expressAsyncHandler(
         .sort({ createdAt: -1 })
         .limit(perPage)
         .skip(page * perPage)
-        .populate("author", "firstName lastName avatar")
+        .populate("author", "firstName lastName images")
         .populate({
           path: "comments",
-          populate: { path: "author", select: "firstName lastName avatar" },
+          populate: { path: "author", select: "firstName lastName images" },
         })
         .populate({
           path: "comments",
           populate: {
             path: "replies",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
           },
         });
       res.json({
@@ -93,16 +93,16 @@ export const fetchSingleGist = expressAsyncHandler(
         .where({
           $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-        .populate("author", "firstName lastName avatar")
+        .populate("author", "firstName lastName images")
         .populate({
           path: "comments",
-          populate: { path: "author", select: "firstName lastName avatar" },
+          populate: { path: "author", select: "firstName lastName images" },
         })
         .populate({
           path: "comments",
           populate: {
             path: "replies",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
           },
         });
       res.json({
