@@ -35,7 +35,7 @@ router
 router
     .route("/group/:id")
     .get(controller.getGroup)
-    .put(auth_1.loggedIn, controller.updateGroup)
+    .put(auth_1.loggedIn, upload_1.upload.single("avatar"), controller.updateGroup)
     .patch(auth_1.loggedIn, controller.joinGroup)
     .delete(auth_1.loggedIn, controller.deleteGroup);
 router.route("/user").get(auth_1.loggedIn, controller.getUserGroups);

@@ -55,17 +55,17 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
-            .populate("author", "firstName lastName avatar")
+            .populate("author", "firstName lastName images")
             .populate({
             path: "comments",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
         })
             .populate("likes", "firstName lastName")
             .populate({
             path: "comments",
             populate: {
                 path: "replies",
-                populate: { path: "author", select: "firstName lastName avatar" },
+                populate: { path: "author", select: "firstName lastName images" },
             },
         });
         res.json({
@@ -83,18 +83,18 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const feed = yield Feed_1.default.findById(id)
-        .populate("author", "firstName lastName avatar")
+        .populate("author", "firstName lastName images")
         .populate("group")
         .populate("likes", "firstName lastName")
         .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: { path: "author", select: "firstName lastName images" },
     })
         .populate({
         path: "comments",
         populate: {
             path: "replies",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
         },
     });
     res.status(200).json(feed);

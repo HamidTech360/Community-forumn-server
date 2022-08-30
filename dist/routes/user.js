@@ -36,7 +36,7 @@ const router = express_1.default.Router();
 router.get("/", controller.getUsers);
 router.get("/follow", auth_1.loggedIn, controller.usersToFollow);
 router.get("/:id", controller.getUser);
-router.put("/:id", upload_1.upload.single("avatar"), controller.updateUser);
+router.put("/:id", auth_1.loggedIn, upload_1.upload.single("avatar"), controller.updateUser);
 router.get("/topwriters/all", controller.getTopWriters);
 router.get("/connections/all", auth_1.loggedIn, controller.getUnfollowedUsers);
 router.put("/notifications/add", auth_1.loggedIn, controller.addNotificationPreference);
