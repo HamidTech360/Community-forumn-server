@@ -49,27 +49,44 @@ export const getGroup = expressAsyncHandler(
 // @Method: Put
 // @Access: Private (Group admin/moderator)
 export const updateGroup = expressAsyncHandler(
-  async (req: Request & { user?: Record<string, any> }, res: Response) => {
+  async (req: any, res: Response) => {
     const groupId = req.params.id;
 
     const group = await Group.findById(groupId);
+   
+    console.log(req.file?.location)
+      // const groupKeys = Object.keys(req.body);
+      // for (let i = 0; i < groupKeys.length; i++) {
+      //   console.log(groupKeys[i])
+      //   if (groupKeys[i] !== "avatar") {
+      //     group[groupKeys[i]] = req.body[groupKeys[i]];
+      //   } else {
+      //     console.log('in the else block')
+      //     console.log('group is ', group)
+      //     group.images =  {
+      //       avatar: req.file?.location,
+      //       cover: group.images.cover
+      //     }
+      //   }
+      // }
 
-    if (group.admin.toString() === req?.user?._id.toString()) {
-      const groupKeys = Object.keys(req.body);
-      for (let i = 0; i < groupKeys.length; i++) {
-        if (groupKeys[i] !== "avatar") {
-          group[groupKeys[i]] = req.body[groupKeys[i]];
-        } else {
-          group.images = {
-            avatar: (req.file as File)?.location,
-          };
-        }
-      }
-      const updatedGroup = await group.save();
+      const updatedGroup = await Group.findByIdAndUpdate(req.params.id, 
+        {
+          ...req.body,
+          ...(req.file?.location && {
+            images:req.query.imageType=="cover"?{
+              avatar: group.images?.avatar,
+              cover:req.file?.location || group.images?.cover
+            }:{
+              avatar:req.file?.location || group.images?.avatar,
+              cover:group.images?.cover
+            }
+          })
+        },
+        { new: true }
+      )
       res.status(200).json(updatedGroup);
-    } else {
-      res.status(403).json("Unauthorised");
-    }
+   
   }
 );
 
