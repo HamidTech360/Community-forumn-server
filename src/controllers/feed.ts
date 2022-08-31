@@ -33,6 +33,53 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   }
 });
 
+export const fetchUserFeed = expressAsyncHandler(
+  async (req: Request & { user?: { _id: string } }, res: Response) => {
+    try {
+      const perPage = Number(req.query.perPage) || 25;
+      const page = Number(req.query.page) || 0;
+      const count = await Feed.countDocuments({
+        $and: [
+          { author: req.query.userId || req.user?._id },
+          { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+        ],
+      });
+      const numPages = Math.ceil(count / perPage);
+
+      const feed = await Feed.find({
+        $and: [
+          { author: req.query.userId },
+          { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .limit(perPage)
+        .skip(page * perPage)
+        .populate("author", "firstName lastName images")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName images" },
+        })
+        .populate("likes", "firstName lastName")
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName images" },
+          },
+        });
+      res.json({
+        status: "success",
+        message: "Feed retrieved",
+        feed,
+        count,
+        numPages,
+      });
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
 export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
   try {
     const perPage = Number(req.query.perPage) || 25;

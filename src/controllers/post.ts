@@ -4,6 +4,7 @@ import Post from "../models/Post";
 import Comment from "../models/Comment";
 import Notification from "../models/notification";
 import { File } from "../types";
+import { NumberList } from "aws-sdk/clients/iot";
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
@@ -40,7 +41,17 @@ export const getPosts = expressAsyncHandler(
     const perPage = Number(req.query.perPage) || 25;
     const category = req.query.category;
     const page = Number(req.query.page) || 0;
-    const count = await Post.find().estimatedDocumentCount();
+    let count: number;
+    if (category) {
+      count = await Post.countDocuments({
+        $and: [
+          { category },
+          { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+        ],
+      });
+    } else {
+      count = await Post.find().estimatedDocumentCount();
+    }
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);
 

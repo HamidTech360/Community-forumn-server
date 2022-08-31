@@ -46,7 +46,18 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
     const perPage = Number(req.query.perPage) || 25;
     const category = req.query.category;
     const page = Number(req.query.page) || 0;
-    const count = yield Post_1.default.find().estimatedDocumentCount();
+    let count;
+    if (category) {
+        count = yield Post_1.default.countDocuments({
+            $and: [
+                { category },
+                { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+            ],
+        });
+    }
+    else {
+        count = yield Post_1.default.find().estimatedDocumentCount();
+    }
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);
     const posts = yield Post_1.default.find(category
