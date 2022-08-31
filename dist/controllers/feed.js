@@ -44,7 +44,7 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
     }
 }));
 exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g;
+    var _g, _h;
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
@@ -57,7 +57,7 @@ exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awa
         const numPages = Math.ceil(count / perPage);
         const feed = yield Feed_1.default.find({
             $and: [
-                { author: req.query.userId },
+                { author: req.query.userId || ((_h = req.user) === null || _h === void 0 ? void 0 : _h._id) },
                 { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
             ],
         })
@@ -93,7 +93,9 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
-        const count = yield Feed_1.default.find().estimatedDocumentCount();
+        const count = yield Feed_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
         const numPages = Math.ceil(count / perPage);
         const feed = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -154,7 +156,9 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
-        const count = yield Feed_1.default.find().estimatedDocumentCount();
+        const count = yield Feed_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
         const numPages = Math.ceil(count / perPage);
         const posts = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -195,7 +199,9 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
-        const count = yield Feed_1.default.find().estimatedDocumentCount();
+        const count = yield Feed_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
         const numPages = Math.ceil(count / perPage);
         const posts = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -234,19 +240,19 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
 //@Method Put
 //@Access: LoggedIn
 exports.updateFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h, _j;
+    var _j, _k;
     const feedId = req.params.id;
     const feed = yield Feed_1.default.findById(feedId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (feed && feed.author.toString() === ((_h = req === null || req === void 0 ? void 0 : req.user) === null || _h === void 0 ? void 0 : _h._id.toString())) {
+    if (feed && feed.author.toString() === ((_j = req === null || req === void 0 ? void 0 : req.user) === null || _j === void 0 ? void 0 : _j._id.toString())) {
         const feedKeys = Object.keys(req.body);
         for (let i = 0; i < feedKeys.length; i++) {
             if (feedKeys[i] !== "media") {
                 feed[feedKeys[i]] = req.body[feedKeys[i]];
             }
             else {
-                feed.media = (_j = req.files) === null || _j === void 0 ? void 0 : _j.map((file) => file.location);
+                feed.media = (_k = req.files) === null || _k === void 0 ? void 0 : _k.map((file) => file.location);
             }
         }
         const updatedFeed = yield feed.save();
