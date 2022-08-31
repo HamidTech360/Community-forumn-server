@@ -48,7 +48,7 @@ export const fetchUserFeed = expressAsyncHandler(
 
       const feed = await Feed.find({
         $and: [
-          { author: req.query.userId },
+          { author: req.query.userId || req.user?._id },
           { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
         ],
       })
@@ -84,7 +84,9 @@ export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
   try {
     const perPage = Number(req.query.perPage) || 25;
     const page = Number(req.query.page) || 0;
-    const count = await Feed.find().estimatedDocumentCount();
+    const count = await Feed.countDocuments({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    });
     const numPages = Math.ceil(count / perPage);
 
     const feed = await Feed.find({
@@ -150,7 +152,9 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
   try {
     const perPage = Number(req.query.perPage) || 25;
     const page = Number(req.query.page) || 0;
-    const count = await Feed.find().estimatedDocumentCount();
+    const count = await Feed.countDocuments({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    });
     const numPages = Math.ceil(count / perPage);
     const posts = await Feed.find({
       $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -192,7 +196,9 @@ export const getRandomGroupFeed = expressAsyncHandler(
     try {
       const perPage = Number(req.query.perPage) || 25;
       const page = Number(req.query.page) || 0;
-      const count = await Feed.find().estimatedDocumentCount();
+      const count = await Feed.countDocuments({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      });
       const numPages = Math.ceil(count / perPage);
 
       const posts = await Feed.find({

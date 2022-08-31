@@ -210,7 +210,9 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
   try {
     const perPage = Number(req.query.perPage) || 25;
     const page = Number(req.query.page) || 0;
-    const count = await Post.find().estimatedDocumentCount();
+    const count = await Post.countDocuments({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    });
     const numPages = Math.ceil(count / perPage);
 
     const posts = await Post.find({
