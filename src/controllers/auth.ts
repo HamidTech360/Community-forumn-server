@@ -96,6 +96,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
       });
 
       await user.save();
+      const accessToken = generateAccessToken({ sub: user._id });
       sendMail(
         user.email,
         `<h1>Email Confirmation</h1>,<p>Hi ${
@@ -107,7 +108,11 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         }>Please use this link to activate your account.</a></p>`,
         "Activate your account"
       );
-      res.status(201).json(user);
+      res.status(201).json({
+        message:'New account created',
+        accessToken,
+        user
+      });
     } else {
       res.status(403).json({ error: "User already exists" });
     }

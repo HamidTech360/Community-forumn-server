@@ -49,7 +49,7 @@ export const updateUser = asyncHandler(async (req: any, res) => {
   
   try {
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      req.user._id,
 
       {
         ...req.body,
@@ -233,10 +233,14 @@ export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
   let frequency = {};
   let topWriters = [];
   try {
-    const posts = await Post.find().populate(
+    let posts = await Post.find()
+    .populate(
       "author",
-      "firstName lastName images"
+      "firstName lastName images followers following"
     );
+
+    posts = posts.filter(item=>!item.author?.followers?.includes(req.user?._id))
+
     for (var i in posts) {
       //@ts-ignore
       frequency[posts[i].author._id] =
