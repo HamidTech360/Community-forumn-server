@@ -106,7 +106,9 @@ export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
         populate: {
           path: "replies",
           populate: { path: "author", select: "firstName lastName images" },
+          options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
       });
     res.json({
       status: "success",
@@ -136,7 +138,9 @@ export const fetchFeed = expressAsyncHandler(
         populate: {
           path: "replies",
           populate: { path: "author", select: "firstName lastName images" },
+          options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
       });
     res.status(200).json(feed);
   }
@@ -174,7 +178,9 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
         populate: {
           path: "replies",
           populate: { path: "author", select: "firstName lastName avatar" },
+          options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
       });
     res.json({
       status: "success",
@@ -220,7 +226,9 @@ export const getRandomGroupFeed = expressAsyncHandler(
           populate: {
             path: "replies",
             populate: { path: "author", select: "firstName lastName avatar" },
+            options: { sort: { createdAt: -1 } },
           },
+          options: { sort: { createdAt: -1 } },
         });
       res.json({
         status: "success",
