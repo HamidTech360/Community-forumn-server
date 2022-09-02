@@ -90,10 +90,15 @@ exports.register = (0, express_async_handler_1.default)((req, res) => __awaiter(
                 username: firstName
             });
             yield user.save();
+            const accessToken = (0, token_1.generateAccessToken)({ sub: user._id });
             (0, mailer_1.sendMail)(user.email, `<h1>Email Confirmation</h1>,<p>Hi ${user.firstName}, welcome to Setlinn.  <a href=${process.env.NODE_ENV === "production"
                 ? `https://settlin.vercel.app/activate/${token}`
                 : `http://localhost:3000/activate/${token}`}>Please use this link to activate your account.</a></p>`, "Activate your account");
-            res.status(201).json(user);
+            res.status(201).json({
+                message: 'New account created',
+                accessToken,
+                user
+            });
         }
         else {
             res.status(403).json({ error: "User already exists" });

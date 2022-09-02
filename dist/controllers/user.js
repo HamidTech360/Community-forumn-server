@@ -52,7 +52,7 @@ exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaite
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     console.log((_a = req.file) === null || _a === void 0 ? void 0 : _a.location);
     try {
-        const user = yield User_1.default.findByIdAndUpdate(req.params.id, Object.assign(Object.assign({}, req.body), (((_b = req.file) === null || _b === void 0 ? void 0 : _b.location) && { images: req.query.imageType == "cover" ?
+        const user = yield User_1.default.findByIdAndUpdate(req.user._id, Object.assign(Object.assign({}, req.body), (((_b = req.file) === null || _b === void 0 ? void 0 : _b.location) && { images: req.query.imageType == "cover" ?
                 {
                     cover: req.file.location || ((_d = (_c = req.user) === null || _c === void 0 ? void 0 : _c.images) === null || _d === void 0 ? void 0 : _d.cover),
                     avatar: (_f = (_e = req.user) === null || _e === void 0 ? void 0 : _e.images) === null || _f === void 0 ? void 0 : _f.avatar
@@ -176,16 +176,17 @@ exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => 
             followers: {
                 $nin: (_0 = req.user) === null || _0 === void 0 ? void 0 : _0._id,
             },
-        }).limit(25);
+        });
         for (var i = users.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = users[i];
             users[i] = users[j];
             users[j] = temp;
         }
+        const limitedUsers = users.splice(0, 20);
         res.json({
-            message: "suggested connections fetched",
-            connections: users,
+            message: ` ${limitedUsers.length} suggested connections fetched`,
+            connections: limitedUsers,
         });
     }
     catch (error) {
@@ -196,7 +197,9 @@ exports.getTopWriters = (0, express_async_handler_1.default)((req, res) => __awa
     let frequency = {};
     let topWriters = [];
     try {
-        const posts = yield Post_1.default.find().populate("author", "firstName lastName images");
+        let posts = yield Post_1.default.find()
+            .populate("author", "firstName lastName images followers following");
+        posts = posts.filter(item => { var _a, _b, _c; return !((_b = (_a = item.author) === null || _a === void 0 ? void 0 : _a.followers) === null || _b === void 0 ? void 0 : _b.includes((_c = req.user) === null || _c === void 0 ? void 0 : _c._id)); });
         for (var i in posts) {
             //@ts-ignore
             frequency[posts[i].author._id] =
