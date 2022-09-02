@@ -73,7 +73,9 @@ exports.fetchAllGist = (0, express_async_handler_1.default)((req, res) => __awai
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -105,7 +107,9 @@ exports.fetchSingleGist = (0, express_async_handler_1.default)((req, res) => __a
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
