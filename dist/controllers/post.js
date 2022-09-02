@@ -68,20 +68,22 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
         .sort({ createdAt: -1 })
         .limit(perPage)
         .skip(page * perPage)
-        .populate("author", "firstName lastName avatar")
+        .populate("author", "firstName lastName images")
         .populate({
         path: "comments",
         populate: {
             path: "author",
-            select: "firstName lastName avatar",
+            select: "firstName lastName images",
         },
     })
         .populate({
         path: "comments",
         populate: {
             path: "replies",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
     });
     res.json({
         status: "success",
@@ -100,11 +102,16 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
         .populate("author", "firstName lastName")
         .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar _id" },
+        populate: { path: "author", select: "firstName lastName images" },
     })
         .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
+        },
+        options: { sort: { createdAt: -1 } },
     })
         .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -225,14 +232,19 @@ exports.getUserPosts = (0, express_async_handler_1.default)((req, res) => __awai
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
-            .populate("author", "-password")
+            .populate("author", "firstName lastName images")
             .populate({
             path: "comments",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
         })
             .populate({
             path: "comments",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: {
+                path: "replies",
+                populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
+            },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",

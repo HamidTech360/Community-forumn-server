@@ -114,7 +114,9 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -143,7 +145,9 @@ exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter
         populate: {
             path: "replies",
             populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
     });
     res.status(200).json(feed);
 }));
@@ -178,7 +182,9 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName avatar" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -222,7 +228,9 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName avatar" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
