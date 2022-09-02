@@ -49,7 +49,7 @@ export const updateUser = asyncHandler(async (req: any, res) => {
   
   try {
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      req.user._id,
 
       {
         ...req.body,
@@ -212,16 +212,17 @@ export const getUnfollowedUsers = asyncHandler(
         followers: {
           $nin: req.user?._id,
         },
-      }).limit(25);
+      })
       for (var i = users.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = users[i];
         users[i] = users[j];
         users[j] = temp;
       }
+      const limitedUsers = users.splice(0, 20)
       res.json({
-        message: "suggested connections fetched",
-        connections: users,
+        message: ` ${limitedUsers.length} suggested connections fetched`,
+        connections: limitedUsers,
       });
     } catch (error) {
       res.status(500).send(error);
@@ -233,10 +234,14 @@ export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
   let frequency = {};
   let topWriters = [];
   try {
-    const posts = await Post.find().populate(
+    let posts = await Post.find()
+    .populate(
       "author",
-      "firstName lastName images"
+      "firstName lastName images followers following"
     );
+
+    posts = posts.filter(item=>!item.author?.followers?.includes(req.user?._id))
+
     for (var i in posts) {
       //@ts-ignore
       frequency[posts[i].author._id] =
