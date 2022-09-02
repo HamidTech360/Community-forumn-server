@@ -212,16 +212,17 @@ export const getUnfollowedUsers = asyncHandler(
         followers: {
           $nin: req.user?._id,
         },
-      }).limit(25);
+      })
       for (var i = users.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = users[i];
         users[i] = users[j];
         users[j] = temp;
       }
+      const limitedUsers = users.splice(0, 20)
       res.json({
-        message: "suggested connections fetched",
-        connections: users,
+        message: ` ${limitedUsers.length} suggested connections fetched`,
+        connections: limitedUsers,
       });
     } catch (error) {
       res.status(500).send(error);
