@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFeed = exports.updateFeed = exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.saveFeed = void 0;
+exports.deleteFeed = exports.updateFeed = exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.fetchUserFeed = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Feed_1 = __importDefault(require("../models/Feed"));
 const notification_1 = __importDefault(require("../models/notification"));
@@ -43,11 +43,59 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
         res.status(500).send(error);
     }
 }));
+exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _g, _h;
+    try {
+        const perPage = Number(req.query.perPage) || 25;
+        const page = Number(req.query.page) || 0;
+        const count = yield Feed_1.default.countDocuments({
+            $and: [
+                { author: req.query.userId || ((_g = req.user) === null || _g === void 0 ? void 0 : _g._id) },
+                { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+            ],
+        });
+        const numPages = Math.ceil(count / perPage);
+        const feed = yield Feed_1.default.find({
+            $and: [
+                { author: req.query.userId || ((_h = req.user) === null || _h === void 0 ? void 0 : _h._id) },
+                { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+            ],
+        })
+            .sort({ createdAt: -1 })
+            .limit(perPage)
+            .skip(page * perPage)
+            .populate("author", "firstName lastName images")
+            .populate({
+            path: "comments",
+            populate: { path: "author", select: "firstName lastName images" },
+        })
+            .populate("likes", "firstName lastName")
+            .populate({
+            path: "comments",
+            populate: {
+                path: "replies",
+                populate: { path: "author", select: "firstName lastName images" },
+            },
+        });
+        res.json({
+            status: "success",
+            message: "Feed retrieved",
+            feed,
+            count,
+            numPages,
+        });
+    }
+    catch (error) {
+        res.status(500).send(error);
+    }
+}));
 exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
-        const count = yield Feed_1.default.find().estimatedDocumentCount();
+        const count = yield Feed_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
         const numPages = Math.ceil(count / perPage);
         const feed = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -55,18 +103,20 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
-            .populate("author", "firstName lastName avatar")
+            .populate("author", "firstName lastName images")
             .populate({
             path: "comments",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
         })
             .populate("likes", "firstName lastName")
             .populate({
             path: "comments",
             populate: {
                 path: "replies",
-                populate: { path: "author", select: "firstName lastName avatar" },
+                populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -83,19 +133,21 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const feed = yield Feed_1.default.findById(id)
-        .populate("author", "firstName lastName avatar")
+        .populate("author", "firstName lastName images")
         .populate("group")
         .populate("likes", "firstName lastName")
         .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: { path: "author", select: "firstName lastName images" },
     })
         .populate({
         path: "comments",
         populate: {
             path: "replies",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
     });
     res.status(200).json(feed);
 }));
@@ -108,7 +160,9 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
-        const count = yield Feed_1.default.find().estimatedDocumentCount();
+        const count = yield Feed_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
         const numPages = Math.ceil(count / perPage);
         const posts = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -128,7 +182,9 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName avatar" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -149,7 +205,9 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
-        const count = yield Feed_1.default.find().estimatedDocumentCount();
+        const count = yield Feed_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
         const numPages = Math.ceil(count / perPage);
         const posts = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -170,7 +228,9 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             populate: {
                 path: "replies",
                 populate: { path: "author", select: "firstName lastName avatar" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -188,19 +248,19 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
 //@Method Put
 //@Access: LoggedIn
 exports.updateFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g, _h;
+    var _j, _k;
     const feedId = req.params.id;
     const feed = yield Feed_1.default.findById(feedId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (feed && feed.author.toString() === ((_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id.toString())) {
+    if (feed && feed.author.toString() === ((_j = req === null || req === void 0 ? void 0 : req.user) === null || _j === void 0 ? void 0 : _j._id.toString())) {
         const feedKeys = Object.keys(req.body);
         for (let i = 0; i < feedKeys.length; i++) {
             if (feedKeys[i] !== "media") {
                 feed[feedKeys[i]] = req.body[feedKeys[i]];
             }
             else {
-                feed.media = (_h = req.files) === null || _h === void 0 ? void 0 : _h.map((file) => file.location);
+                feed.media = (_k = req.files) === null || _k === void 0 ? void 0 : _k.map((file) => file.location);
             }
         }
         const updatedFeed = yield feed.save();

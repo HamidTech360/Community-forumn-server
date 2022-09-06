@@ -19,11 +19,14 @@ exports.fetchMessages = (0, express_async_handler_1.default)((req, res) => __awa
     var _a, _b;
     try {
         const messages = yield chats_1.default.find({
-            $or: [{ conversationId: `${(_a = req.user) === null || _a === void 0 ? void 0 : _a._id}-${req.query.mate}` }, { conversationId: `${req.query.mate}-${(_b = req.user) === null || _b === void 0 ? void 0 : _b._id}` }]
-        }).populate("sender receiver");
+            $or: [
+                { conversationId: `${(_a = req.user) === null || _a === void 0 ? void 0 : _a._id}-${req.query.mate}` },
+                { conversationId: `${req.query.mate}-${(_b = req.user) === null || _b === void 0 ? void 0 : _b._id}` },
+            ],
+        }).populate("sender receiver", "firstName lastName images");
         res.json({
-            message: 'Messages fetched',
-            messages
+            message: "Messages fetched",
+            messages,
         });
     }
     catch (error) {
@@ -33,18 +36,18 @@ exports.fetchMessages = (0, express_async_handler_1.default)((req, res) => __awa
 exports.saveMessage = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c, _d;
     const { message } = req.body;
-    console.log('in the chat');
+    console.log("in the chat");
     console.log(req.body, req.query);
     try {
         const newMessage = yield chats_1.default.create({
             sender: (_c = req.user) === null || _c === void 0 ? void 0 : _c._id,
             receiver: req.query.mate,
             conversationId: `${(_d = req.user) === null || _d === void 0 ? void 0 : _d._id}-${req.query.mate}`,
-            message
+            message,
         });
         res.json({
-            message: 'Message saved',
-            newMessage
+            message: "Message saved",
+            newMessage,
         });
     }
     catch (error) {
@@ -54,7 +57,9 @@ exports.saveMessage = (0, express_async_handler_1.default)((req, res) => __await
 exports.fetchConversation = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let discussions = [];
     try {
-        const chats = yield chats_1.default.find().sort({ createdAt: -1 }).populate("sender receiver");
+        const chats = yield chats_1.default.find()
+            .sort({ createdAt: -1 })
+            .populate("sender receiver");
         chats.forEach((item) => {
             var _a;
             const members = item.conversationId.split("-");
@@ -74,7 +79,7 @@ exports.fetchConversation = (0, express_async_handler_1.default)((req, res) => _
         });
         res.json({
             message: "Conversations fetched",
-            conversations: discussions
+            conversations: discussions,
         });
     }
     catch (error) {

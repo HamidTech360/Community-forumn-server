@@ -68,8 +68,11 @@ export const fetchAllGist = expressAsyncHandler(
           populate: {
             path: "replies",
             populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
           },
+          options: { sort: { createdAt: -1 } },
         });
+
       res.json({
         status: "success",
         message: "Gists retrieved",
@@ -103,8 +106,11 @@ export const fetchSingleGist = expressAsyncHandler(
           populate: {
             path: "replies",
             populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
           },
+          options: { sort: { createdAt: -1 } },
         });
+
       res.json({
         status: "success",
         message: "Gist fetched",

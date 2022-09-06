@@ -63,17 +63,19 @@ exports.fetchAllGist = (0, express_async_handler_1.default)((req, res) => __awai
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
-            .populate("author", "firstName lastName avatar")
+            .populate("author", "firstName lastName images")
             .populate({
             path: "comments",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
         })
             .populate({
             path: "comments",
             populate: {
                 path: "replies",
-                populate: { path: "author", select: "firstName lastName avatar" },
+                populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",
@@ -95,17 +97,19 @@ exports.fetchSingleGist = (0, express_async_handler_1.default)((req, res) => __a
             .where({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
-            .populate("author", "firstName lastName avatar")
+            .populate("author", "firstName lastName images")
             .populate({
             path: "comments",
-            populate: { path: "author", select: "firstName lastName avatar" },
+            populate: { path: "author", select: "firstName lastName images" },
         })
             .populate({
             path: "comments",
             populate: {
                 path: "replies",
-                populate: { path: "author", select: "firstName lastName avatar" },
+                populate: { path: "author", select: "firstName lastName images" },
+                options: { sort: { createdAt: -1 } },
             },
+            options: { sort: { createdAt: -1 } },
         });
         res.json({
             status: "success",

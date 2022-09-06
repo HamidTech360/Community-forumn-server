@@ -4,6 +4,7 @@ import Post from "../models/Post";
 import Comment from "../models/Comment";
 import Notification from "../models/notification";
 import { File } from "../types";
+import { NumberList } from "aws-sdk/clients/iot";
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
@@ -41,7 +42,17 @@ export const getPosts = expressAsyncHandler(
     const perPage = Number(req.query.perPage) || 25;
     const category = req.query.category;
     const page = Number(req.query.page) || 0;
-    const count = await Post.find().estimatedDocumentCount();
+    let count: number;
+    if (category) {
+      count = await Post.countDocuments({
+        $and: [
+          { category },
+          { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
+        ],
+      });
+    } else {
+      count = await Post.find().estimatedDocumentCount();
+    }
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);
 
@@ -55,20 +66,22 @@ export const getPosts = expressAsyncHandler(
       .sort({ createdAt: -1 })
       .limit(perPage)
       .skip(page * perPage)
-      .populate("author", "firstName lastName avatar")
+      .populate("author", "firstName lastName images")
       .populate({
         path: "comments",
         populate: {
           path: "author",
-          select: "firstName lastName avatar",
+          select: "firstName lastName images",
         },
       })
       .populate({
         path: "comments",
         populate: {
           path: "replies",
-          populate: { path: "author", select: "firstName lastName avatar" },
+          populate: { path: "author", select: "firstName lastName images" },
+          options: { sort: { createdAt: -1 } },
         },
+        options: { sort: { createdAt: -1 } },
       });
 
     res.json({
@@ -91,11 +104,16 @@ export const getPost = expressAsyncHandler(
       .populate("author", "firstName lastName")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar _id" },
+        populate: { path: "author", select: "firstName lastName images" },
       })
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName images" },
+          options: { sort: { createdAt: -1 } },
+        },
+        options: { sort: { createdAt: -1 } },
       })
       .where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
@@ -200,7 +218,9 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
   try {
     const perPage = Number(req.query.perPage) || 25;
     const page = Number(req.query.page) || 0;
-    const count = await Post.find().estimatedDocumentCount();
+    const count = await Post.countDocuments({
+      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    });
     const numPages = Math.ceil(count / perPage);
 
     const posts = await Post.find({
@@ -220,14 +240,19 @@ export const getUserPosts = expressAsyncHandler(async (req: any, res: any) => {
       .sort({ createdAt: -1 })
       .limit(perPage)
       .skip(page * perPage)
-      .populate("author", "-password")
+      .populate("author", "firstName lastName images")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: { path: "author", select: "firstName lastName images" },
       })
       .populate({
         path: "comments",
-        populate: { path: "author", select: "firstName lastName avatar" },
+        populate: {
+          path: "replies",
+          populate: { path: "author", select: "firstName lastName images" },
+          options: { sort: { createdAt: -1 } },
+        },
+        options: { sort: { createdAt: -1 } },
       });
 
     res.json({

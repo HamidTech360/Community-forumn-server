@@ -6,6 +6,7 @@ import { upload } from "../middleware/upload";
 
 const router = express.Router();
 router.get("/", controller.fetchFeeds);
+router.get("/user", loggedIn, controller.fetchUserFeed);
 router.route("/groups/").get(controller.getRandomGroupFeed);
 router
   .route("/:id")

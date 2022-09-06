@@ -63,7 +63,7 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     });
     res
         .status(200)
-        .json(yield comment.populate("author", "firstName lastName avatar"));
+        .json(yield comment.populate("author", "firstName lastName images"));
 }));
 //@route /api/comments/:id
 //@method PUT

@@ -46,36 +46,43 @@ exports.getGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(
 // @Method: Put
 // @Access: Private (Group admin/moderator)
 exports.updateGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d, _e;
+    var _d, _e, _f, _g, _h, _j, _k, _l;
     const groupId = req.params.id;
     const group = yield Group_1.default.findById(groupId);
-    if (group.admin.toString() === ((_d = req === null || req === void 0 ? void 0 : req.user) === null || _d === void 0 ? void 0 : _d._id.toString())) {
-        const groupKeys = Object.keys(req.body);
-        for (let i = 0; i < groupKeys.length; i++) {
-            if (groupKeys[i] !== "avatar") {
-                group[groupKeys[i]] = req.body[groupKeys[i]];
-            }
-            else {
-                group.images = {
-                    avatar: (_e = req.file) === null || _e === void 0 ? void 0 : _e.location,
-                };
-            }
+    console.log((_d = req.file) === null || _d === void 0 ? void 0 : _d.location);
+    // const groupKeys = Object.keys(req.body);
+    // for (let i = 0; i < groupKeys.length; i++) {
+    //   console.log(groupKeys[i])
+    //   if (groupKeys[i] !== "avatar") {
+    //     group[groupKeys[i]] = req.body[groupKeys[i]];
+    //   } else {
+    //     console.log('in the else block')
+    //     console.log('group is ', group)
+    //     group.images =  {
+    //       avatar: req.file?.location,
+    //       cover: group.images.cover
+    //     }
+    //   }
+    // }
+    const updatedGroup = yield Group_1.default.findByIdAndUpdate(req.params.id, Object.assign(Object.assign({}, req.body), (((_e = req.file) === null || _e === void 0 ? void 0 : _e.location) && {
+        images: req.query.imageType == "cover" ? {
+            avatar: (_f = group.images) === null || _f === void 0 ? void 0 : _f.avatar,
+            cover: ((_g = req.file) === null || _g === void 0 ? void 0 : _g.location) || ((_h = group.images) === null || _h === void 0 ? void 0 : _h.cover)
+        } : {
+            avatar: ((_j = req.file) === null || _j === void 0 ? void 0 : _j.location) || ((_k = group.images) === null || _k === void 0 ? void 0 : _k.avatar),
+            cover: (_l = group.images) === null || _l === void 0 ? void 0 : _l.cover
         }
-        const updatedGroup = yield group.save();
-        res.status(200).json(updatedGroup);
-    }
-    else {
-        res.status(403).json("Unauthorised");
-    }
+    })), { new: true });
+    res.status(200).json(updatedGroup);
 }));
 // @Route /api/groups/:id
 // @Method: Delete
 // @Access: Private (Group admin/moderator)
 exports.deleteGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
+    var _m;
     const groupId = req.params.id;
     const group = yield Group_1.default.findById(groupId);
-    if (group.admin.toString() === ((_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f._id.toString())) {
+    if (group.admin.toString() === ((_m = req === null || req === void 0 ? void 0 : req.user) === null || _m === void 0 ? void 0 : _m._id.toString())) {
         group.deleted = true;
         const updated = yield group.save();
         res.status(200).json(updated);
@@ -94,8 +101,8 @@ exports.getGroups = (0, express_async_handler_1.default)((req, res) => __awaiter
     res.status(200).json(groups);
 }));
 exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g;
-    const userId = (_g = req.user) === null || _g === void 0 ? void 0 : _g._id;
+    var _o;
+    const userId = (_o = req.user) === null || _o === void 0 ? void 0 : _o._id;
     //console.log('User is a member of', req.user?._id);
     try {
         const groups = yield Group_1.default.find({
@@ -117,10 +124,10 @@ exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awa
     }
 }));
 exports.joinGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h;
+    var _p;
     try {
         yield Group_1.default.findByIdAndUpdate(req.params.id, {
-            $addToSet: { groupMembers: (_h = req.user) === null || _h === void 0 ? void 0 : _h._id },
+            $addToSet: { groupMembers: (_p = req.user) === null || _p === void 0 ? void 0 : _p._id },
         });
         res.json({
             message: "User joined group",

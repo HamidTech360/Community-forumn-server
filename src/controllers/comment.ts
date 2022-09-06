@@ -51,7 +51,7 @@ export const comment = expressAsyncHandler(
     });
     res
       .status(200)
-      .json(await comment.populate("author", "firstName lastName avatar"));
+      .json(await comment.populate("author", "firstName lastName images"));
   }
 );
 
