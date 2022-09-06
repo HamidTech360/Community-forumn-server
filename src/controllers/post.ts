@@ -10,6 +10,7 @@ import { File } from "../types";
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const { postTitle, postBody, groupId, category } = req.body;
+    console.log(req.body, req.files)
 
     const post = await Post.create({
       postTitle,
