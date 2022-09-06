@@ -116,20 +116,20 @@ exports.usersToFollow = (0, express_async_handler_1.default)((req, res) => __awa
     }
 }));
 exports.unFollowUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _t, _u, _v, _w, _x;
+    var _t, _u, _v, _w, _x, _y;
     try {
         const me = yield User_1.default.findByIdAndUpdate((_t = req.user) === null || _t === void 0 ? void 0 : _t._id, {
             $pull: { following: { $in: [req.params.id] } },
         });
         const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
-            $pull: { followers: { $in: [req.params.id] } },
+            $pull: { followers: { $in: [(_u = req.user) === null || _u === void 0 ? void 0 : _u._id] } },
         });
         const itemAuthor = yield User_1.default.findById(req.params.id);
         const notification = yield notification_1.default.create({
-            content: `${(_u = req.user) === null || _u === void 0 ? void 0 : _u.firstName} ${(_v = req.user) === null || _v === void 0 ? void 0 : _v.lastName} Unfollowed you `,
+            content: `${(_v = req.user) === null || _v === void 0 ? void 0 : _v.firstName} ${(_w = req.user) === null || _w === void 0 ? void 0 : _w.lastName} Unfollowed you `,
             forItem: "follow",
-            itemId: (_w = req.user) === null || _w === void 0 ? void 0 : _w._id,
-            author: (_x = req.user) === null || _x === void 0 ? void 0 : _x._id,
+            itemId: (_x = req.user) === null || _x === void 0 ? void 0 : _x._id,
+            author: (_y = req.user) === null || _y === void 0 ? void 0 : _y._id,
             targetedAudience: [itemAuthor._id],
         });
         res.status(200).json("unfollowed");
@@ -139,11 +139,11 @@ exports.unFollowUser = (0, express_async_handler_1.default)((req, res) => __awai
     }
 }));
 exports.addNotificationPreference = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _y;
+    var _z;
     const { option } = req.body;
     console.log(option, req.params.id);
     try {
-        const response = yield User_1.default.findByIdAndUpdate((_y = req.user) === null || _y === void 0 ? void 0 : _y._id, {
+        const response = yield User_1.default.findByIdAndUpdate((_z = req.user) === null || _z === void 0 ? void 0 : _z._id, {
             $addToSet: { notificationOptions: option },
         });
         res.json({
@@ -155,10 +155,10 @@ exports.addNotificationPreference = (0, express_async_handler_1.default)((req, r
     }
 }));
 exports.removeNotificationPreference = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _z;
+    var _0;
     const { option } = req.body;
     try {
-        const response = yield User_1.default.findByIdAndUpdate((_z = req.user) === null || _z === void 0 ? void 0 : _z._id, {
+        const response = yield User_1.default.findByIdAndUpdate((_0 = req.user) === null || _0 === void 0 ? void 0 : _0._id, {
             $pull: { notificationOptions: option },
         });
         res.json({
@@ -170,13 +170,14 @@ exports.removeNotificationPreference = (0, express_async_handler_1.default)((req
     }
 }));
 exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _0;
+    var _1;
     try {
         const users = yield User_1.default.find({
             followers: {
-                $nin: (_0 = req.user) === null || _0 === void 0 ? void 0 : _0._id,
+                $nin: (_1 = req.user) === null || _1 === void 0 ? void 0 : _1._id,
             },
         });
+        console.log(users.length);
         for (var i = users.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = users[i];
