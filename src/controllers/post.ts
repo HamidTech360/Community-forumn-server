@@ -115,9 +115,11 @@ export const getPost = expressAsyncHandler(
         },
         options: { sort: { createdAt: -1 } },
       })
-      .where({
-        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-      });
+      // .where({
+      //   $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      // });
+
+    // console.log(post, postId)
     if (post) {
       res.status(200).json({ msg: "Posts retrieved", post });
     } else {
