@@ -151,7 +151,7 @@ export const unFollowUser = asyncHandler(
       const them = await User.findByIdAndUpdate(
         req.params.id as unknown as ObjectId,
         {
-          $pull: { followers: { $in: [req.params.id as unknown as ObjectId] } },
+          $pull: { followers: { $in: [req.user?._id as unknown as ObjectId] } },
         }
       );
 
@@ -213,6 +213,7 @@ export const getUnfollowedUsers = asyncHandler(
           $nin: req.user?._id,
         },
       })
+      console.log(users.length)
       for (var i = users.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = users[i];
