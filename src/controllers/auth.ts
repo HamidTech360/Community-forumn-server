@@ -4,7 +4,8 @@ import User, { IUserSchema } from "../models/User";
 import { setTokenCookie } from "../utils/auth-cookie";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import jwt from "jsonwebtoken";
-import { sendMail } from "../lib/mailer";
+import { SendMail } from "../utils/mail";
+import { SignUpMailTemplate } from "../templates/mail";
 import { AnyKeys, AnyObject } from "mongoose";
 import bcrypt from 'bcryptjs'
 import {
@@ -97,17 +98,17 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
       await user.save();
       const accessToken = generateAccessToken({ sub: user._id });
-      sendMail(
-        user.email,
-        `<h1>Email Confirmation</h1>,<p>Hi ${
-          user.firstName
-        }, welcome to Setlinn.  <a href=${
-          process.env.NODE_ENV === "production"
-            ? `https://settlin.vercel.app/activate/${token}`
-            : `http://localhost:3000/activate/${token}`
-        }>Please use this link to activate your account.</a></p>`,
-        "Activate your account"
-      );
+      //send mail
+
+      SendMail({
+        targetEmail:[{
+          email,
+          name:firstName
+        }],
+        subject:'Welcome to Settlin',
+        htmlContent:SignUpMailTemplate(`https://settlin.vercel.app/comfirm/${token}`)
+      })
+
       res.status(201).json({
         message:'New account created',
         accessToken,
@@ -210,6 +211,30 @@ export const updatePasssword = asyncHandler(
 
     }catch(err){
       res.status(500).send(err)
+    }
+  }
+)
+
+export const verifyEmail = asyncHandler(
+  async(req:any, res:Response)=>{
+    const {code} = req.body
+    try{
+      let user = await User.findOne({confirmationCode:code})
+      if(!user) {
+        res.status(401).send('User not found, failed to verify user')
+        return
+      } 
+
+      
+      user.status = 'verified'
+      await user.save()
+      res.json({
+        message:'Email verified sucessfully'
+      })
+
+
+    }catch(error){
+      res.status(500).send('Failed to verify email')
     }
   }
 )

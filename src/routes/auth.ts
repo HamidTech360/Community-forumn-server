@@ -8,4 +8,5 @@ router.post("/register", controller.register);
 router.get("/", loggedIn, controller.getCurrentUser);
 router.put('/password', loggedIn, controller.updatePasssword)
 router.post("/oauth", controller.oauth);
+router.post("/verify", controller.verifyEmail)
 export default router;
