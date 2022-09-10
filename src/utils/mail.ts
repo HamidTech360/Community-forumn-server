@@ -12,7 +12,7 @@ export async function SendMail (props:Props){
     try{
         const payload = {
             sender:{
-                name:'Hammed',
+                name:'Setlinn Team',
                 email:'owolabihammed360@gmail.com'
             },
             to:[

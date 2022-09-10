@@ -9,4 +9,6 @@ router.get("/", loggedIn, controller.getCurrentUser);
 router.put('/password', loggedIn, controller.updatePasssword)
 router.post("/oauth", controller.oauth);
 router.post("/verify", controller.verifyEmail)
+router.post('/forgotPassword', controller.ForgotPassword)
+router.put('/resetPassword', controller.ResetPassword)
 export default router;
