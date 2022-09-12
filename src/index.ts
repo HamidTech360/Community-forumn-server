@@ -8,6 +8,7 @@ import cors from "cors";
 
 //route imports
 import usersRoute from "./routes/user";
+import uploadRoute from "./routes/upload";
 import authRoute from "./routes/auth";
 import groupsRoute from "./routes/group";
 import postsRoute from "./routes/post";
@@ -50,6 +51,7 @@ app.use("/api/likes", LikeRoutes);
 app.use("/api/bookmarks", BookmarkRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/uploads", uploadRoute);
 app.use("/api/notifications", notificationRoutes);
 
 app.get("/", (res: Response) => res.send("Hello"));
