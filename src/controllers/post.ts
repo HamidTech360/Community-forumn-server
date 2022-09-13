@@ -11,6 +11,7 @@ import { NumberList } from "aws-sdk/clients/iot";
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const { postTitle, postBody, groupId, category } = req.body;
+    console.log(req.body, req.files)
 
     const post = await Post.create({
       postTitle,
@@ -114,9 +115,11 @@ export const getPost = expressAsyncHandler(
         },
         options: { sort: { createdAt: -1 } },
       })
-      .where({
-        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-      });
+      // .where({
+      //   $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      // });
+
+    // console.log(post, postId)
     if (post) {
       res.status(200).json({ msg: "Posts retrieved", post });
     } else {
