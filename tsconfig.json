@@ -4,9 +4,17 @@
     "target": "es6",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src",
+
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true
-  }
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+    "./node_modules",
+    "./node_modules/*",
+
+    "./node_modules/@types/node/index.d.ts"
+  ]
 }

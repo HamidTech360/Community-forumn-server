@@ -12,13 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePasssword = exports.oauth = exports.getCurrentUser = exports.register = exports.login = void 0;
+exports.ResetPassword = exports.ForgotPassword = exports.verifyEmail = exports.updatePasssword = exports.oauth = exports.getCurrentUser = exports.register = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const User_1 = __importDefault(require("../models/User"));
 const auth_cookie_1 = require("../utils/auth-cookie");
 const token_1 = require("../utils/token");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const mailer_1 = require("../lib/mailer");
+const mail_1 = require("../utils/mail");
+const mail_2 = require("../templates/mail");
+const tokens_1 = require("../models/tokens");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const dataNormalizer_1 = require("../utils/dataNormalizer");
 //@Route /api/login
@@ -43,12 +45,12 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
                 .status(400)
                 .json({ message: "Password is incorrect", key: "password" });
         }
-        //else if (user.status === "pending") {
-        //   console.log(user.status);
-        //   return res
-        //     .status(401)
-        //     .json({ message: "Please activate your account first" });
-        // }
+        else if (user.status === "pending") {
+            console.log(user.status);
+            return res
+                .status(401)
+                .json({ message: "Please activate your account first" });
+        }
         else {
             const accessToken = (0, token_1.generateAccessToken)({ sub: user._id });
             const refreshToken = (0, token_1.generateRefreshToken)({ sub: user._id });
@@ -91,12 +93,17 @@ exports.register = (0, express_async_handler_1.default)((req, res) => __awaiter(
             });
             yield user.save();
             const accessToken = (0, token_1.generateAccessToken)({ sub: user._id });
-            (0, mailer_1.sendMail)(user.email, `<h1>Email Confirmation</h1>,<p>Hi ${user.firstName}, welcome to Setlinn.  <a href=${process.env.NODE_ENV === "production"
-                ? `https://settlin.vercel.app/activate/${token}`
-                : `http://localhost:3000/activate/${token}`}>Please use this link to activate your account.</a></p>`, "Activate your account");
+            //send mail
+            (0, mail_1.SendMail)({
+                targetEmail: [{
+                        email,
+                        name: firstName
+                    }],
+                subject: 'Welcome to Settlin',
+                htmlContent: (0, mail_2.SignUpMailTemplate)(`${process.env.CLIENT_BASE_URL}/comfirm/${token}`)
+            });
             res.status(201).json({
                 message: 'New account created',
-                accessToken,
                 user
             });
         }
@@ -112,7 +119,6 @@ exports.register = (0, express_async_handler_1.default)((req, res) => __awaiter(
 exports.getCurrentUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    console.log(id);
     try {
         const user = yield User_1.default.findById(id).populate("followers following", "-password");
         res.json(user);
@@ -179,5 +185,77 @@ exports.updatePasssword = (0, express_async_handler_1.default)((req, res) => __a
     }
     catch (err) {
         res.status(500).send(err);
+    }
+}));
+exports.verifyEmail = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { code } = req.body;
+    try {
+        let user = yield User_1.default.findOne({ confirmationCode: code });
+        if (!user) {
+            res.status(401).send('User not found, failed to verify user');
+            return;
+        }
+        user.status = 'verified';
+        yield user.save();
+        res.json({
+            message: 'Email verified sucessfully'
+        });
+    }
+    catch (error) {
+        res.status(500).send('Failed to verify email');
+    }
+}));
+exports.ForgotPassword = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    try {
+        let token;
+        const user = yield User_1.default.findOne({ email });
+        if (!user) {
+            res.status(401).send('User with this email does not exist');
+            return;
+        }
+        const findToken = yield tokens_1.Token.findOne({ userEmail: email });
+        if (!findToken) {
+            token = Math.floor(Math.random() * (999999 - 100000) + 1000000);
+            yield tokens_1.Token.create({
+                token,
+                userEmail: email
+            });
+        }
+        else {
+            token = findToken.token;
+        }
+        (0, mail_1.SendMail)({
+            targetEmail: [{
+                    email
+                }],
+            subject: 'Password Reset',
+            htmlContent: (0, mail_2.forgotPasswordEmailTemplate)(`${process.env.CLIENT_BASE_URL}/reset-password?token=${token}&user=${email}`)
+        });
+        res.json({
+            message: 'Reset link has been sent to your email'
+        });
+    }
+    catch (error) {
+        res.status(500).send('Server error');
+    }
+}));
+exports.ResetPassword = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { password, email, token } = req.body;
+        const verifyToken = yield tokens_1.Token.findOne({ userEmail: email, token });
+        if (!verifyToken) {
+            res.status(403).send('Unauthorized access');
+            return;
+        }
+        const user = yield User_1.default.findOne({ email });
+        const salt = yield bcryptjs_1.default.genSalt(10);
+        const hashedPassword = yield bcryptjs_1.default.hash(password, salt);
+        console.log(`new password is ${hashedPassword}`);
+        yield User_1.default.findByIdAndUpdate(user._id, { password: hashedPassword });
+        res.json({ message: 'password reset successful' });
+    }
+    catch (error) {
+        res.status(500).send('Server error');
     }
 }));

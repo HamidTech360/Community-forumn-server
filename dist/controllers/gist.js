@@ -34,6 +34,7 @@ exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaite
             author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
             media: (_b = req === null || req === void 0 ? void 0 : req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
         });
+        console.log(req.body, req.files);
         const notification = yield notification_1.default.create({
             content: `${(_c = req.user) === null || _c === void 0 ? void 0 : _c.firstName} ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.lastName} started a gist`,
             forItem: "gist",
