@@ -5,13 +5,16 @@ import Notification from "../models/notification";
 import { File } from "../types";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
-  const { post, group } = req.body;
-
+  const { post, group, mentions, editorContent } = req.body;
+  
+  const mentionArray = mentions.split(',')
   try {
     const feed = await Feed.create({
       post,
       author: req.user?._id,
       group,
+      mentions:[...mentionArray],
+      editorContent,
       media: req.files?.map((file: File) => file.location),
     });
 
@@ -23,6 +26,15 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       targetedAudience: [...req.user?.followers],
     });
 
+    if(mentionArray.length > 0){
+      const notification = await Notification.create({
+        content: `You were tagged on a feed`,
+        forItem: "feed",
+        itemId: feed._id,
+        author: req.user?._id,
+        targetedAudience: [...mentionArray],
+      });
+    }
     res.json({
       status: "success",
       message: "Feed created",

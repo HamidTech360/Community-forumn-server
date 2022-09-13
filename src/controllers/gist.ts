@@ -8,18 +8,20 @@ import { File } from "../types";
 export const createGist = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     try {
-      const { title, post, country, categories } = req.body;
+      const { title, post, country, categories, mentions } = req.body;
       // const error = validateGist(req.body)
       // if(error) {
       //     res.status(400).json(error.details[0].message)
       //     return
-      // }
+      // 
+      const mentionArray = mentions.split(',')
       const gist = await Gist.create({
         title,
         post,
         country,
         categories,
         author: req?.user?._id,
+        mentions:[...mentionArray],
         media: (req?.files as [File])?.map((file: File) => file.location),
       });
 
@@ -33,6 +35,15 @@ export const createGist = expressAsyncHandler(
         targetedAudience: [...req.user?.followers],
       });
 
+      if(mentionArray.length > 0){
+        const notification = await Notification.create({
+          content: `You were tagged on a gist`,
+          forItem: "gist",
+          itemId: gist._id,
+          author: req.user?._id,
+          targetedAudience: [...mentionArray],
+        });
+      }
       res.status(201).json({ message: "Gist created", gist });
     } catch (error) {
       console.log(error);
