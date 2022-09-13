@@ -1,9 +1,18 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { loggedIn } from "../middleware/auth";
 import { upload } from "../middleware/upload";
 
 const router = Router();
-
-router.post("/", loggedIn, upload.single("image"));
+export type RequestWithFile = Request & {
+  file?: Express.Multer.File & { location?: string };
+};
+router.post(
+  "/",
+  loggedIn,
+  upload.single("image"),
+  (req: RequestWithFile, res: Response) => {
+    res.json(req.file?.location);
+  }
+);
 
 export default router;
