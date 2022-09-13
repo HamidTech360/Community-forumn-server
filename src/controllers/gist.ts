@@ -23,6 +23,8 @@ export const createGist = expressAsyncHandler(
         media: (req?.files as [File])?.map((file: File) => file.location),
       });
 
+      console.log(req.body, req.files)
+
       const notification = await Notification.create({
         content: `${req.user?.firstName} ${req.user?.lastName} started a gist`,
         forItem: "gist",

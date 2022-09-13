@@ -8,11 +8,11 @@ import Group from "../models/Group";
 import { File } from "../types";
 
 export const createGroup = expressAsyncHandler(
-  async (req: Request & { user?: Record<string, any> }, res) => {
+  async (req: any & { user?: Record<string, any> }, res) => {
     const { name, description, privacy, invite, allowedToPost, groupMembers } =
       req.body;
 
-    console.log(req.body);
+    console.log(req?.file?.location);
 
     const group = await Group.create({
       admin: req?.user?._id,
@@ -23,6 +23,11 @@ export const createGroup = expressAsyncHandler(
       privacy,
       allowedToPost,
       groupMembers: [req.user?._id, ...groupMembers],
+      ...(req.ile?.location && {
+        images:{
+          avatar:req.file?.location
+        }
+      })
     });
 
     res.status(201).json({ group });
@@ -55,20 +60,7 @@ export const updateGroup = expressAsyncHandler(
     const group = await Group.findById(groupId);
    
     console.log(req.file?.location)
-      // const groupKeys = Object.keys(req.body);
-      // for (let i = 0; i < groupKeys.length; i++) {
-      //   console.log(groupKeys[i])
-      //   if (groupKeys[i] !== "avatar") {
-      //     group[groupKeys[i]] = req.body[groupKeys[i]];
-      //   } else {
-      //     console.log('in the else block')
-      //     console.log('group is ', group)
-      //     group.images =  {
-      //       avatar: req.file?.location,
-      //       cover: group.images.cover
-      //     }
-      //   }
-      // }
+   
 
       const updatedGroup = await Group.findByIdAndUpdate(req.params.id, 
         {

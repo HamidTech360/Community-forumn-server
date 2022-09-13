@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
+import expressAsyncHandler from "express-async-handler";
 import User, { IUserSchema } from "../models/User";
 import { setTokenCookie } from "../utils/auth-cookie";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import jwt from "jsonwebtoken";
-import { sendMail } from "../lib/mailer";
+import { SendMail } from "../utils/mail";
+import { SignUpMailTemplate, forgotPasswordEmailTemplate } from "../templates/mail";
 import { AnyKeys, AnyObject } from "mongoose";
+import { Token } from "../models/tokens";
 import bcrypt from 'bcryptjs'
 import {
   normalizeFacebookData,
@@ -36,12 +39,12 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Password is incorrect", key: "password" });
     }
-    //else if (user.status === "pending") {
-    //   console.log(user.status);
-    //   return res
-    //     .status(401)
-    //     .json({ message: "Please activate your account first" });
-    // }
+    else if (user.status === "pending") {
+      console.log(user.status);
+      return res
+        .status(401)
+        .json({ message: "Please activate your account first" });
+    }
     else {
       const accessToken = generateAccessToken({ sub: user._id });
       const refreshToken = generateRefreshToken({ sub: user._id });
@@ -97,20 +100,19 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
       await user.save();
       const accessToken = generateAccessToken({ sub: user._id });
-      sendMail(
-        user.email,
-        `<h1>Email Confirmation</h1>,<p>Hi ${
-          user.firstName
-        }, welcome to Setlinn.  <a href=${
-          process.env.NODE_ENV === "production"
-            ? `https://settlin.vercel.app/activate/${token}`
-            : `http://localhost:3000/activate/${token}`
-        }>Please use this link to activate your account.</a></p>`,
-        "Activate your account"
-      );
+      //send mail
+
+      SendMail({
+        targetEmail:[{
+          email,
+          name:firstName
+        }],
+        subject:'Welcome to Settlin',
+        htmlContent:SignUpMailTemplate(`${process.env.CLIENT_BASE_URL}/comfirm/${token}`)
+      })
+
       res.status(201).json({
         message:'New account created',
-        accessToken,
         user
       });
     } else {
@@ -125,8 +127,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 export const getCurrentUser = asyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const id = req.user?._id;
-    console.log(id);
-
+   
     try {
       const user = await User.findById(id).populate("followers following", "-password");
 
@@ -210,6 +211,94 @@ export const updatePasssword = asyncHandler(
 
     }catch(err){
       res.status(500).send(err)
+    }
+  }
+)
+
+export const verifyEmail = asyncHandler(
+  async(req:any, res:Response)=>{
+    const {code} = req.body
+    try{
+      let user = await User.findOne({confirmationCode:code})
+      if(!user) {
+        res.status(401).send('User not found, failed to verify user')
+        return
+      } 
+
+      
+      user.status = 'verified'
+      await user.save()
+      res.json({
+        message:'Email verified sucessfully'
+      })
+
+
+    }catch(error){
+      res.status(500).send('Failed to verify email')
+    }
+  }
+)
+
+export const ForgotPassword = asyncHandler(
+  async(req:Request, res:Response)=>{
+    const {email} = req.body
+    try{
+      let token 
+      const user = await User.findOne({email})
+      if(!user) {
+        res.status(401).send('User with this email does not exist')
+        return
+      }
+      
+    const findToken = await Token.findOne({userEmail:email})
+    if(!findToken){
+      token = Math.floor(Math.random()* (999999-100000) + 1000000)
+      await Token.create({
+        token,
+        userEmail:email
+       })
+    }else{
+      token = findToken.token
+    }
+     
+     SendMail({
+      targetEmail:[{
+        email
+      }],
+      subject:'Password Reset',
+      htmlContent:forgotPasswordEmailTemplate(`${process.env.CLIENT_BASE_URL}/reset-password?token=${token}&user=${email}`)
+    })
+     res.json({
+      message:'Reset link has been sent to your email'
+     })
+    }catch(error){
+      res.status(500).send('Server error')
+    }
+  }
+)
+
+export const ResetPassword = asyncHandler(
+  async(req:Request ,res:Response)=>{
+    try{
+      const {password, email, token} = req.body
+      const verifyToken = await Token.findOne({userEmail:email, token})
+      if(!verifyToken){
+        res.status(403).send('Unauthorized access')
+        return
+      }
+      const user = await User.findOne({email})
+      const salt = await bcrypt.genSalt(10);
+ 
+      const hashedPassword = await bcrypt.hash(password, salt)
+
+     
+      console.log(`new password is ${hashedPassword }`)
+
+      await User.findByIdAndUpdate(user._id, {password:hashedPassword})
+      res.json({message:'password reset successful'})
+      
+    }catch(error){
+      res.status(500).send('Server error')
     }
   }
 )
