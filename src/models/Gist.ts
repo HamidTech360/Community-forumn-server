@@ -9,6 +9,8 @@ export interface IGistSchema extends mongoose.Document {
   post: string;
   deleted: boolean;
   media: [string];
+  mentions: [Types.ObjectId];
+  editorContent: any;
 }
 
 const gistSchema = new mongoose.Schema<IGistSchema>(
@@ -42,6 +44,13 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
     comments: {
       type: [Schema.Types.ObjectId],
       ref: "Comment",
+    },
+    mentions: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+    },
+    editorContent:{
+      type: Array
     },
     media: { type: [String] },
   },

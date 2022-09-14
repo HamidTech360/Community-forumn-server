@@ -23,6 +23,13 @@ const feedSchema = new mongoose.Schema(
       type: [Schema.Types.ObjectId],
       ref: "User",
     },
+    mentions: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+    },
+    editorContent:{
+      type: Array
+    },
     deleted: {
       type: Boolean,
       default: false,
@@ -30,6 +37,7 @@ const feedSchema = new mongoose.Schema(
     media: {
       type: [String],
     },
+
   },
   { timestamps: true }
 );

@@ -3,6 +3,8 @@ import asyncHandler from "express-async-handler";
 import { ObjectId } from "mongoose";
 import User from "../models/User";
 import Post from "../models/Post";
+import Gist from "../models/Gist";
+import Feed from "../models/Feed";
 import Notification from "../models/notification";
 import expressAsyncHandler from "express-async-handler";
 import users from "../data/users";
@@ -43,6 +45,38 @@ export const getUser = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
+export const getUserMedia = asyncHandler(
+  async(req:any, res:any)=>{
+    try{
+      //@ts-ignore
+      let media = []
+      const gists = await Gist.find({author:req.user?._id})
+      const posts = await Post.find({author:req.user?._id})
+      const feed = await Feed.find({author:req.user?._id})
+
+      const userItems = [...gists, ...posts, ...feed]
+      
+      userItems.map((item)=>{
+        if(item.media.length > 0){
+          //@ts-ignore
+          item.media?.map((el)=>{
+            media.push(el)
+          })
+        }
+      })
+
+      res.json({
+        message:'Media list fetched',
+        //@ts-ignore
+        media
+      })
+      
+    }catch(error){
+      res.status(500).send({message:'Server Error'})
+    }
+  }
+)
 
 export const updateUser = asyncHandler(async (req: any, res) => {
   console.log(req.file?.location);
@@ -274,3 +308,5 @@ export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
     res.status(500).send(error);
   }
 });
+
+

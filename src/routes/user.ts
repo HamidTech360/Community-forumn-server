@@ -13,6 +13,7 @@ router.get("/:id", controller.getUser);
 router.put("/", loggedIn, upload.single("avatar"), controller.updateUser);
 router.get("/topwriters/all", loggedIn, controller.getTopWriters);
 router.get("/connections/all", loggedIn, controller.getUnfollowedUsers);
+router.get("/media/all", loggedIn, controller.getUserMedia)
 router.put(
   "/notifications/add",
   loggedIn,
