@@ -46,6 +46,13 @@ const feedSchema = new mongoose_1.default.Schema({
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "User",
     },
+    mentions: {
+        type: [mongoose_1.Schema.Types.ObjectId],
+        ref: "User",
+    },
+    editorContent: {
+        type: Array
+    },
     deleted: {
         type: Boolean,
         default: false,

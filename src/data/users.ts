@@ -8,7 +8,9 @@ const users = [
     gender: "male",
     status: "active",
     email: "ohenesetwumasi@gmail.com",
-    avatar: `/images/friends/${Math.floor(Math.random() * 12) + 2}.png`,
+    images: {
+      avatar: `/images/friends/${Math.floor(Math.random() * 12) + 2}.png`,
+    },
     following: [],
     followers: [],
   },
@@ -19,7 +21,9 @@ const users = [
     gender: "female",
     status: "active",
     email: "stellaoseyomon1@gmail.com",
-    avatar: `/images/friends/${Math.floor(Math.random() * 12) + 2}.png`,
+    images: {
+      avatar: `/images/friends/${Math.floor(Math.random() * 12) + 2}.png`,
+    },
     following: [],
     followers: [],
   },

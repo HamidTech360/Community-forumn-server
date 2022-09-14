@@ -39,6 +39,7 @@ router.get("/:id", controller.getUser);
 router.put("/", auth_1.loggedIn, upload_1.upload.single("avatar"), controller.updateUser);
 router.get("/topwriters/all", auth_1.loggedIn, controller.getTopWriters);
 router.get("/connections/all", auth_1.loggedIn, controller.getUnfollowedUsers);
+router.get("/media/all", auth_1.loggedIn, controller.getUserMedia);
 router.put("/notifications/add", auth_1.loggedIn, controller.addNotificationPreference);
 router.put("/notifications/remove", auth_1.loggedIn, controller.removeNotificationPreference);
 router
