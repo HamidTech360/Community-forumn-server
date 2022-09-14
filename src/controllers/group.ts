@@ -44,7 +44,7 @@ export const getGroup = expressAsyncHandler(
 
     const group = await Group.findById(groupId).populate(
       "admin groupMembers",
-      "firstName"
+      "firstName lastName images"
     );
     res.status(200).json(group);
   }
@@ -124,7 +124,7 @@ export const getUserGroups = expressAsyncHandler(
         },
       })
         .sort({ createdAt: -1 })
-        .populate("admin", "firstNam lastName avatar");
+        .populate("admin", "firstNam lastName images");
 
       console.log(groups);
 
@@ -153,3 +153,4 @@ export const joinGroup = expressAsyncHandler(
     }
   }
 );
+

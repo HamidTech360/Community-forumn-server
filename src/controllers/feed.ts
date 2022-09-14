@@ -8,12 +8,12 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group, mentions, editorContent } = req.body;
   
   const mentionArray = mentions.split(',')
+  console.log(mentionArray)
   try {
     const feed = await Feed.create({
       post,
       author: req.user?._id,
       group,
-      mentions:[...mentionArray],
       editorContent,
       media: req.files?.map((file: File) => file.location),
     });
@@ -26,7 +26,7 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       targetedAudience: [...req.user?.followers],
     });
 
-    if(mentionArray.length > 0){
+    if(mentions && mentionArray.length > 0){
       const notification = await Notification.create({
         content: `You were tagged on a feed`,
         forItem: "feed",
@@ -179,7 +179,7 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
       .sort({ createdAt: -1 })
       .limit(perPage)
       .skip(page * perPage)
-      .populate("author", "firstName lastName avatar")
+      .populate("author", "firstName lastName images")
       .populate("likes", "firstName lastName")
       .populate({
         path: "comments",
@@ -226,7 +226,7 @@ export const getRandomGroupFeed = expressAsyncHandler(
         .sort({ createdAt: -1 })
         .limit(perPage)
         .skip(page * perPage)
-        .populate("author", "firstName lastName avatar")
+        .populate("author", "firstName lastName images")
         .populate("likes", "firstName lastName")
         .populate("group")
         .populate({
