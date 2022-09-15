@@ -6,8 +6,11 @@ import { File } from "../types";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group, mentions, editorContent } = req.body;
-  
-  const mentionArray = mentions.split(',')
+  console.log(mentions)
+  let mentionArray
+  if(mentions){
+     mentionArray = mentions.split(',')
+  }
   console.log(mentionArray)
   try {
     const feed = await Feed.create({

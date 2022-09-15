@@ -10,7 +10,7 @@ import { NumberList } from "aws-sdk/clients/iot";
 //@Access: LoggedIn
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-    const { postTitle, postBody, groupId, category } = req.body;
+    const { postTitle, postBody, groupId, category, editorContent } = req.body;
     console.log(req.body, req.files)
 
     const post = await Post.create({
@@ -19,6 +19,7 @@ export const createPost = expressAsyncHandler(
       author: req?.user?._id,
       groupId,
       category,
+      editorContent,
       media: (req.files as [File])?.map((file: File) => file.location),
     });
 

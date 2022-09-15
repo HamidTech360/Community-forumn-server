@@ -18,4 +18,5 @@ router
   .delete(loggedIn, controller.deleteGroup);
 
 router.route("/user").get(loggedIn, controller.getUserGroups);
+router.get('/media/:id', controller.groupMedia)
 export default router;

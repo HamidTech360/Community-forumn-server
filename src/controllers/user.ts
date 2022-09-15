@@ -121,7 +121,7 @@ export const followUser = asyncHandler(
     try {
       const me = await User.findByIdAndUpdate(req.user?._id, {
         $addToSet: { following: [req.params.id] },
-      });
+      }, {new:true});
       const them = await User.findByIdAndUpdate(req.params.id, {
         $addToSet: { followers: [req.user?._id] },
       });
@@ -134,7 +134,7 @@ export const followUser = asyncHandler(
         targetedAudience: [itemAuthor._id],
       });
 
-      res.status(200).json("followed");
+      res.status(200).json({message:'followed', user:me});
     } catch (error) {
       res.status(500).send(error);
     }
