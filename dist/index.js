@@ -12,6 +12,7 @@ const db_1 = __importDefault(require("./lib/db"));
 const cors_1 = __importDefault(require("cors"));
 //route imports
 const user_1 = __importDefault(require("./routes/user"));
+const upload_1 = __importDefault(require("./routes/upload"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const group_1 = __importDefault(require("./routes/group"));
 const post_1 = __importDefault(require("./routes/post"));
@@ -48,6 +49,7 @@ app.use("/api/likes", like_1.default);
 app.use("/api/bookmarks", bookmark_1.default);
 app.use("/api/chats", chat_1.default);
 app.use("/api/category", category_1.default);
+app.use("/api/uploads", upload_1.default);
 app.use("/api/notifications", notification_1.default);
 app.get("/", (res) => res.send("Hello"));
 app.listen(process.env.PORT, () => console.log(`Express app running on ${process.env.PORT}`));

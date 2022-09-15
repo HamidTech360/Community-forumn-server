@@ -32,4 +32,7 @@ router.post("/register", controller.register);
 router.get("/", auth_1.loggedIn, controller.getCurrentUser);
 router.put('/password', auth_1.loggedIn, controller.updatePasssword);
 router.post("/oauth", controller.oauth);
+router.post("/verify", controller.verifyEmail);
+router.post('/forgotPassword', controller.ForgotPassword);
+router.put('/resetPassword', controller.ResetPassword);
 exports.default = router;

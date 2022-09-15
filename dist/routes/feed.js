@@ -32,7 +32,7 @@ const controller = __importStar(require("../controllers/feed"));
 const auth_1 = require("../middleware/auth");
 const upload_1 = require("../middleware/upload");
 const router = express_1.default.Router();
-router.get("/", controller.fetchFeeds);
+router.get("/", auth_1.loggedIn, controller.fetchFeeds);
 router.get("/user", auth_1.loggedIn, controller.fetchUserFeed);
 router.route("/groups/").get(controller.getRandomGroupFeed);
 router
