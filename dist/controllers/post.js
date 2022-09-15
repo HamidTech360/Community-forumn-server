@@ -57,7 +57,9 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
         });
     }
     else {
-        count = yield Post_1.default.find().estimatedDocumentCount();
+        count = yield Post_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
     }
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);

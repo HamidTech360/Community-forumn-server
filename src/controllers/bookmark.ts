@@ -48,7 +48,7 @@ export const getBookMarks = expressAsyncHandler(
           path: "bookmarks",
           populate: {
             path: "author comments",
-            select: "firstName lastName avatar",
+            select: "firstName lastName images",
           },
         });
       res.json({
