@@ -5,7 +5,7 @@ import { loggedIn } from "../middleware/auth";
 import { upload } from "../middleware/upload";
 
 const router = express.Router();
-router.get("/", controller.fetchFeeds);
+router.get("/", loggedIn, controller.fetchFeeds);
 router.get("/user", loggedIn, controller.fetchUserFeed);
 router.route("/groups/").get(controller.getRandomGroupFeed);
 router
