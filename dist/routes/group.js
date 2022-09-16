@@ -39,4 +39,5 @@ router
     .patch(auth_1.loggedIn, controller.joinGroup)
     .delete(auth_1.loggedIn, controller.deleteGroup);
 router.route("/user").get(auth_1.loggedIn, controller.getUserGroups);
+router.get('/media/:id', controller.groupMedia);
 exports.default = router;

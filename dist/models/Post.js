@@ -54,6 +54,9 @@ const postSchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.SchemaTypes.ObjectId,
         ref: "Group",
     },
+    editorContent: {
+        type: String
+    },
     category: {
         type: String,
         required: true,

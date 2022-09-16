@@ -20,7 +20,7 @@ const Gist_1 = __importDefault(require("../models/Gist"));
 exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g;
     try {
-        const { title, post, country, categories, mentions } = req.body;
+        const { title, post, country, categories, mentions, editorContent } = req.body;
         // const error = validateGist(req.body)
         // if(error) {
         //     res.status(400).json(error.details[0].message)
@@ -33,7 +33,7 @@ exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaite
             country,
             categories,
             author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
-            mentions: [...mentionArray],
+            editorContent,
             media: (_b = req === null || req === void 0 ? void 0 : req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
         });
         console.log(req.body, req.files);

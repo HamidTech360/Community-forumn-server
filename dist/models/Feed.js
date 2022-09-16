@@ -51,7 +51,7 @@ const feedSchema = new mongoose_1.default.Schema({
         ref: "User",
     },
     editorContent: {
-        type: Array
+        type: String
     },
     deleted: {
         type: Boolean,

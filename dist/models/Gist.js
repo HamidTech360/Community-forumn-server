@@ -60,7 +60,7 @@ const gistSchema = new mongoose_1.default.Schema({
         ref: "User",
     },
     editorContent: {
-        type: Array
+        type: String
     },
     media: { type: [String] },
 }, { timestamps: true });
