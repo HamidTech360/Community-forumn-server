@@ -4,28 +4,28 @@ const mongoose_1 = require("mongoose");
 const notificationSchema = new mongoose_1.Schema({
     content: {
         type: String,
-        required: true
+        required: true,
     },
     author: {
         type: mongoose_1.Schema.Types.ObjectId,
         required: true,
-        ref: "User"
+        ref: "User",
     },
     forItem: {
         type: String,
-        required: true
+        required: true,
     },
     itemId: {
         type: mongoose_1.Schema.Types.ObjectId,
-        required: true
+        required: true,
     },
     targetedAudience: {
         type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "User"
+        ref: "User",
     },
     read: {
-        type: Boolean
-    }
+        type: Boolean,
+    },
 }, { timestamps: true });
-const Notification = mongoose_1.models.notification || (0, mongoose_1.model)('notification', notificationSchema);
+const Notification = mongoose_1.models.notification || (0, mongoose_1.model)("notification", notificationSchema);
 exports.default = Notification;

@@ -7,12 +7,12 @@ import { File } from "../types";
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group, mentions, editorContent } = req.body;
 
-  console.log(mentions)
-  let mentionArray
-  if(mentions){
-     mentionArray = mentions.split(',')
+  console.log(mentions);
+  let mentionArray;
+  if (mentions) {
+    mentionArray = mentions.split(",");
   }
-  console.log(mentionArray)
+  console.log(mentionArray);
 
   try {
     const feed = await Feed.create({
@@ -31,8 +31,7 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       targetedAudience: [...req.user?.followers],
     });
 
-    if(mentions && mentionArray.length > 0){
-
+    if (mentions && mentionArray.length > 0) {
       const notification = await Notification.create({
         content: `You were tagged on a feed`,
         forItem: "feed",
@@ -101,7 +100,11 @@ export const fetchUserFeed = expressAsyncHandler(
 export const fetchFeeds = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     try {
-      const connections = [...req?.user?.following, ...req?.user?.followers];
+      const connections = [
+        ...req?.user?.following,
+        ...req?.user?.followers,
+        req?.user?._id,
+      ];
       const perPage = Number(req.query.perPage) || 25;
       const page = Number(req.query.page) || 0;
       const count = await Feed.countDocuments({

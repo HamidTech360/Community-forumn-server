@@ -22,7 +22,7 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
     console.log(mentions);
     let mentionArray;
     if (mentions) {
-        mentionArray = mentions.split(',');
+        mentionArray = mentions.split(",");
     }
     console.log(mentionArray);
     try {
@@ -106,9 +106,13 @@ exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awa
     }
 }));
 exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _k, _l;
+    var _k, _l, _m;
     try {
-        const connections = [...(_k = req === null || req === void 0 ? void 0 : req.user) === null || _k === void 0 ? void 0 : _k.following, ...(_l = req === null || req === void 0 ? void 0 : req.user) === null || _l === void 0 ? void 0 : _l.followers];
+        const connections = [
+            ...(_k = req === null || req === void 0 ? void 0 : req.user) === null || _k === void 0 ? void 0 : _k.following,
+            ...(_l = req === null || req === void 0 ? void 0 : req.user) === null || _l === void 0 ? void 0 : _l.followers,
+            (_m = req === null || req === void 0 ? void 0 : req.user) === null || _m === void 0 ? void 0 : _m._id,
+        ];
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.countDocuments({
@@ -267,19 +271,19 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
 //@Method Put
 //@Access: LoggedIn
 exports.updateFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _m, _o;
+    var _o, _p;
     const feedId = req.params.id;
     const feed = yield Feed_1.default.findById(feedId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (feed && feed.author.toString() === ((_m = req === null || req === void 0 ? void 0 : req.user) === null || _m === void 0 ? void 0 : _m._id.toString())) {
+    if (feed && feed.author.toString() === ((_o = req === null || req === void 0 ? void 0 : req.user) === null || _o === void 0 ? void 0 : _o._id.toString())) {
         const feedKeys = Object.keys(req.body);
         for (let i = 0; i < feedKeys.length; i++) {
             if (feedKeys[i] !== "media") {
                 feed[feedKeys[i]] = req.body[feedKeys[i]];
             }
             else {
-                feed.media = (_o = req.files) === null || _o === void 0 ? void 0 : _o.map((file) => file.location);
+                feed.media = (_p = req.files) === null || _p === void 0 ? void 0 : _p.map((file) => file.location);
             }
         }
         const updatedFeed = yield feed.save();
