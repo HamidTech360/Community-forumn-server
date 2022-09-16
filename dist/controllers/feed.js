@@ -19,13 +19,17 @@ const notification_1 = __importDefault(require("../models/notification"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g;
     const { post, group, mentions, editorContent } = req.body;
-    const mentionArray = mentions.split(",");
+    console.log(mentions);
+    let mentionArray;
+    if (mentions) {
+        mentionArray = mentions.split(',');
+    }
+    console.log(mentionArray);
     try {
         const feed = yield Feed_1.default.create({
             post,
             author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
             group,
-            mentions: [...mentionArray],
             editorContent,
             media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
         });
@@ -36,7 +40,7 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
             author: (_e = req.user) === null || _e === void 0 ? void 0 : _e._id,
             targetedAudience: [...(_f = req.user) === null || _f === void 0 ? void 0 : _f.followers],
         });
-        if (mentionArray.length > 0) {
+        if (mentions && mentionArray.length > 0) {
             const notification = yield notification_1.default.create({
                 content: `You were tagged on a feed`,
                 forItem: "feed",
@@ -186,7 +190,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
-            .populate("author", "firstName lastName avatar")
+            .populate("author", "firstName lastName images")
             .populate("likes", "firstName lastName")
             .populate({
             path: "comments",
@@ -231,7 +235,7 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
-            .populate("author", "firstName lastName avatar")
+            .populate("author", "firstName lastName images")
             .populate("likes", "firstName lastName")
             .populate("group")
             .populate({

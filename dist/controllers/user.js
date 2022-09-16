@@ -106,7 +106,7 @@ exports.followUser = (0, express_async_handler_1.default)((req, res) => __awaite
     try {
         const me = yield User_1.default.findByIdAndUpdate((_p = req.user) === null || _p === void 0 ? void 0 : _p._id, {
             $addToSet: { following: [req.params.id] },
-        });
+        }, { new: true });
         const them = yield User_1.default.findByIdAndUpdate(req.params.id, {
             $addToSet: { followers: [(_q = req.user) === null || _q === void 0 ? void 0 : _q._id] },
         });
@@ -118,7 +118,7 @@ exports.followUser = (0, express_async_handler_1.default)((req, res) => __awaite
             author: (_u = req.user) === null || _u === void 0 ? void 0 : _u._id,
             targetedAudience: [itemAuthor._id],
         });
-        res.status(200).json("followed");
+        res.status(200).json({ message: 'followed', user: me });
     }
     catch (error) {
         res.status(500).send(error);

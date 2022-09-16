@@ -21,7 +21,7 @@ const notification_1 = __importDefault(require("../models/notification"));
 //@Access: LoggedIn
 exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
-    const { postTitle, postBody, groupId, category } = req.body;
+    const { postTitle, postBody, groupId, category, editorContent } = req.body;
     console.log(req.body, req.files);
     const post = yield Post_1.default.create({
         postTitle,
@@ -29,6 +29,7 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
         author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
         groupId,
         category,
+        editorContent,
         media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
     });
     const notification = yield notification_1.default.create({

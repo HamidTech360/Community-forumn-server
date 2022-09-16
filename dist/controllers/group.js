@@ -15,9 +15,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
+exports.groupMedia = exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Group_1 = __importDefault(require("../models/Group"));
+const Feed_1 = __importDefault(require("../models/Feed"));
 exports.createGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
     const { name, description, privacy, invite, allowedToPost, groupMembers } = req.body;
@@ -38,7 +39,7 @@ exports.createGroup = (0, express_async_handler_1.default)((req, res) => __await
 // @Access: public
 exports.getGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const groupId = req.params.id;
-    const group = yield Group_1.default.findById(groupId).populate("admin groupMembers", "firstName");
+    const group = yield Group_1.default.findById(groupId).populate("admin groupMembers", "firstName lastName images");
     res.status(200).json(group);
 }));
 // @Route /api/groups/:id
@@ -96,7 +97,7 @@ exports.getUserGroups = (0, express_async_handler_1.default)((req, res) => __awa
             },
         })
             .sort({ createdAt: -1 })
-            .populate("admin", "firstNam lastName avatar");
+            .populate("admin", "firstNam lastName images");
         console.log(groups);
         res.json({
             status: "success",
@@ -120,5 +121,38 @@ exports.joinGroup = (0, express_async_handler_1.default)((req, res) => __awaiter
     }
     catch (error) {
         res.status(500).send(error);
+    }
+}));
+exports.groupMedia = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let videos = [];
+        let images = [];
+        const groupId = req.params.id;
+        const posts = yield Feed_1.default.find({
+            // $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+            group: groupId
+        }).select('media');
+        posts.map(item => {
+            if (item.media.length > 0) {
+                item.media.map((el) => {
+                    const splitName = el.split('.');
+                    const extension = splitName[splitName.length - 1];
+                    console.log(extension);
+                    if (extension == 'mp4' || extension == 'webm') {
+                        videos.push(el);
+                    }
+                    else {
+                        images.push(el);
+                    }
+                });
+            }
+        });
+        res.json({
+            message: 'Group media fetched',
+            media: req.query.type == "image" ? images : videos
+        });
+    }
+    catch (error) {
+        res.status(500).send({ message: 'Server Error', error });
     }
 }));
