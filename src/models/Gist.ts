@@ -50,7 +50,7 @@ const gistSchema = new mongoose.Schema<IGistSchema>(
       ref: "User",
     },
     editorContent:{
-      type: Array
+      type: String
     },
     media: { type: [String] },
   },

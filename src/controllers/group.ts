@@ -5,6 +5,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Group from "../models/Group";
+import Feed from "../models/Feed";
 import { File } from "../types";
 
 export const createGroup = expressAsyncHandler(
@@ -44,7 +45,7 @@ export const getGroup = expressAsyncHandler(
 
     const group = await Group.findById(groupId).populate(
       "admin groupMembers",
-      "firstName"
+      "firstName lastName images"
     );
     res.status(200).json(group);
   }
@@ -124,7 +125,7 @@ export const getUserGroups = expressAsyncHandler(
         },
       })
         .sort({ createdAt: -1 })
-        .populate("admin", "firstNam lastName avatar");
+        .populate("admin", "firstNam lastName images");
 
       console.log(groups);
 
@@ -153,3 +154,41 @@ export const joinGroup = expressAsyncHandler(
     }
   }
 );
+
+export const groupMedia = expressAsyncHandler(
+  async(req:Request, res:Response)=>{
+   
+    try{
+      let videos:any[] =[]
+      let images:any[] = []
+      const groupId = req.params.id;
+      const posts = await Feed.find({
+        // $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        group: groupId
+      }).select('media')
+     
+      posts.map(item=>{
+        if(item.media.length > 0){
+          item.media.map((el:string)=>{
+            const splitName = el.split('.')
+            const extension = splitName[splitName.length - 1]
+            console.log(extension)
+            if(extension == 'mp4' || extension == 'webm'){
+              videos.push(el)
+            }else{
+              images.push(el)
+            }
+          })
+        }
+      })
+      res.json({
+        message:'Group media fetched',
+        media:req.query.type=="image"?images:videos
+      })
+    
+
+    }catch(error){
+      res.status(500).send({message:'Server Error', error})
+    }
+  }
+)

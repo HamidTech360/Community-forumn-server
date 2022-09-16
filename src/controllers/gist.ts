@@ -8,7 +8,7 @@ import { File } from "../types";
 export const createGist = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     try {
-      const { title, post, country, categories, mentions } = req.body;
+      const { title, post, country, categories, mentions, editorContent } = req.body;
       // const error = validateGist(req.body)
       // if(error) {
       //     res.status(400).json(error.details[0].message)
@@ -21,7 +21,7 @@ export const createGist = expressAsyncHandler(
         country,
         categories,
         author: req?.user?._id,
-        mentions:[...mentionArray],
+        editorContent,
         media: (req?.files as [File])?.map((file: File) => file.location),
       });
 

@@ -10,6 +10,7 @@ export interface IPost extends mongoose.Document {
   groupId?: string;
   category?: string;
   media: [string];
+  editorContent:string;
 }
 
 const postSchema = new mongoose.Schema<IPost>(
@@ -42,6 +43,9 @@ const postSchema = new mongoose.Schema<IPost>(
     groupId: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "Group",
+    },
+    editorContent:{
+      type: String
     },
     category: {
       type: String,
