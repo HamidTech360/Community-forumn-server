@@ -53,6 +53,11 @@ const groupSchema = new Schema(
       default: [],
       ref: "User",
     },
+    sentInvites: {
+      type: [mongoose.SchemaTypes.ObjectId],
+      default: [],
+      ref: "User",
+    },
     deleted: {
       type: Boolean,
       default: false,

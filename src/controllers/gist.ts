@@ -14,18 +14,24 @@ export const createGist = expressAsyncHandler(
       //     res.status(400).json(error.details[0].message)
       //     return
       // 
-      const mentionArray = mentions.split(',')
+      let mentionArray
+      if(mentions){
+        mentionArray = mentions.split(',')
+      }
+      console.log(mentionArray)
       const gist = await Gist.create({
         title,
         post,
         country,
         categories,
         author: req?.user?._id,
+        ...(mentions?{mentions:mentionArray}:null),
         editorContent,
         media: (req?.files as [File])?.map((file: File) => file.location),
       });
 
       console.log(req.body, req.files)
+      console.log('followers', req.user?.followers)
 
       const notification = await Notification.create({
         content: `${req.user?.firstName} ${req.user?.lastName} started a gist`,
@@ -35,7 +41,7 @@ export const createGist = expressAsyncHandler(
         targetedAudience: [...req.user?.followers],
       });
 
-      if(mentionArray.length > 0){
+      if(mentions && mentionArray.length > 0){
         const notification = await Notification.create({
           content: `You were tagged on a gist`,
           forItem: "gist",

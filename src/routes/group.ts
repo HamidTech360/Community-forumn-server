@@ -17,6 +17,11 @@ router
   .patch(loggedIn, controller.joinGroup)
   .delete(loggedIn, controller.deleteGroup);
 
+router
+  .route("/invite/:id")
+  .get(loggedIn, controller.Invitations)
+router.post("/invite", loggedIn, controller.inviteToGroup)
+
 router.route("/user").get(loggedIn, controller.getUserGroups);
 router.get('/media/:id', controller.groupMedia)
 export default router;
