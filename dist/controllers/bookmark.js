@@ -57,7 +57,7 @@ exports.getBookMarks = (0, express_async_handler_1.default)((req, res) => __awai
             path: "bookmarks",
             populate: {
                 path: "author comments",
-                select: "firstName lastName avatar",
+                select: "firstName lastName images",
             },
         });
         res.json({

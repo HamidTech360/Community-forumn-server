@@ -6,12 +6,14 @@ import { File } from "../types";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
   const { post, group, mentions, editorContent } = req.body;
+
   console.log(mentions)
   let mentionArray
   if(mentions){
      mentionArray = mentions.split(',')
   }
   console.log(mentionArray)
+
   try {
     const feed = await Feed.create({
       post,
@@ -31,6 +33,7 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
     });
 
     if(mentions && mentionArray.length > 0){
+
       const notification = await Notification.create({
         content: `You were tagged on a feed`,
         forItem: "feed",
@@ -96,50 +99,54 @@ export const fetchUserFeed = expressAsyncHandler(
     }
   }
 );
-export const fetchFeeds = expressAsyncHandler(async (req: any, res: any) => {
-  try {
-    const perPage = Number(req.query.perPage) || 25;
-    const page = Number(req.query.page) || 0;
-    const count = await Feed.countDocuments({
-      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    });
-    const numPages = Math.ceil(count / perPage);
-
-    const feed = await Feed.find({
-      $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-    })
-      .sort({ createdAt: -1 })
-      .limit(perPage)
-      .skip(page * perPage)
-      .populate("author", "firstName lastName images")
-      .populate({
-        path: "comments",
-        populate: { path: "author", select: "firstName lastName images" },
-      })
-      .populate("likes", "firstName lastName")
-      .populate({
-        path: "comments",
-        populate: {
-          path: "replies",
-          populate: { path: "author", select: "firstName lastName images" },
-          options: { sort: { createdAt: -1 } },
-        },
-        options: { sort: { createdAt: -1 } },
+export const fetchFeeds = expressAsyncHandler(
+  async (req: Request & { user?: Record<string, any> }, res: Response) => {
+    try {
+      const connections = [...req?.user?.following, ...req?.user?.followers];
+      const perPage = Number(req.query.perPage) || 25;
+      const page = Number(req.query.page) || 0;
+      const count = await Feed.countDocuments({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
       });
-    res.json({
-      status: "success",
-      message: "Feed retrieved",
-      feed,
-      count,
-      numPages,
-    });
-  } catch (error) {
-    res.status(500).send(error);
+      const numPages = Math.ceil(count / perPage);
+
+      const feed = await Feed.find({
+        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+      })
+        .where({ author: { $in: connections } })
+        .sort({ createdAt: -1 })
+        .limit(perPage)
+        .skip(page * perPage)
+        .populate("author", "firstName lastName images")
+        .populate({
+          path: "comments",
+          populate: { path: "author", select: "firstName lastName images" },
+        })
+        .populate("likes", "firstName lastName")
+        .populate({
+          path: "comments",
+          populate: {
+            path: "replies",
+            populate: { path: "author", select: "firstName lastName images" },
+            options: { sort: { createdAt: -1 } },
+          },
+          options: { sort: { createdAt: -1 } },
+        });
+      res.json({
+        status: "success",
+        message: "Feed retrieved",
+        feed,
+        count,
+        numPages,
+      });
+    } catch (error) {
+      res.status(500).send(error);
+    }
   }
-});
+);
 
 export const fetchFeed = expressAsyncHandler(
-  async (req: Request, res: Response) => {
+  async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const id = req.params.id;
     const feed = await Feed.findById(id)
       .populate("author", "firstName lastName images")
@@ -149,6 +156,7 @@ export const fetchFeed = expressAsyncHandler(
         path: "comments",
         populate: { path: "author", select: "firstName lastName images" },
       })
+
       .populate({
         path: "comments",
         populate: {

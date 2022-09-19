@@ -22,6 +22,7 @@ const notification_1 = __importDefault(require("../models/notification"));
 exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
     const { postTitle, postBody, groupId, category } = req.body;
+    console.log(req.body, req.files);
     const post = yield Post_1.default.create({
         postTitle,
         postBody,
@@ -56,7 +57,9 @@ exports.getPosts = (0, express_async_handler_1.default)((req, res) => __awaiter(
         });
     }
     else {
-        count = yield Post_1.default.find().estimatedDocumentCount();
+        count = yield Post_1.default.countDocuments({
+            $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+        });
     }
     const numPages = Math.ceil(count / perPage);
     //console.log(req.query.category);
@@ -112,10 +115,11 @@ exports.getPost = (0, express_async_handler_1.default)((req, res) => __awaiter(v
             options: { sort: { createdAt: -1 } },
         },
         options: { sort: { createdAt: -1 } },
-    })
-        .where({
-        $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
+    // .where({
+    //   $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
+    // });
+    // console.log(post, postId)
     if (post) {
         res.status(200).json({ msg: "Posts retrieved", post });
     }

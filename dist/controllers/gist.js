@@ -18,22 +18,25 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const Gist_1 = __importDefault(require("../models/Gist"));
 //import {validateGist} from '../validators/gist'
 exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     try {
-        const { title, post, country, categories } = req.body;
+        const { title, post, country, categories, mentions } = req.body;
         // const error = validateGist(req.body)
         // if(error) {
         //     res.status(400).json(error.details[0].message)
         //     return
-        // }
+        // 
+        const mentionArray = mentions.split(',');
         const gist = yield Gist_1.default.create({
             title,
             post,
             country,
             categories,
             author: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a._id,
+            mentions: [...mentionArray],
             media: (_b = req === null || req === void 0 ? void 0 : req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
         });
+        console.log(req.body, req.files);
         const notification = yield notification_1.default.create({
             content: `${(_c = req.user) === null || _c === void 0 ? void 0 : _c.firstName} ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.lastName} started a gist`,
             forItem: "gist",
@@ -41,6 +44,15 @@ exports.createGist = (0, express_async_handler_1.default)((req, res) => __awaite
             author: (_e = req.user) === null || _e === void 0 ? void 0 : _e._id,
             targetedAudience: [...(_f = req.user) === null || _f === void 0 ? void 0 : _f.followers],
         });
+        if (mentionArray.length > 0) {
+            const notification = yield notification_1.default.create({
+                content: `You were tagged on a gist`,
+                forItem: "gist",
+                itemId: gist._id,
+                author: (_g = req.user) === null || _g === void 0 ? void 0 : _g._id,
+                targetedAudience: [...mentionArray],
+            });
+        }
         res.status(201).json({ message: "Gist created", gist });
     }
     catch (error) {
@@ -122,7 +134,7 @@ exports.fetchSingleGist = (0, express_async_handler_1.default)((req, res) => __a
     }
 }));
 exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g;
+    var _h;
     const gistID = req.params.id;
     try {
         //find gist with gistID and delete
@@ -131,7 +143,7 @@ exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaite
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
             .catch((error) => console.log(error));
-        if (gist && gist.author.toString() === ((_g = req === null || req === void 0 ? void 0 : req.user) === null || _g === void 0 ? void 0 : _g._id.toString())) {
+        if (gist && gist.author.toString() === ((_h = req === null || req === void 0 ? void 0 : req.user) === null || _h === void 0 ? void 0 : _h._id.toString())) {
             gist.deleted = true;
             yield gist.save();
             res.status(200).json({ msg: "Gist deleted" });
@@ -146,19 +158,19 @@ exports.deleteGist = (0, express_async_handler_1.default)((req, res) => __awaite
     }
 }));
 exports.updateGist = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h, _j;
+    var _j, _k;
     const gistID = req.params.id;
     const gist = yield Gist_1.default.findById(gistID).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (gist && gist.author.toString() === ((_h = req === null || req === void 0 ? void 0 : req.user) === null || _h === void 0 ? void 0 : _h._id.toString())) {
+    if (gist && gist.author.toString() === ((_j = req === null || req === void 0 ? void 0 : req.user) === null || _j === void 0 ? void 0 : _j._id.toString())) {
         const gistKeys = Object.keys(req.body);
         for (let i = 0; i < gistKeys.length; i++) {
             if (gistKeys[i] !== "media") {
                 gist[gistKeys[i]] = req.body[gistKeys[i]];
             }
             else {
-                gist.media = (_j = req.files) === null || _j === void 0 ? void 0 : _j.map((file) => file.location);
+                gist.media = (_k = req.files) === null || _k === void 0 ? void 0 : _k.map((file) => file.location);
             }
         }
         const updatedGist = yield gist.save();

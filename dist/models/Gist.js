@@ -55,6 +55,13 @@ const gistSchema = new mongoose_1.default.Schema({
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "Comment",
     },
+    mentions: {
+        type: [mongoose_1.Schema.Types.ObjectId],
+        ref: "User",
+    },
+    editorContent: {
+        type: Array
+    },
     media: { type: [String] },
 }, { timestamps: true });
 const Gist = mongoose_1.models.Gist || mongoose_1.default.model("Gist", gistSchema);

@@ -17,13 +17,16 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const Feed_1 = __importDefault(require("../models/Feed"));
 const notification_1 = __importDefault(require("../models/notification"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
-    const { post, group } = req.body;
+    var _a, _b, _c, _d, _e, _f, _g;
+    const { post, group, mentions, editorContent } = req.body;
+    const mentionArray = mentions.split(",");
     try {
         const feed = yield Feed_1.default.create({
             post,
             author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
             group,
+            mentions: [...mentionArray],
+            editorContent,
             media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
         });
         const notification = yield notification_1.default.create({
@@ -33,6 +36,15 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
             author: (_e = req.user) === null || _e === void 0 ? void 0 : _e._id,
             targetedAudience: [...(_f = req.user) === null || _f === void 0 ? void 0 : _f.followers],
         });
+        if (mentionArray.length > 0) {
+            const notification = yield notification_1.default.create({
+                content: `You were tagged on a feed`,
+                forItem: "feed",
+                itemId: feed._id,
+                author: (_g = req.user) === null || _g === void 0 ? void 0 : _g._id,
+                targetedAudience: [...mentionArray],
+            });
+        }
         res.json({
             status: "success",
             message: "Feed created",
@@ -44,20 +56,20 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
     }
 }));
 exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g, _h;
+    var _h, _j;
     try {
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.countDocuments({
             $and: [
-                { author: req.query.userId || ((_g = req.user) === null || _g === void 0 ? void 0 : _g._id) },
+                { author: req.query.userId || ((_h = req.user) === null || _h === void 0 ? void 0 : _h._id) },
                 { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
             ],
         });
         const numPages = Math.ceil(count / perPage);
         const feed = yield Feed_1.default.find({
             $and: [
-                { author: req.query.userId || ((_h = req.user) === null || _h === void 0 ? void 0 : _h._id) },
+                { author: req.query.userId || ((_j = req.user) === null || _j === void 0 ? void 0 : _j._id) },
                 { $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }] },
             ],
         })
@@ -90,7 +102,9 @@ exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awa
     }
 }));
 exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _k, _l;
     try {
+        const connections = [...(_k = req === null || req === void 0 ? void 0 : req.user) === null || _k === void 0 ? void 0 : _k.following, ...(_l = req === null || req === void 0 ? void 0 : req.user) === null || _l === void 0 ? void 0 : _l.followers];
         const perPage = Number(req.query.perPage) || 25;
         const page = Number(req.query.page) || 0;
         const count = yield Feed_1.default.countDocuments({
@@ -100,6 +114,7 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
         const feed = yield Feed_1.default.find({
             $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
         })
+            .where({ author: { $in: connections } })
             .sort({ createdAt: -1 })
             .limit(perPage)
             .skip(page * perPage)
@@ -248,19 +263,19 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
 //@Method Put
 //@Access: LoggedIn
 exports.updateFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _j, _k;
+    var _m, _o;
     const feedId = req.params.id;
     const feed = yield Feed_1.default.findById(feedId).where({
         $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
     });
-    if (feed && feed.author.toString() === ((_j = req === null || req === void 0 ? void 0 : req.user) === null || _j === void 0 ? void 0 : _j._id.toString())) {
+    if (feed && feed.author.toString() === ((_m = req === null || req === void 0 ? void 0 : req.user) === null || _m === void 0 ? void 0 : _m._id.toString())) {
         const feedKeys = Object.keys(req.body);
         for (let i = 0; i < feedKeys.length; i++) {
             if (feedKeys[i] !== "media") {
                 feed[feedKeys[i]] = req.body[feedKeys[i]];
             }
             else {
-                feed.media = (_k = req.files) === null || _k === void 0 ? void 0 : _k.map((file) => file.location);
+                feed.media = (_o = req.files) === null || _o === void 0 ? void 0 : _o.map((file) => file.location);
             }
         }
         const updatedFeed = yield feed.save();
