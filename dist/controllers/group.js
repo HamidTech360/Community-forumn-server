@@ -15,9 +15,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupMedia = exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
+exports.inviteToGroup = exports.Invitations = exports.groupMedia = exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Group_1 = __importDefault(require("../models/Group"));
+const User_1 = __importDefault(require("../models/User"));
+const notification_1 = __importDefault(require("../models/notification"));
 const Feed_1 = __importDefault(require("../models/Feed"));
 exports.createGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
@@ -154,5 +156,65 @@ exports.groupMedia = (0, express_async_handler_1.default)((req, res) => __awaite
     }
     catch (error) {
         res.status(500).send({ message: 'Server Error', error });
+    }
+}));
+exports.Invitations = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _t, _u;
+    const id = req.params.id;
+    const invites = [];
+    //console.log('In here')
+    try {
+        const group = yield Group_1.default.findById(id);
+        const users = yield User_1.default.find({
+            $or: [
+                {
+                    followers: {
+                        $in: (_t = req.user) === null || _t === void 0 ? void 0 : _t._id,
+                    }
+                },
+                {
+                    following: {
+                        $in: (_u = req.user) === null || _u === void 0 ? void 0 : _u._id,
+                    }
+                }
+            ]
+        });
+        users.map(item => {
+            var _a;
+            if (!((_a = group.groupMembers) === null || _a === void 0 ? void 0 : _a.includes(item._id))) {
+                invites.push(item);
+            }
+        });
+        //console.log(invites)
+        res.json({
+            message: 'Invitations fetched',
+            user: invites,
+            sentInvites: group.sentInvites
+        });
+    }
+    catch (error) {
+        res.status(500).send({ messge: 'Server Error', error });
+    }
+}));
+exports.inviteToGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _v, _w, _x;
+    const { userId, groupName, groupId } = req.body;
+    try {
+        const notification = yield notification_1.default.create({
+            content: `${(_v = req.user) === null || _v === void 0 ? void 0 : _v.firstName} ${(_w = req.user) === null || _w === void 0 ? void 0 : _w.lastName} Invited you to join the group ${groupName}`,
+            forItem: "invite",
+            itemId: groupId,
+            author: (_x = req.user) === null || _x === void 0 ? void 0 : _x._id,
+            targetedAudience: [userId],
+        });
+        yield Group_1.default.findByIdAndUpdate(groupId, {
+            $addToSet: { sentInvites: userId }
+        });
+        res.json({
+            message: 'Invitation sent'
+        });
+    }
+    catch (error) {
+        res.status(500).send({ messge: 'Server Error', error });
     }
 }));

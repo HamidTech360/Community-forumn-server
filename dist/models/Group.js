@@ -65,6 +65,11 @@ const groupSchema = new mongoose_1.Schema({
         default: [],
         ref: "User",
     },
+    sentInvites: {
+        type: [mongoose_1.default.SchemaTypes.ObjectId],
+        default: [],
+        ref: "User",
+    },
     deleted: {
         type: Boolean,
         default: false,

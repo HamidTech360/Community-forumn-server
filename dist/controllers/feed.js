@@ -26,13 +26,8 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
     }
     console.log(mentionArray);
     try {
-        const feed = yield Feed_1.default.create({
-            post,
-            author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
-            group,
-            editorContent,
-            media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
-        });
+        const feed = yield Feed_1.default.create(Object.assign({ post, author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id, group,
+            editorContent, media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location) }, (mentions ? { mentions: mentionArray } : null)));
         const notification = yield notification_1.default.create({
             content: `${(_c = req.user) === null || _c === void 0 ? void 0 : _c.firstName} ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.lastName} posted an item in the feed`,
             forItem: "feed",

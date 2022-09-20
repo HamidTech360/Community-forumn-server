@@ -207,7 +207,6 @@ exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => 
                 $nin: (_4 = req.user) === null || _4 === void 0 ? void 0 : _4._id,
             },
         });
-        console.log(users.length);
         for (var i = users.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = users[i];

@@ -38,6 +38,10 @@ router
     .put(auth_1.loggedIn, upload_1.upload.single("avatar"), controller.updateGroup)
     .patch(auth_1.loggedIn, controller.joinGroup)
     .delete(auth_1.loggedIn, controller.deleteGroup);
+router
+    .route("/invite/:id")
+    .get(auth_1.loggedIn, controller.Invitations);
+router.post("/invite", auth_1.loggedIn, controller.inviteToGroup);
 router.route("/user").get(auth_1.loggedIn, controller.getUserGroups);
 router.get('/media/:id', controller.groupMedia);
 exports.default = router;
