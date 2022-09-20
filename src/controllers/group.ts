@@ -5,6 +5,8 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Group from "../models/Group";
+import User from "../models/User";
+import Notification from "../models/notification";
 import Feed from "../models/Feed";
 import { File } from "../types";
 
@@ -189,6 +191,72 @@ export const groupMedia = expressAsyncHandler(
 
     }catch(error){
       res.status(500).send({message:'Server Error', error})
+    }
+  }
+)
+
+export const Invitations = expressAsyncHandler(
+  async(req:any, res:Response)=>{
+    const id = req.params.id
+    const invites:any = []
+    //console.log('In here')
+    try{
+      const group = await Group.findById(id)
+      const users = await User.find({
+        $or:[
+          {
+            followers: {
+              $in: req.user?._id,
+            }
+          },
+          {
+            following: {
+              $in: req.user?._id,
+            }
+          }
+        ]
+      })
+
+      users.map(item=>{
+        if(!group.groupMembers?.includes(item._id)){
+          invites.push(item)
+        }
+      })
+      
+      //console.log(invites)
+
+      res.json({
+        message:'Invitations fetched',
+        user:invites,
+        sentInvites:group.sentInvites
+      })
+    }catch(error){
+      res.status(500).send({messge:'Server Error', error})
+    }
+  }
+)
+
+export const inviteToGroup = expressAsyncHandler(
+  async(req:any, res:Response)=>{
+    const {userId, groupName, groupId} = req.body
+    try{
+      const notification = await Notification.create({
+        content: `${req.user?.firstName} ${req.user?.lastName} Invited you to join the group ${groupName}`,
+        forItem: "invite",
+        itemId: groupId,
+        author: req.user?._id,
+        targetedAudience: [userId],
+      });
+
+      await Group.findByIdAndUpdate(groupId, {
+        $addToSet:{sentInvites:userId}
+      })
+
+      res.json({
+        message:'Invitation sent'
+      })
+    }catch(error){
+      res.status(500).send({messge:'Server Error', error})
     }
   }
 )

@@ -21,6 +21,7 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       group,
       editorContent,
       media: req.files?.map((file: File) => file.location),
+      ...(mentions?{mentions:mentionArray}:null)
     });
 
     const notification = await Notification.create({
