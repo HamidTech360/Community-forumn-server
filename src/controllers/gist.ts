@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 import expressAsyncHandler from "express-async-handler";
 import Gist from "../models/Gist";
 import { File } from "../types";
@@ -8,30 +8,31 @@ import { File } from "../types";
 export const createGist = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     try {
-      const { title, post, country, categories, mentions, editorContent } = req.body;
+      const { title, post, country, categories, mentions, editorContent } =
+        req.body;
       // const error = validateGist(req.body)
       // if(error) {
       //     res.status(400).json(error.details[0].message)
       //     return
-      // 
-      let mentionArray
-      if(mentions){
-        mentionArray = mentions.split(',')
+      //
+      let mentionArray;
+      if (mentions) {
+        mentionArray = mentions.split(",");
       }
-      console.log(mentionArray)
+      console.log(mentionArray);
       const gist = await Gist.create({
         title,
         post,
         country,
         categories,
         author: req?.user?._id,
-        ...(mentions?{mentions:mentionArray}:null),
+        ...(mentions ? { mentions: mentionArray } : null),
         editorContent,
         media: (req?.files as [File])?.map((file: File) => file.location),
       });
 
-      console.log(req.body, req.files)
-      console.log('followers', req.user?.followers)
+      console.log(req.body, req.files);
+      console.log("followers", req.user?.followers);
 
       const notification = await Notification.create({
         content: `${req.user?.firstName} ${req.user?.lastName} started a gist`,
@@ -41,7 +42,7 @@ export const createGist = expressAsyncHandler(
         targetedAudience: [...req.user?.followers],
       });
 
-      if(mentions && mentionArray.length > 0){
+      if (mentions && mentionArray.length > 0) {
         const notification = await Notification.create({
           content: `You were tagged on a gist`,
           forItem: "gist",

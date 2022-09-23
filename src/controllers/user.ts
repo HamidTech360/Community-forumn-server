@@ -5,7 +5,7 @@ import User from "../models/User";
 import Post from "../models/Post";
 import Gist from "../models/Gist";
 import Feed from "../models/Feed";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 import expressAsyncHandler from "express-async-handler";
 import users from "../data/users";
 
@@ -46,56 +46,56 @@ export const getUser = asyncHandler(async (req, res) => {
   }
 });
 
-export const getUserMedia = asyncHandler(
-  async(req:any, res:any)=>{
-    try{
-      //@ts-ignore
-      let media = []
-      const gists = await Gist.find({author:req.user?._id})
-      const posts = await Post.find({author:req.user?._id})
-      const feed = await Feed.find({author:req.user?._id})
+export const getUserMedia = asyncHandler(async (req: any, res: any) => {
+  try {
+    //@ts-ignore
+    let media = [];
+    const gists = await Gist.find({ author: req.user?._id });
+    const posts = await Post.find({ author: req.user?._id });
+    const feed = await Feed.find({ author: req.user?._id });
 
-      const userItems = [...gists, ...posts, ...feed]
-      
-      userItems.map((item)=>{
-        if(item.media.length > 0){
-          //@ts-ignore
-          item.media?.map((el)=>{
-            media.push(el)
-          })
-        }
-      })
+    const userItems = [...gists, ...posts, ...feed];
 
-      res.json({
-        message:'Media list fetched',
+    userItems.map((item) => {
+      if (item.media.length > 0) {
         //@ts-ignore
-        media
-      })
-      
-    }catch(error){
-      res.status(500).send({message:'Server Error'})
-    }
+        item.media?.map((el) => {
+          media.push(el);
+        });
+      }
+    });
+
+    res.json({
+      message: "Media list fetched",
+      //@ts-ignore
+      media,
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Server Error" });
   }
-)
+});
 
 export const updateUser = asyncHandler(async (req: any, res) => {
   console.log(req.file?.location);
-  
+
   try {
     const user = await User.findByIdAndUpdate(
       req.user._id,
 
       {
         ...req.body,
-        ...(req.file?.location && {images:req.query.imageType=="cover"?
-         {
-          cover: req.file.location || req.user?.images?.cover,
-          avatar:req.user?.images?.avatar
-        }:{
-          avatar: req.file.location || req.user?.images?.avatar,
-          cover:req.user?.images?.cover
-        }
-      })
+        ...(req.file?.location && {
+          images:
+            req.query.imageType == "cover"
+              ? {
+                  cover: req.file.location || req.user?.images?.cover,
+                  avatar: req.user?.images?.avatar,
+                }
+              : {
+                  avatar: req.file.location || req.user?.images?.avatar,
+                  cover: req.user?.images?.cover,
+                },
+        }),
       },
 
       { new: true }
@@ -119,9 +119,13 @@ export const followUser = asyncHandler(
     res: Response
   ) => {
     try {
-      const me = await User.findByIdAndUpdate(req.user?._id, {
-        $addToSet: { following: [req.params.id] },
-      }, {new:true});
+      const me = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+          $addToSet: { following: [req.params.id] },
+        },
+        { new: true }
+      );
       const them = await User.findByIdAndUpdate(req.params.id, {
         $addToSet: { followers: [req.user?._id] },
       });
@@ -134,7 +138,7 @@ export const followUser = asyncHandler(
         targetedAudience: [itemAuthor._id],
       });
 
-      res.status(200).json({message:'followed', user:me});
+      res.status(200).json({ message: "followed", user: me });
     } catch (error) {
       res.status(500).send(error);
     }
@@ -246,15 +250,15 @@ export const getUnfollowedUsers = asyncHandler(
         followers: {
           $nin: req.user?._id,
         },
-      })
-     
+      });
+
       for (var i = users.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = users[i];
         users[i] = users[j];
         users[j] = temp;
       }
-      const limitedUsers = users.splice(0, 20)
+      const limitedUsers = users.splice(0, 20);
       res.json({
         message: ` ${limitedUsers.length} suggested connections fetched`,
         connections: limitedUsers,
@@ -269,13 +273,14 @@ export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
   let frequency = {};
   let topWriters = [];
   try {
-    let posts = await Post.find()
-    .populate(
+    let posts = await Post.find().populate(
       "author",
       "firstName lastName images followers following"
     );
 
-    posts = posts.filter(item=>!item.author?.followers?.includes(req.user?._id))
+    posts = posts.filter(
+      (item) => !item.author?.followers?.includes(req.user?._id)
+    );
 
     for (var i in posts) {
       //@ts-ignore
@@ -308,5 +313,3 @@ export const getTopWriters = asyncHandler(async (req: any, res: Response) => {
     res.status(500).send(error);
   }
 });
-
-

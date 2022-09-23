@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Group from "../models/Group";
 import User from "../models/User";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 import Feed from "../models/Feed";
 import { File } from "../types";
 
@@ -27,10 +27,10 @@ export const createGroup = expressAsyncHandler(
       allowedToPost,
       groupMembers: [req.user?._id, ...groupMembers],
       ...(req.ile?.location && {
-        images:{
-          avatar:req.file?.location
-        }
-      })
+        images: {
+          avatar: req.file?.location,
+        },
+      }),
     });
 
     res.status(201).json({ group });
@@ -61,27 +61,29 @@ export const updateGroup = expressAsyncHandler(
     const groupId = req.params.id;
 
     const group = await Group.findById(groupId);
-   
-    console.log(req.file?.location)
-   
 
-      const updatedGroup = await Group.findByIdAndUpdate(req.params.id, 
-        {
-          ...req.body,
-          ...(req.file?.location && {
-            images:req.query.imageType=="cover"?{
-              avatar: group.images?.avatar,
-              cover:req.file?.location || group.images?.cover
-            }:{
-              avatar:req.file?.location || group.images?.avatar,
-              cover:group.images?.cover
-            }
-          })
-        },
-        { new: true }
-      )
-      res.status(200).json(updatedGroup);
-   
+    console.log(req.file?.location);
+
+    const updatedGroup = await Group.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...req.body,
+        ...(req.file?.location && {
+          images:
+            req.query.imageType == "cover"
+              ? {
+                  avatar: group.images?.avatar,
+                  cover: req.file?.location || group.images?.cover,
+                }
+              : {
+                  avatar: req.file?.location || group.images?.avatar,
+                  cover: group.images?.cover,
+                },
+        }),
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedGroup);
   }
 );
 
@@ -158,88 +160,85 @@ export const joinGroup = expressAsyncHandler(
 );
 
 export const groupMedia = expressAsyncHandler(
-  async(req:Request, res:Response)=>{
-   
-    try{
-      let videos:any[] =[]
-      let images:any[] = []
+  async (req: Request, res: Response) => {
+    try {
+      let videos: any[] = [];
+      let images: any[] = [];
       const groupId = req.params.id;
       const posts = await Feed.find({
         // $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-        group: groupId
-      }).select('media')
-     
-      posts.map(item=>{
-        if(item.media.length > 0){
-          item.media.map((el:string)=>{
-            const splitName = el.split('.')
-            const extension = splitName[splitName.length - 1]
-            console.log(extension)
-            if(extension == 'mp4' || extension == 'webm'){
-              videos.push(el)
-            }else{
-              images.push(el)
-            }
-          })
-        }
-      })
-      res.json({
-        message:'Group media fetched',
-        media:req.query.type=="image"?images:videos
-      })
-    
+        group: groupId,
+      }).select("media");
 
-    }catch(error){
-      res.status(500).send({message:'Server Error', error})
+      posts.map((item) => {
+        if (item.media.length > 0) {
+          item.media.map((el: string) => {
+            const splitName = el.split(".");
+            const extension = splitName[splitName.length - 1];
+            console.log(extension);
+            if (extension == "mp4" || extension == "webm") {
+              videos.push(el);
+            } else {
+              images.push(el);
+            }
+          });
+        }
+      });
+      res.json({
+        message: "Group media fetched",
+        media: req.query.type == "image" ? images : videos,
+      });
+    } catch (error) {
+      res.status(500).send({ message: "Server Error", error });
     }
   }
-)
+);
 
 export const Invitations = expressAsyncHandler(
-  async(req:any, res:Response)=>{
-    const id = req.params.id
-    const invites:any = []
+  async (req: any, res: Response) => {
+    const id = req.params.id;
+    const invites: any = [];
     //console.log('In here')
-    try{
-      const group = await Group.findById(id)
+    try {
+      const group = await Group.findById(id);
       const users = await User.find({
-        $or:[
+        $or: [
           {
             followers: {
               $in: req.user?._id,
-            }
+            },
           },
           {
             following: {
               $in: req.user?._id,
-            }
-          }
-        ]
-      })
+            },
+          },
+        ],
+      });
 
-      users.map(item=>{
-        if(!group.groupMembers?.includes(item._id)){
-          invites.push(item)
+      users.map((item) => {
+        if (!group.groupMembers?.includes(item._id)) {
+          invites.push(item);
         }
-      })
-      
+      });
+
       //console.log(invites)
 
       res.json({
-        message:'Invitations fetched',
-        user:invites,
-        sentInvites:group.sentInvites
-      })
-    }catch(error){
-      res.status(500).send({messge:'Server Error', error})
+        message: "Invitations fetched",
+        user: invites,
+        sentInvites: group.sentInvites,
+      });
+    } catch (error) {
+      res.status(500).send({ messge: "Server Error", error });
     }
   }
-)
+);
 
 export const inviteToGroup = expressAsyncHandler(
-  async(req:any, res:Response)=>{
-    const {userId, groupName, groupId} = req.body
-    try{
+  async (req: any, res: Response) => {
+    const { userId, groupName, groupId } = req.body;
+    try {
       const notification = await Notification.create({
         content: `${req.user?.firstName} ${req.user?.lastName} Invited you to join the group ${groupName}`,
         forItem: "invite",
@@ -249,14 +248,14 @@ export const inviteToGroup = expressAsyncHandler(
       });
 
       await Group.findByIdAndUpdate(groupId, {
-        $addToSet:{sentInvites:userId}
-      })
+        $addToSet: { sentInvites: userId },
+      });
 
       res.json({
-        message:'Invitation sent'
-      })
-    }catch(error){
-      res.status(500).send({messge:'Server Error', error})
+        message: "Invitation sent",
+      });
+    } catch (error) {
+      res.status(500).send({ messge: "Server Error", error });
     }
   }
-)
+);

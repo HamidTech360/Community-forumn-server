@@ -6,10 +6,13 @@ import { setTokenCookie } from "../utils/auth-cookie";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import jwt from "jsonwebtoken";
 import { SendMail } from "../utils/mail";
-import { SignUpMailTemplate, forgotPasswordEmailTemplate } from "../templates/mail";
+import {
+  SignUpMailTemplate,
+  forgotPasswordEmailTemplate,
+} from "../templates/mail";
 import { AnyKeys, AnyObject } from "mongoose";
-import { Token } from "../models/tokens";
-import bcrypt from 'bcryptjs'
+import { Token } from "../models/Tokens";
+import bcrypt from "bcryptjs";
 import {
   normalizeFacebookData,
   normalizeGoogleData,
@@ -38,14 +41,12 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ message: "Password is incorrect", key: "password" });
-    }
-    else if (user.status === "pending") {
+    } else if (user.status === "pending") {
       console.log(user.status);
       return res
         .status(401)
         .json({ message: "Please activate your account first" });
-    }
-    else {
+    } else {
       const accessToken = generateAccessToken({ sub: user._id });
       const refreshToken = generateRefreshToken({ sub: user._id });
 
@@ -95,7 +96,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         interests,
         gender,
         confirmationCode: token,
-        username:firstName
+        username: firstName,
       });
 
       await user.save();
@@ -103,17 +104,21 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
       //send mail
 
       SendMail({
-        targetEmail:[{
-          email,
-          name:firstName
-        }],
-        subject:'Welcome to Settlin',
-        htmlContent:SignUpMailTemplate(`${process.env.CLIENT_BASE_URL}/comfirm/${token}`)
-      })
+        targetEmail: [
+          {
+            email,
+            name: firstName,
+          },
+        ],
+        subject: "Welcome to Settlin",
+        htmlContent: SignUpMailTemplate(
+          `${process.env.CLIENT_BASE_URL}/comfirm/${token}`
+        ),
+      });
 
       res.status(201).json({
-        message:'New account created',
-        user
+        message: "New account created",
+        user,
       });
     } else {
       res.status(403).json({ error: "User already exists" });
@@ -127,9 +132,12 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 export const getCurrentUser = asyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
     const id = req.user?._id;
-   
+
     try {
-      const user = await User.findById(id).populate("followers following", "-password");
+      const user = await User.findById(id).populate(
+        "followers following",
+        "-password"
+      );
 
       res.json(user);
     } catch (error) {
@@ -191,114 +199,107 @@ export const oauth = asyncHandler(async (req: Request, res: Response) => {
   return res.status(200).json({ accessToken, refreshToken });
 });
 
-
-export const updatePasssword = asyncHandler(
-  async(req:any, res:Response)=>{
-    const {oldPassword, newPassword} = req.body
-    try{
-      const user = await User.findById(req.user?._id)
-      if(!(await user.matchPassword(oldPassword))){
-         res.status(401).send('Incorrect password')
-         return
-      }
-     const salt = await bcrypt.genSalt(10);
-     const password = await bcrypt.hash(newPassword, salt);
-
-     await User.findByIdAndUpdate(req.user?._id, {password})
-     res.json({
-      message:'Password updated'
-     })
-
-    }catch(err){
-      res.status(500).send(err)
+export const updatePasssword = asyncHandler(async (req: any, res: Response) => {
+  const { oldPassword, newPassword } = req.body;
+  try {
+    const user = await User.findById(req.user?._id);
+    if (!(await user.matchPassword(oldPassword))) {
+      res.status(401).send("Incorrect password");
+      return;
     }
+    const salt = await bcrypt.genSalt(10);
+    const password = await bcrypt.hash(newPassword, salt);
+
+    await User.findByIdAndUpdate(req.user?._id, { password });
+    res.json({
+      message: "Password updated",
+    });
+  } catch (err) {
+    res.status(500).send(err);
   }
-)
+});
 
-export const verifyEmail = asyncHandler(
-  async(req:any, res:Response)=>{
-    const {code} = req.body
-    try{
-      let user = await User.findOne({confirmationCode:code})
-      if(!user) {
-        res.status(401).send('User not found, failed to verify user')
-        return
-      } 
-
-      
-      user.status = 'verified'
-      await user.save()
-      res.json({
-        message:'Email verified sucessfully'
-      })
-
-
-    }catch(error){
-      res.status(500).send('Failed to verify email')
+export const verifyEmail = asyncHandler(async (req: any, res: Response) => {
+  const { code } = req.body;
+  try {
+    let user = await User.findOne({ confirmationCode: code });
+    if (!user) {
+      res.status(401).send("User not found, failed to verify user");
+      return;
     }
+
+    user.status = "verified";
+    await user.save();
+    res.json({
+      message: "Email verified sucessfully",
+    });
+  } catch (error) {
+    res.status(500).send("Failed to verify email");
   }
-)
+});
 
 export const ForgotPassword = asyncHandler(
-  async(req:Request, res:Response)=>{
-    const {email} = req.body
-    try{
-      let token 
-      const user = await User.findOne({email})
-      if(!user) {
-        res.status(401).send('User with this email does not exist')
-        return
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
+    try {
+      let token;
+      const user = await User.findOne({ email });
+      if (!user) {
+        res.status(401).send("User with this email does not exist");
+        return;
       }
-      
-    const findToken = await Token.findOne({userEmail:email})
-    if(!findToken){
-      token = Math.floor(Math.random()* (999999-100000) + 1000000)
-      await Token.create({
-        token,
-        userEmail:email
-       })
-    }else{
-      token = findToken.token
-    }
-     
-     SendMail({
-      targetEmail:[{
-        email
-      }],
-      subject:'Password Reset',
-      htmlContent:forgotPasswordEmailTemplate(`${process.env.CLIENT_BASE_URL}/reset-password?token=${token}&user=${email}`)
-    })
-     res.json({
-      message:'Reset link has been sent to your email'
-     })
-    }catch(error){
-      res.status(500).send('Server error')
+
+      const findToken = await Token.findOne({ userEmail: email });
+      if (!findToken) {
+        token = Math.floor(Math.random() * (999999 - 100000) + 1000000);
+        await Token.create({
+          token,
+          userEmail: email,
+        });
+      } else {
+        token = findToken.token;
+      }
+
+      SendMail({
+        targetEmail: [
+          {
+            email,
+          },
+        ],
+        subject: "Password Reset",
+        htmlContent: forgotPasswordEmailTemplate(
+          `${process.env.CLIENT_BASE_URL}/reset-password?token=${token}&user=${email}`
+        ),
+      });
+      res.json({
+        message: "Reset link has been sent to your email",
+      });
+    } catch (error) {
+      res.status(500).send("Server error");
     }
   }
-)
+);
 
 export const ResetPassword = asyncHandler(
-  async(req:Request ,res:Response)=>{
-    try{
-      const {password, email, token} = req.body
-      const verifyToken = await Token.findOne({userEmail:email, token})
-      if(!verifyToken){
-        res.status(403).send('Unauthorized access')
-        return
+  async (req: Request, res: Response) => {
+    try {
+      const { password, email, token } = req.body;
+      const verifyToken = await Token.findOne({ userEmail: email, token });
+      if (!verifyToken) {
+        res.status(403).send("Unauthorized access");
+        return;
       }
-      const user = await User.findOne({email})
+      const user = await User.findOne({ email });
       const salt = await bcrypt.genSalt(10);
- 
-      const hashedPassword = await bcrypt.hash(password, salt)
 
-     
-      console.log(`new password is ${hashedPassword }`)
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-      await User.findByIdAndUpdate(user._id, {password:hashedPassword})
-      res.json({message:'password reset successful'})
-      
-    }catch(error){
-      res.status(500).send('Server error')
+      console.log(`new password is ${hashedPassword}`);
+
+      await User.findByIdAndUpdate(user._id, { password: hashedPassword });
+      res.json({ message: "password reset successful" });
+    } catch (error) {
+      res.status(500).send("Server error");
     }
   }
-)
+);

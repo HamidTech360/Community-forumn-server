@@ -2,7 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import Gist from "../models/Gist";
 import Post from "../models/Post";
 import Feed from "../models/Feed";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 import Comment from "../models/Comment";
 
 export const saveLike = expressAsyncHandler(async (req: any, res: any) => {
