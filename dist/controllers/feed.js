@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFeed = exports.updateFeed = exports.getRandomGroupFeed = exports.getGroupFeed = exports.fetchFeed = exports.fetchFeeds = exports.fetchUserFeed = exports.saveFeed = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Feed_1 = __importDefault(require("../models/Feed"));
-const notification_1 = __importDefault(require("../models/notification"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g;
     const { post, group, mentions, editorContent } = req.body;
@@ -26,14 +26,9 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
     }
     console.log(mentionArray);
     try {
-        const feed = yield Feed_1.default.create({
-            post,
-            author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
-            group,
-            editorContent,
-            media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
-        });
-        const notification = yield notification_1.default.create({
+        const feed = yield Feed_1.default.create(Object.assign({ post, author: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id, group,
+            editorContent, media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location) }, (mentions ? { mentions: mentionArray } : null)));
+        const notification = yield Notification_1.default.create({
             content: `${(_c = req.user) === null || _c === void 0 ? void 0 : _c.firstName} ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.lastName} posted an item in the feed`,
             forItem: "feed",
             itemId: feed._id,
@@ -41,7 +36,7 @@ exports.saveFeed = (0, express_async_handler_1.default)((req, res) => __awaiter(
             targetedAudience: [...(_f = req.user) === null || _f === void 0 ? void 0 : _f.followers],
         });
         if (mentions && mentionArray.length > 0) {
-            const notification = yield notification_1.default.create({
+            const notification = yield Notification_1.default.create({
                 content: `You were tagged on a feed`,
                 forItem: "feed",
                 itemId: feed._id,
@@ -85,7 +80,7 @@ exports.fetchUserFeed = (0, express_async_handler_1.default)((req, res) => __awa
             path: "comments",
             populate: { path: "author", select: "firstName lastName images" },
         })
-            .populate("likes", "firstName lastName")
+            .populate("likes", "firstName lastName images")
             .populate({
             path: "comments",
             populate: {
@@ -131,7 +126,7 @@ exports.fetchFeeds = (0, express_async_handler_1.default)((req, res) => __awaite
             path: "comments",
             populate: { path: "author", select: "firstName lastName images" },
         })
-            .populate("likes", "firstName lastName")
+            .populate("likes", "firstName lastName images")
             .populate({
             path: "comments",
             populate: {
@@ -158,7 +153,7 @@ exports.fetchFeed = (0, express_async_handler_1.default)((req, res) => __awaiter
     const feed = yield Feed_1.default.findById(id)
         .populate("author", "firstName lastName images")
         .populate("group")
-        .populate("likes", "firstName lastName")
+        .populate("likes", "firstName lastName images")
         .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName images" },
@@ -195,7 +190,7 @@ exports.getGroupFeed = (0, express_async_handler_1.default)((req, res) => __awai
             .limit(perPage)
             .skip(page * perPage)
             .populate("author", "firstName lastName images")
-            .populate("likes", "firstName lastName")
+            .populate("likes", "firstName lastName images")
             .populate({
             path: "comments",
             populate: { path: "author", select: "firstName lastName avatar" },
@@ -240,7 +235,7 @@ exports.getRandomGroupFeed = (0, express_async_handler_1.default)((req, res) => 
             .limit(perPage)
             .skip(page * perPage)
             .populate("author", "firstName lastName images")
-            .populate("likes", "firstName lastName")
+            .populate("likes", "firstName lastName images")
             .populate("group")
             .populate({
             path: "comments",

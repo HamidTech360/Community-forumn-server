@@ -20,7 +20,7 @@ const Comment_1 = __importDefault(require("../models/Comment"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
 const Feed_1 = __importDefault(require("../models/Feed"));
-const notification_1 = __importDefault(require("../models/notification"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
 exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -54,7 +54,7 @@ exports.comment = (0, express_async_handler_1.default)((req, res) => __awaiter(v
         //console.log(reply);
         itemAuthor = yield Comment_1.default.findById(req.query.id);
     }
-    const notification = yield notification_1.default.create({
+    const notification = yield Notification_1.default.create({
         content: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName} ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName} commented on a ${type} you created`,
         forItem: type,
         itemId: itemAuthor._id,

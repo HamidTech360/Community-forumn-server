@@ -14,14 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateCategory = exports.deleteCategories = exports.getCategories = exports.createCategory = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const categories_1 = __importDefault(require("../models/categories"));
+const Categories_1 = __importDefault(require("../models/Categories"));
 exports.createCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, type } = req.body;
     try {
-        const newCategory = yield categories_1.default.create(Object.assign({}, req.body));
+        const newCategory = yield Categories_1.default.create(Object.assign({}, req.body));
         res.json({
-            message: 'category created',
-            category: newCategory
+            message: "category created",
+            category: newCategory,
         });
     }
     catch (error) {
@@ -30,10 +30,10 @@ exports.createCategory = (0, express_async_handler_1.default)((req, res) => __aw
 }));
 exports.getCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const allCategories = yield categories_1.default.find();
+        const allCategories = yield Categories_1.default.find();
         res.json({
-            mesage: 'All categories fetched',
-            allCategories
+            mesage: "All categories fetched",
+            allCategories,
         });
     }
     catch (error) {
@@ -42,9 +42,9 @@ exports.getCategories = (0, express_async_handler_1.default)((req, res) => __awa
 }));
 exports.deleteCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield categories_1.default.findByIdAndDelete(req.query.id);
+        yield Categories_1.default.findByIdAndDelete(req.query.id);
         res.json({
-            message: 'Category deleted'
+            message: "Category deleted",
         });
     }
     catch (error) {
@@ -53,9 +53,9 @@ exports.deleteCategories = (0, express_async_handler_1.default)((req, res) => __
 }));
 exports.updateCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield categories_1.default.findByIdAndUpdate(req.query.id, Object.assign({}, req.body));
+        yield Categories_1.default.findByIdAndUpdate(req.query.id, Object.assign({}, req.body));
         res.json({
-            message: 'Category updated!!'
+            message: "Category updated!!",
         });
     }
     catch (error) {

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Feed from "../models/Feed";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 import { File } from "../types";
 
 export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
@@ -21,7 +21,7 @@ export const saveFeed = expressAsyncHandler(async (req: any, res: any) => {
       group,
       editorContent,
       media: req.files?.map((file: File) => file.location),
-      ...(mentions?{mentions:mentionArray}:null)
+      ...(mentions ? { mentions: mentionArray } : null),
     });
 
     const notification = await Notification.create({
@@ -78,7 +78,7 @@ export const fetchUserFeed = expressAsyncHandler(
           path: "comments",
           populate: { path: "author", select: "firstName lastName images" },
         })
-        .populate("likes", "firstName lastName")
+        .populate("likes", "firstName lastName images")
         .populate({
           path: "comments",
           populate: {
@@ -125,7 +125,7 @@ export const fetchFeeds = expressAsyncHandler(
           path: "comments",
           populate: { path: "author", select: "firstName lastName images" },
         })
-        .populate("likes", "firstName lastName")
+        .populate("likes", "firstName lastName images")
         .populate({
           path: "comments",
           populate: {
@@ -154,7 +154,7 @@ export const fetchFeed = expressAsyncHandler(
     const feed = await Feed.findById(id)
       .populate("author", "firstName lastName images")
       .populate("group")
-      .populate("likes", "firstName lastName")
+      .populate("likes", "firstName lastName images")
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName images" },
@@ -195,7 +195,7 @@ export const getGroupFeed = expressAsyncHandler(async (req: any, res: any) => {
       .limit(perPage)
       .skip(page * perPage)
       .populate("author", "firstName lastName images")
-      .populate("likes", "firstName lastName")
+      .populate("likes", "firstName lastName images")
       .populate({
         path: "comments",
         populate: { path: "author", select: "firstName lastName avatar" },
@@ -242,7 +242,7 @@ export const getRandomGroupFeed = expressAsyncHandler(
         .limit(perPage)
         .skip(page * perPage)
         .populate("author", "firstName lastName images")
-        .populate("likes", "firstName lastName")
+        .populate("likes", "firstName lastName images")
         .populate("group")
         .populate({
           path: "comments",

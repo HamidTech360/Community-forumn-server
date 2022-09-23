@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Post from "../models/Post";
 import Comment from "../models/Comment";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 import { File } from "../types";
 import { NumberList } from "aws-sdk/clients/iot";
 //@Route /api/posts
@@ -10,10 +10,8 @@ import { NumberList } from "aws-sdk/clients/iot";
 //@Access: LoggedIn
 export const createPost = expressAsyncHandler(
   async (req: Request & { user?: Record<string, any> }, res: Response) => {
-
     const { postTitle, postBody, groupId, category, editorContent } = req.body;
-    console.log(req.body, req.files)
-
+    console.log(req.body, req.files);
 
     const post = await Post.create({
       postTitle,

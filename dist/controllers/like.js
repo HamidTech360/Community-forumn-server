@@ -17,7 +17,7 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Post_1 = __importDefault(require("../models/Post"));
 const Feed_1 = __importDefault(require("../models/Feed"));
-const notification_1 = __importDefault(require("../models/notification"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 const Comment_1 = __importDefault(require("../models/Comment"));
 exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g;
@@ -58,7 +58,7 @@ exports.saveLike = (0, express_async_handler_1.default)((req, res) => __awaiter(
             });
             res.status(200).json("Liked");
         }
-        const notification = yield notification_1.default.create({
+        const notification = yield Notification_1.default.create({
             content: `${(_e = req.user) === null || _e === void 0 ? void 0 : _e.firstName} ${(_f = req.user) === null || _f === void 0 ? void 0 : _f.lastName} liked your post `,
             forItem: "like",
             itemId: req.user._id,
@@ -109,7 +109,7 @@ exports.unlike = (0, express_async_handler_1.default)((req, res) => __awaiter(vo
             });
             res.status(200).json("Liked");
         }
-        const notification = yield notification_1.default.create({
+        const notification = yield Notification_1.default.create({
             content: `${(_m = req.user) === null || _m === void 0 ? void 0 : _m.firstName} ${(_o = req.user) === null || _o === void 0 ? void 0 : _o.lastName} unliked your post `,
             forItem: "like",
             itemId: req.user._id,

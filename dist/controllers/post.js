@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserPosts = exports.deleteLike = exports.likePost = exports.updatePost = exports.deletePost = exports.getPost = exports.getPosts = exports.createPost = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Post_1 = __importDefault(require("../models/Post"));
-const notification_1 = __importDefault(require("../models/notification"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 //@Route /api/posts
 //@Method POST
 //@Access: LoggedIn
@@ -32,7 +32,7 @@ exports.createPost = (0, express_async_handler_1.default)((req, res) => __awaite
         editorContent,
         media: (_b = req.files) === null || _b === void 0 ? void 0 : _b.map((file) => file.location),
     });
-    const notification = yield notification_1.default.create({
+    const notification = yield Notification_1.default.create({
         content: `${(_c = req.user) === null || _c === void 0 ? void 0 : _c.firstName} ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.lastName} created a post`,
         forItem: "post",
         itemId: post._id,

@@ -20,7 +20,7 @@ const token_1 = require("../utils/token");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const mail_1 = require("../utils/mail");
 const mail_2 = require("../templates/mail");
-const tokens_1 = require("../models/tokens");
+const Tokens_1 = require("../models/Tokens");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const dataNormalizer_1 = require("../utils/dataNormalizer");
 //@Route /api/login
@@ -89,22 +89,24 @@ exports.register = (0, express_async_handler_1.default)((req, res) => __awaiter(
                 interests,
                 gender,
                 confirmationCode: token,
-                username: firstName
+                username: firstName,
             });
             yield user.save();
             const accessToken = (0, token_1.generateAccessToken)({ sub: user._id });
             //send mail
             (0, mail_1.SendMail)({
-                targetEmail: [{
+                targetEmail: [
+                    {
                         email,
-                        name: firstName
-                    }],
-                subject: 'Welcome to Settlin',
-                htmlContent: (0, mail_2.SignUpMailTemplate)(`${process.env.CLIENT_BASE_URL}/comfirm/${token}`)
+                        name: firstName,
+                    },
+                ],
+                subject: "Welcome to Settlin",
+                htmlContent: (0, mail_2.SignUpMailTemplate)(`${process.env.CLIENT_BASE_URL}/comfirm/${token}`),
             });
             res.status(201).json({
-                message: 'New account created',
-                user
+                message: "New account created",
+                user,
             });
         }
         else {
@@ -173,14 +175,14 @@ exports.updatePasssword = (0, express_async_handler_1.default)((req, res) => __a
     try {
         const user = yield User_1.default.findById((_b = req.user) === null || _b === void 0 ? void 0 : _b._id);
         if (!(yield user.matchPassword(oldPassword))) {
-            res.status(401).send('Incorrect password');
+            res.status(401).send("Incorrect password");
             return;
         }
         const salt = yield bcryptjs_1.default.genSalt(10);
         const password = yield bcryptjs_1.default.hash(newPassword, salt);
         yield User_1.default.findByIdAndUpdate((_c = req.user) === null || _c === void 0 ? void 0 : _c._id, { password });
         res.json({
-            message: 'Password updated'
+            message: "Password updated",
         });
     }
     catch (err) {
@@ -192,17 +194,17 @@ exports.verifyEmail = (0, express_async_handler_1.default)((req, res) => __await
     try {
         let user = yield User_1.default.findOne({ confirmationCode: code });
         if (!user) {
-            res.status(401).send('User not found, failed to verify user');
+            res.status(401).send("User not found, failed to verify user");
             return;
         }
-        user.status = 'verified';
+        user.status = "verified";
         yield user.save();
         res.json({
-            message: 'Email verified sucessfully'
+            message: "Email verified sucessfully",
         });
     }
     catch (error) {
-        res.status(500).send('Failed to verify email');
+        res.status(500).send("Failed to verify email");
     }
 }));
 exports.ForgotPassword = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -211,41 +213,43 @@ exports.ForgotPassword = (0, express_async_handler_1.default)((req, res) => __aw
         let token;
         const user = yield User_1.default.findOne({ email });
         if (!user) {
-            res.status(401).send('User with this email does not exist');
+            res.status(401).send("User with this email does not exist");
             return;
         }
-        const findToken = yield tokens_1.Token.findOne({ userEmail: email });
+        const findToken = yield Tokens_1.Token.findOne({ userEmail: email });
         if (!findToken) {
             token = Math.floor(Math.random() * (999999 - 100000) + 1000000);
-            yield tokens_1.Token.create({
+            yield Tokens_1.Token.create({
                 token,
-                userEmail: email
+                userEmail: email,
             });
         }
         else {
             token = findToken.token;
         }
         (0, mail_1.SendMail)({
-            targetEmail: [{
-                    email
-                }],
-            subject: 'Password Reset',
-            htmlContent: (0, mail_2.forgotPasswordEmailTemplate)(`${process.env.CLIENT_BASE_URL}/reset-password?token=${token}&user=${email}`)
+            targetEmail: [
+                {
+                    email,
+                },
+            ],
+            subject: "Password Reset",
+            htmlContent: (0, mail_2.forgotPasswordEmailTemplate)(`${process.env.CLIENT_BASE_URL}/reset-password?token=${token}&user=${email}`),
         });
         res.json({
-            message: 'Reset link has been sent to your email'
+            message: "Reset link has been sent to your email",
         });
     }
     catch (error) {
-        res.status(500).send('Server error');
+        res.status(500).send("Server error");
     }
 }));
 exports.ResetPassword = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { password, email, token } = req.body;
-        const verifyToken = yield tokens_1.Token.findOne({ userEmail: email, token });
+        const verifyToken = yield Tokens_1.Token.findOne({ userEmail: email, token });
         if (!verifyToken) {
-            res.status(403).send('Unauthorized access');
+            res.status(403).send("Unauthorized access");
             return;
         }
         const user = yield User_1.default.findOne({ email });
@@ -253,9 +257,9 @@ exports.ResetPassword = (0, express_async_handler_1.default)((req, res) => __awa
         const hashedPassword = yield bcryptjs_1.default.hash(password, salt);
         console.log(`new password is ${hashedPassword}`);
         yield User_1.default.findByIdAndUpdate(user._id, { password: hashedPassword });
-        res.json({ message: 'password reset successful' });
+        res.json({ message: "password reset successful" });
     }
     catch (error) {
-        res.status(500).send('Server error');
+        res.status(500).send("Server error");
     }
 }));

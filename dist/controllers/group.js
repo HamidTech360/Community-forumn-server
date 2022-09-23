@@ -15,9 +15,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupMedia = exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
+exports.inviteToGroup = exports.Invitations = exports.groupMedia = exports.joinGroup = exports.getUserGroups = exports.getGroups = exports.deleteGroup = exports.updateGroup = exports.getGroup = exports.createGroup = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Group_1 = __importDefault(require("../models/Group"));
+const User_1 = __importDefault(require("../models/User"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 const Feed_1 = __importDefault(require("../models/Feed"));
 exports.createGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
@@ -29,8 +31,8 @@ exports.createGroup = (0, express_async_handler_1.default)((req, res) => __await
         privacy,
         allowedToPost, groupMembers: [(_d = req.user) === null || _d === void 0 ? void 0 : _d._id, ...groupMembers] }, (((_e = req.ile) === null || _e === void 0 ? void 0 : _e.location) && {
         images: {
-            avatar: (_f = req.file) === null || _f === void 0 ? void 0 : _f.location
-        }
+            avatar: (_f = req.file) === null || _f === void 0 ? void 0 : _f.location,
+        },
     })));
     res.status(201).json({ group });
 }));
@@ -51,13 +53,15 @@ exports.updateGroup = (0, express_async_handler_1.default)((req, res) => __await
     const group = yield Group_1.default.findById(groupId);
     console.log((_g = req.file) === null || _g === void 0 ? void 0 : _g.location);
     const updatedGroup = yield Group_1.default.findByIdAndUpdate(req.params.id, Object.assign(Object.assign({}, req.body), (((_h = req.file) === null || _h === void 0 ? void 0 : _h.location) && {
-        images: req.query.imageType == "cover" ? {
-            avatar: (_j = group.images) === null || _j === void 0 ? void 0 : _j.avatar,
-            cover: ((_k = req.file) === null || _k === void 0 ? void 0 : _k.location) || ((_l = group.images) === null || _l === void 0 ? void 0 : _l.cover)
-        } : {
-            avatar: ((_m = req.file) === null || _m === void 0 ? void 0 : _m.location) || ((_o = group.images) === null || _o === void 0 ? void 0 : _o.avatar),
-            cover: (_p = group.images) === null || _p === void 0 ? void 0 : _p.cover
-        }
+        images: req.query.imageType == "cover"
+            ? {
+                avatar: (_j = group.images) === null || _j === void 0 ? void 0 : _j.avatar,
+                cover: ((_k = req.file) === null || _k === void 0 ? void 0 : _k.location) || ((_l = group.images) === null || _l === void 0 ? void 0 : _l.cover),
+            }
+            : {
+                avatar: ((_m = req.file) === null || _m === void 0 ? void 0 : _m.location) || ((_o = group.images) === null || _o === void 0 ? void 0 : _o.avatar),
+                cover: (_p = group.images) === null || _p === void 0 ? void 0 : _p.cover,
+            },
     })), { new: true });
     res.status(200).json(updatedGroup);
 }));
@@ -130,15 +134,15 @@ exports.groupMedia = (0, express_async_handler_1.default)((req, res) => __awaite
         const groupId = req.params.id;
         const posts = yield Feed_1.default.find({
             // $or: [{ deleted: { $eq: false } }, { deleted: { $eq: null } }],
-            group: groupId
-        }).select('media');
-        posts.map(item => {
+            group: groupId,
+        }).select("media");
+        posts.map((item) => {
             if (item.media.length > 0) {
                 item.media.map((el) => {
-                    const splitName = el.split('.');
+                    const splitName = el.split(".");
                     const extension = splitName[splitName.length - 1];
                     console.log(extension);
-                    if (extension == 'mp4' || extension == 'webm') {
+                    if (extension == "mp4" || extension == "webm") {
                         videos.push(el);
                     }
                     else {
@@ -148,11 +152,71 @@ exports.groupMedia = (0, express_async_handler_1.default)((req, res) => __awaite
             }
         });
         res.json({
-            message: 'Group media fetched',
-            media: req.query.type == "image" ? images : videos
+            message: "Group media fetched",
+            media: req.query.type == "image" ? images : videos,
         });
     }
     catch (error) {
-        res.status(500).send({ message: 'Server Error', error });
+        res.status(500).send({ message: "Server Error", error });
+    }
+}));
+exports.Invitations = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _t, _u;
+    const id = req.params.id;
+    const invites = [];
+    //console.log('In here')
+    try {
+        const group = yield Group_1.default.findById(id);
+        const users = yield User_1.default.find({
+            $or: [
+                {
+                    followers: {
+                        $in: (_t = req.user) === null || _t === void 0 ? void 0 : _t._id,
+                    },
+                },
+                {
+                    following: {
+                        $in: (_u = req.user) === null || _u === void 0 ? void 0 : _u._id,
+                    },
+                },
+            ],
+        });
+        users.map((item) => {
+            var _a;
+            if (!((_a = group.groupMembers) === null || _a === void 0 ? void 0 : _a.includes(item._id))) {
+                invites.push(item);
+            }
+        });
+        //console.log(invites)
+        res.json({
+            message: "Invitations fetched",
+            user: invites,
+            sentInvites: group.sentInvites,
+        });
+    }
+    catch (error) {
+        res.status(500).send({ messge: "Server Error", error });
+    }
+}));
+exports.inviteToGroup = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _v, _w, _x;
+    const { userId, groupName, groupId } = req.body;
+    try {
+        const notification = yield Notification_1.default.create({
+            content: `${(_v = req.user) === null || _v === void 0 ? void 0 : _v.firstName} ${(_w = req.user) === null || _w === void 0 ? void 0 : _w.lastName} Invited you to join the group ${groupName}`,
+            forItem: "invite",
+            itemId: groupId,
+            author: (_x = req.user) === null || _x === void 0 ? void 0 : _x._id,
+            targetedAudience: [userId],
+        });
+        yield Group_1.default.findByIdAndUpdate(groupId, {
+            $addToSet: { sentInvites: userId },
+        });
+        res.json({
+            message: "Invitation sent",
+        });
+    }
+    catch (error) {
+        res.status(500).send({ messge: "Server Error", error });
     }
 }));

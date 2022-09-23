@@ -7,7 +7,7 @@ import Comment from "../models/Comment";
 import Gist from "../models/Gist";
 import Post from "../models/Post";
 import Feed from "../models/Feed";
-import Notification from "../models/notification";
+import Notification from "../models/Notification";
 //@Route: /api/comments/:type/:id
 //@Access: LoggedIn
 export const comment = expressAsyncHandler(

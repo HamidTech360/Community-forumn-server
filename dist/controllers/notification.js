@@ -14,17 +14,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MarkAsRead = exports.fetchUserNotifications = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const notification_1 = __importDefault(require("../models/notification"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 exports.fetchUserNotifications = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const response = yield notification_1.default.find({ targetedAudience: {
-                "$in": (_a = req.user) === null || _a === void 0 ? void 0 : _a._id
-            } }).sort({ createdAt: -1 });
-        const notifications = response.filter(item => { var _a; return item.author.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id.toString()); });
+        const response = yield Notification_1.default.find({
+            targetedAudience: {
+                $in: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
+            },
+        }).sort({ createdAt: -1 });
+        const notifications = response.filter((item) => { var _a; return item.author.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id.toString()); });
         res.json({
-            message: 'notifications fetched',
-            notifications
+            message: "notifications fetched",
+            notifications,
         });
     }
     catch (error) {
@@ -33,9 +35,11 @@ exports.fetchUserNotifications = (0, express_async_handler_1.default)((req, res)
 }));
 exports.MarkAsRead = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const markAsRead = yield notification_1.default.findByIdAndUpdate(req.query.id, { read: true });
+        const markAsRead = yield Notification_1.default.findByIdAndUpdate(req.query.id, {
+            read: true,
+        });
         res.json({
-            meessage: 'Notification mark as read'
+            meessage: "Notification mark as read",
         });
     }
     catch (error) {

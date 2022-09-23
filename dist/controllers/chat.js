@@ -14,11 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchConversation = exports.saveMessage = exports.fetchMessages = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const chats_1 = __importDefault(require("../models/chats"));
+const Chats_1 = __importDefault(require("../models/Chats"));
 exports.fetchMessages = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const messages = yield chats_1.default.find({
+        const messages = yield Chats_1.default.find({
             $or: [
                 { conversationId: `${(_a = req.user) === null || _a === void 0 ? void 0 : _a._id}-${req.query.mate}` },
                 { conversationId: `${req.query.mate}-${(_b = req.user) === null || _b === void 0 ? void 0 : _b._id}` },
@@ -39,7 +39,7 @@ exports.saveMessage = (0, express_async_handler_1.default)((req, res) => __await
     console.log("in the chat");
     console.log(req.body, req.query);
     try {
-        const newMessage = yield chats_1.default.create({
+        const newMessage = yield Chats_1.default.create({
             sender: (_c = req.user) === null || _c === void 0 ? void 0 : _c._id,
             receiver: req.query.mate,
             conversationId: `${(_d = req.user) === null || _d === void 0 ? void 0 : _d._id}-${req.query.mate}`,
@@ -57,7 +57,7 @@ exports.saveMessage = (0, express_async_handler_1.default)((req, res) => __await
 exports.fetchConversation = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let discussions = [];
     try {
-        const chats = yield chats_1.default.find()
+        const chats = yield Chats_1.default.find()
             .sort({ createdAt: -1 })
             .populate("sender receiver");
         chats.forEach((item) => {

@@ -18,7 +18,7 @@ const User_1 = __importDefault(require("../models/User"));
 const Post_1 = __importDefault(require("../models/Post"));
 const Gist_1 = __importDefault(require("../models/Gist"));
 const Feed_1 = __importDefault(require("../models/Feed"));
-const notification_1 = __importDefault(require("../models/notification"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 //@route: /api/users
 //@method: GET
 //@access: public
@@ -69,27 +69,29 @@ exports.getUserMedia = (0, express_async_handler_1.default)((req, res) => __awai
             }
         });
         res.json({
-            message: 'Media list fetched',
+            message: "Media list fetched",
             //@ts-ignore
-            media
+            media,
         });
     }
     catch (error) {
-        res.status(500).send({ message: 'Server Error' });
+        res.status(500).send({ message: "Server Error" });
     }
 }));
 exports.updateUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
     console.log((_d = req.file) === null || _d === void 0 ? void 0 : _d.location);
     try {
-        const user = yield User_1.default.findByIdAndUpdate(req.user._id, Object.assign(Object.assign({}, req.body), (((_e = req.file) === null || _e === void 0 ? void 0 : _e.location) && { images: req.query.imageType == "cover" ?
-                {
+        const user = yield User_1.default.findByIdAndUpdate(req.user._id, Object.assign(Object.assign({}, req.body), (((_e = req.file) === null || _e === void 0 ? void 0 : _e.location) && {
+            images: req.query.imageType == "cover"
+                ? {
                     cover: req.file.location || ((_g = (_f = req.user) === null || _f === void 0 ? void 0 : _f.images) === null || _g === void 0 ? void 0 : _g.cover),
-                    avatar: (_j = (_h = req.user) === null || _h === void 0 ? void 0 : _h.images) === null || _j === void 0 ? void 0 : _j.avatar
-                } : {
-                avatar: req.file.location || ((_l = (_k = req.user) === null || _k === void 0 ? void 0 : _k.images) === null || _l === void 0 ? void 0 : _l.avatar),
-                cover: (_o = (_m = req.user) === null || _m === void 0 ? void 0 : _m.images) === null || _o === void 0 ? void 0 : _o.cover
-            }
+                    avatar: (_j = (_h = req.user) === null || _h === void 0 ? void 0 : _h.images) === null || _j === void 0 ? void 0 : _j.avatar,
+                }
+                : {
+                    avatar: req.file.location || ((_l = (_k = req.user) === null || _k === void 0 ? void 0 : _k.images) === null || _l === void 0 ? void 0 : _l.avatar),
+                    cover: (_o = (_m = req.user) === null || _m === void 0 ? void 0 : _m.images) === null || _o === void 0 ? void 0 : _o.cover,
+                },
         })), { new: true });
         res.json({
             status: "success",
@@ -111,14 +113,14 @@ exports.followUser = (0, express_async_handler_1.default)((req, res) => __awaite
             $addToSet: { followers: [(_q = req.user) === null || _q === void 0 ? void 0 : _q._id] },
         });
         const itemAuthor = yield User_1.default.findById(req.params.id);
-        const notification = yield notification_1.default.create({
+        const notification = yield Notification_1.default.create({
             content: `${(_r = req.user) === null || _r === void 0 ? void 0 : _r.firstName} ${(_s = req.user) === null || _s === void 0 ? void 0 : _s.lastName} followed you `,
             forItem: "follow",
             itemId: (_t = req.user) === null || _t === void 0 ? void 0 : _t._id,
             author: (_u = req.user) === null || _u === void 0 ? void 0 : _u._id,
             targetedAudience: [itemAuthor._id],
         });
-        res.status(200).json({ message: 'followed', user: me });
+        res.status(200).json({ message: "followed", user: me });
     }
     catch (error) {
         res.status(500).send(error);
@@ -155,7 +157,7 @@ exports.unFollowUser = (0, express_async_handler_1.default)((req, res) => __awai
             $pull: { followers: { $in: [(_x = req.user) === null || _x === void 0 ? void 0 : _x._id] } },
         });
         const itemAuthor = yield User_1.default.findById(req.params.id);
-        const notification = yield notification_1.default.create({
+        const notification = yield Notification_1.default.create({
             content: `${(_y = req.user) === null || _y === void 0 ? void 0 : _y.firstName} ${(_z = req.user) === null || _z === void 0 ? void 0 : _z.lastName} Unfollowed you `,
             forItem: "follow",
             itemId: (_0 = req.user) === null || _0 === void 0 ? void 0 : _0._id,
@@ -207,7 +209,6 @@ exports.getUnfollowedUsers = (0, express_async_handler_1.default)((req, res) => 
                 $nin: (_4 = req.user) === null || _4 === void 0 ? void 0 : _4._id,
             },
         });
-        console.log(users.length);
         for (var i = users.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = users[i];
@@ -228,9 +229,8 @@ exports.getTopWriters = (0, express_async_handler_1.default)((req, res) => __awa
     let frequency = {};
     let topWriters = [];
     try {
-        let posts = yield Post_1.default.find()
-            .populate("author", "firstName lastName images followers following");
-        posts = posts.filter(item => { var _a, _b, _c; return !((_b = (_a = item.author) === null || _a === void 0 ? void 0 : _a.followers) === null || _b === void 0 ? void 0 : _b.includes((_c = req.user) === null || _c === void 0 ? void 0 : _c._id)); });
+        let posts = yield Post_1.default.find().populate("author", "firstName lastName images followers following");
+        posts = posts.filter((item) => { var _a, _b, _c; return !((_b = (_a = item.author) === null || _a === void 0 ? void 0 : _a.followers) === null || _b === void 0 ? void 0 : _b.includes((_c = req.user) === null || _c === void 0 ? void 0 : _c._id)); });
         for (var i in posts) {
             //@ts-ignore
             frequency[posts[i].author._id] =

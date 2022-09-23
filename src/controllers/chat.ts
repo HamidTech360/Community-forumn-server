@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
-import Chat from "../models/chats";
+import Chat from "../models/Chats";
 
 export const fetchMessages = expressAsyncHandler(async (req: any, res: any) => {
   try {
