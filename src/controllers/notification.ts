@@ -5,6 +5,15 @@ import Notification from "../models/Notification";
 export const fetchUserNotifications = expressAsyncHandler(
   async (req: any, res: any) => {
     try {
+      const perPage = Number(req.query.perPage) || 25;
+      const page = Number(req.query.page) || 0;
+      const count = await Notification.countDocuments({
+        targetedAudience: {
+          $in: req.user?._id,
+        },
+      });
+      const numPages = Math.ceil(count / perPage);
+
       const response = await Notification.find({
         targetedAudience: {
           $in: req.user?._id,

@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 COPY tsconfig*.json ./
+COPY .env ./.env
 COPY  ./src ./src
 RUN npm i --quiet && npm run build
 
@@ -25,3 +26,5 @@ RUN npm i --quiet --only=production
 
 ## We just need the build to execute the command
 COPY --from=builder /usr/src/app/dist ./dist
+
+CMD [ "node", "./dist/index.js" ]
