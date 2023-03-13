@@ -39,7 +39,7 @@ const importData = async () => {
     await Gist.insertMany(sampleGists);
     await Post.insertMany(samplePosts);
     await Feed.insertMany(sampleFeed);
-    console.log("Data Imported!");
+    console.log("Data Imported!!");
     process.exit();
   } catch (error) {
     console.error(`${error}`);
